@@ -4,13 +4,15 @@
 		xmlns:vm="clr-namespace:BorderLink.Desktop.UI.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" 
-		d:DesignWidth="500" d:DesignHeight="300"
+        mc:Ignorable="d"
+		d:DesignWidth="500" d:DesignHeight="380"
         x:Class="BorderLink.Desktop.UI.Views.MainWindow"
 		x:DataType="vm:MainWindowViewModel"
         Icon="{Binding WindowIcon}"
         Title="{Binding ProductName}"
-		Height="325" Width="400">
+        Topmost="True"
+        WindowStartupLocation="CenterScreen"
+		Height="420" Width="500">
 
 	<views:MainView />
 </Window>

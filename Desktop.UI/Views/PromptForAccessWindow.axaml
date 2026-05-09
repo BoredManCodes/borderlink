@@ -1,20 +1,20 @@
-﻿<Window xmlns="https://github.com/avaloniaui"
+<Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:BorderLink.Desktop.UI.ViewModels"
 		xmlns:fakes="clr-namespace:BorderLink.Desktop.UI.ViewModels.Fakes"
-        mc:Ignorable="d" d:DesignWidth="450" d:DesignHeight="275"
+        mc:Ignorable="d" d:DesignWidth="480" d:DesignHeight="280"
         x:Class="BorderLink.Desktop.UI.Views.PromptForAccessWindow"
 		x:DataType="vm:IPromptForAccessWindowViewModel"
 		x:Name="PromptForAccessWindowRef"
-        BorderBrush="DimGray"
+        BorderBrush="{DynamicResource BlInk}"
         BorderThickness="1"
-        Title="Remote Control Request" 
-        MinHeight="200"
-        MinWidth="250"
-        Height="275" 
-        Width="450"
+        Title="Remote Control Request"
+        MinHeight="220"
+        MinWidth="320"
+        Height="280"
+        Width="480"
 		Topmost="True"
 		ShowActivated="True"
 	    WindowStartupLocation="CenterScreen"
@@ -24,34 +24,38 @@
 		<fakes:FakePromptForAccessViewModel />
 	</Design.DataContext>
 
-	<Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition />
-      <RowDefinition Height="Auto" />
-    </Grid.RowDefinitions>
+	<Grid RowDefinitions="Auto, *, Auto" Margin="22,18,22,16">
 
-    <StackPanel Grid.Row="0">
-      <TextBlock Classes="SectionHeader"  FontWeight="Bold" FontSize="18" Foreground="DimGray" Margin="10" TextWrapping="Wrap">
-        A remote control session has been requested.
-      </TextBlock>
+		<StackPanel Grid.Row="0" Spacing="4">
+			<TextBlock Classes="Kicker" Text="§ &#160;Permission required" />
+			<TextBlock Classes="SectionHeader"
+					   FontSize="20"
+					   Text="Allow remote control?"
+					   TextWrapping="Wrap" />
+			<Rectangle Classes="BorderLine" Margin="0,10,0,0" />
+		</StackPanel>
 
-      <TextBlock FontSize="16"
-                 Margin="10"
-                 TextWrapping="Wrap"
-                 Text="{Binding RequestMessage}"></TextBlock>
+		<TextBlock Grid.Row="1"
+				   FontSize="14"
+				   Margin="0,14,0,0"
+				   TextWrapping="Wrap"
+				   LineHeight="20"
+				   Foreground="{DynamicResource BlInkSoft}"
+				   Text="{Binding RequestMessage}" />
 
-    </StackPanel>
-
-    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
-      <Button Width="60" Height="40" Content="Yes" Margin="10"
-              Classes="NormalButton"
-              Command="{Binding SetResultYes}"
-              CommandParameter="{Binding #PromptForAccessWindowRef}"></Button>
-      <Button Width="60" Height="40" Content="No" Margin="10"
-              Classes="NormalButton"
-              Command="{Binding SetResultNo}"
-              CommandParameter="{Binding #PromptForAccessWindowRef}"></Button>
-    </StackPanel>
-
-  </Grid>
+		<StackPanel Grid.Row="2"
+					Orientation="Horizontal"
+					HorizontalAlignment="Right"
+					Spacing="10">
+			<Button Width="120"
+					Classes="NormalButton"
+					Content="Deny"
+					Command="{Binding SetResultNo}"
+					CommandParameter="{Binding #PromptForAccessWindowRef}" />
+			<Button Width="120"
+					Content="Allow"
+					Command="{Binding SetResultYes}"
+					CommandParameter="{Binding #PromptForAccessWindowRef}" />
+		</StackPanel>
+	</Grid>
 </Window>

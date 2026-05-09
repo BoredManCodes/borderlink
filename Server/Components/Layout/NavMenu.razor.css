@@ -1,5 +1,15 @@
+.navbar {
+    background: transparent !important;
+    border-bottom: 1px dashed rgba(236, 227, 206, 0.25);
+    padding: 1.4rem 1.25rem 1.1rem !important;
+    position: relative;
+    z-index: 2;
+}
+
 .navbar-toggler {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(236, 227, 206, 0.08);
+    border: 1px solid rgba(236, 227, 206, 0.3);
+    border-radius: 0;
 }
 
 .top-row {
@@ -8,45 +18,111 @@
 }
 
 .navbar-brand {
-    font-size: 1.1rem;
+    text-decoration: none !important;
+    color: #ECE3CE !important;
+    line-height: 1.05;
 }
 
 .oi {
     width: 2rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
     vertical-align: text-top;
+    color: #87794D;
+    transition: color .15s;
 }
 
 .nav-item {
-    font-size: 0.9rem;
-    padding-bottom: 0.5rem;
+    font-size: 0.95rem;
+    padding-bottom: 0.15rem;
+    position: relative;
+    z-index: 2;
 }
 
-    .nav-item:first-of-type {
-        padding-top: 1rem;
-    }
+.nav-item:first-of-type { padding-top: 0.6rem; }
+.nav-item:last-of-type { padding-bottom: 1rem; }
 
-    .nav-item:last-of-type {
-        padding-bottom: 1rem;
-    }
-
-    .nav-item ::deep a {
-        color: #d7d7d7;
-        border-radius: 4px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-    }
-
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.25);
-    color: white;
+.nav-item ::deep a {
+    color: #C9BE9D;
+    border-radius: 0;
+    height: 2.6rem;
+    display: flex;
+    align-items: center;
+    line-height: 2.6rem;
+    text-decoration: none !important;
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 1rem;
+    border-left: 2px solid transparent;
+    padding-left: 0.6rem !important;
+    margin-left: -0.6rem;
+    transition: color .15s, background-color .15s, border-color .15s;
 }
 
 .nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
+    color: #ECE3CE;
+    background-color: rgba(236, 227, 206, 0.05);
+    border-left-color: rgba(229, 169, 158, 0.55);
+}
+
+.nav-item ::deep a.active {
+    color: #ECE3CE;
+    background-color: rgba(236, 227, 206, 0.08);
+    border-left-color: #E5A99E;
+    font-style: italic;
+}
+
+.nav-item ::deep a:hover .oi,
+.nav-item ::deep a.active .oi {
+    color: #E5A99E;
+}
+
+.text-muted {
+    font-family: "JetBrains Mono", ui-monospace, monospace !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #87794D !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 0.4rem !important;
+    border-top: 1px dashed rgba(236, 227, 206, 0.18);
+    margin-top: 0.6rem;
+}
+
+.nav-link-form {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.nav-link-button {
+    background: transparent;
+    border: 0;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 1rem;
+    color: #C9BE9D;
+    height: 2.6rem;
+    line-height: 2.6rem;
+    display: flex;
+    align-items: center;
+    border-left: 2px solid transparent;
+    padding: 0 0 0 0.6rem;
+    margin-left: -0.6rem;
+    transition: color .15s, background-color .15s, border-color .15s;
+}
+
+.nav-link-button:hover,
+.nav-link-button:focus {
+    color: #ECE3CE;
+    background-color: rgba(236, 227, 206, 0.05);
+    border-left-color: rgba(229, 169, 158, 0.55);
+    outline: none;
+}
+
+.nav-link-button:hover .oi,
+.nav-link-button:focus .oi {
+    color: #E5A99E;
 }
 
 @media (min-width: 641px) {
@@ -55,7 +131,6 @@
     }
 
     .collapse {
-        /* Never collapse the sidebar for wide screens */
         display: block !important;
     }
 }

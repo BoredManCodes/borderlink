@@ -63,6 +63,33 @@ export class MessageSender {
         await ViewerApp.ViewerHubConnection.SendDtoToClient(dto, DtoType.CtrlAltDel);
         await ViewerApp.ViewerHubConnection.InvokeCtrlAltDel();
     }
+    /**
+     * Sends a keyboard shortcut to the remote machine. Each key in the array is
+     * pressed down in order, then released in reverse order — matching how
+     * physical chords work (e.g. ["Control", "Shift", "Escape"] for Task Manager).
+     */
+    async SendKeyCombo(keys) {
+        for (const key of keys) {
+            await this.SendKeyDown(key);
+        }
+        for (let i = keys.length - 1; i >= 0; i--) {
+            await this.SendKeyUp(keys[i]);
+        }
+    }
+    /**
+     * Launches a Windows app/command on the remote by opening the Run dialog
+     * (Win+R), typing the command, and pressing Enter. Works in attended mode
+     * with a logged-in desktop session.
+     */
+    async LaunchViaRun(command) {
+        await this.SendKeyCombo(["Meta", "r"]);
+        // Give the Run dialog a moment to open and grab focus.
+        await new Promise((r) => setTimeout(r, 350));
+        await this.SendTextTransfer(command, true);
+        // Tiny pause so the typed text is fully delivered before Enter.
+        await new Promise((r) => setTimeout(r, 80));
+        await this.SendKeyCombo(["Enter"]);
+    }
     async SendOpenFileTransferWindow() {
         var dto = new EmptyDto();
         await ViewerApp.ViewerHubConnection.SendDtoToClient(dto, DtoType.OpenFileTransferWindow);

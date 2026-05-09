@@ -4,8 +4,9 @@
 @inject IDataService DataService
 @inject IDataService DataService
 
-<div class="ps-4 pb-1 pe-0 pt-0 navbar navbar-dark" style="background-color: rgba(0,0,0,0.3)">
+<div class="navbar navbar-dark">
     <a class="navbar-brand text-start" href="">
+        <div class="logo-subtitle">§ Support Portal</div>
         <div class="logo-title">
             @if (!string.IsNullOrWhiteSpace(_organization?.OrganizationName))
             {
@@ -16,7 +17,6 @@
                 <span>BorderLink</span>
             }
         </div>
-        <div class="logo-subtitle">Support Portal</div>
     </a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -76,7 +76,7 @@
         @if (_user?.IsAdministrator == true)
         {
             <li class="nav-item px-3 pt-3 small text-muted">
-                Admin
+                §&nbsp;&nbsp;Admin
             </li>
 
             <li class="nav-item px-3">
@@ -110,38 +110,48 @@
             }
         }
 
+        <li class="nav-item px-3 pt-3 small text-muted">
+            §&nbsp;&nbsp;Account
+        </li>
+
         <AuthorizeView>
             <Authorized>
-                <li class="px-3 mt-3">
-                    <a class="btn btn-link text-light" href="Account/Manage">
-                        Account
-                    </a>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Manage">
+                        <span class="oi oi-person" aria-hidden="true"></span> Account
+                    </NavLink>
                 </li>
-                <li class="px-3">
-                    <form action="Account/Logout" method="post">
+                <li class="nav-item px-3">
+                    <form action="Account/Logout" method="post" class="nav-link-form">
                         <AntiforgeryToken />
                         <input type="hidden" name="ReturnUrl" value="@_currentUrl" />
-                        <button type="submit" class="btn btn-link text-light">
-                            Logout
+                        <button type="submit" class="nav-link nav-link-button">
+                            <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
                         </button>
                     </form>
                 </li>
             </Authorized>
             <NotAuthorized>
-                <li class="px-3 mt-3">
-                    <a class="btn btn-link text-light" href="Account/Login">Log in</a>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Login">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> Log in
+                    </NavLink>
                 </li>
                 @if (_isRegistrationEnabled)
                 {
-                    <li class="px-3">
-                        <a class="btn btn-link text-light" href="Account/Register">Register</a>
+                    <li class="nav-item px-3">
+                        <NavLink class="nav-link" href="Account/Register">
+                            <span class="oi oi-plus" aria-hidden="true"></span> Register
+                        </NavLink>
                     </li>
                 }
             </NotAuthorized>
         </AuthorizeView>
 
-        <li class="px-3 mt-3">
-            <a class="btn btn-link text-light" href="/about">About</a>
+        <li class="nav-item px-3">
+            <NavLink class="nav-link" href="/about">
+                <span class="oi oi-info" aria-hidden="true"></span> About
+            </NavLink>
         </li>
     </ul>
 </div>

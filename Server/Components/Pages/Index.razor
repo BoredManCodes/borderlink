@@ -1,30 +1,165 @@
-﻿@page "/"
+@page "/"
 @inject IDataService DataService
- 
+
 <AuthorizeView>
     <NotAuthorized>
-        <div class="jumbotron">
-            <h3 class="display-4">BorderLink</h3>
-            <p class="lead">
-                An open-source remote support solution.
-            </p>
-            <hr class="my-4">
-            <p class="lead">
-                <a class="btn btn-primary btn-lg me-2" href="Account/Login" role="button">Log In</a>
+        <section class="bl-hero">
+            <hr class="bl-border-line" />
 
+            <div class="bl-hero-eyebrow">
+                <span class="kicker">§ Welcome to BorderLink</span>
+            </div>
+
+            <h1 class="bl-hero-title">
+                <span class="line">Need remote</span>
+                <span class="line tail"><em>support?</em></span>
+            </h1>
+
+            <p class="bl-hero-lead">
+                Head to <a href="downloads">Downloads</a> and grab the client for your
+                operating system &mdash; Windows, macOS, or Linux. Run it once, and your
+                technician will be able to connect.
+            </p>
+
+            <div class="bl-hero-ctas">
+                <a class="btn btn-primary btn-lg" href="downloads">
+                    Go to downloads <span class="bl-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+                <a class="btn btn-secondary btn-lg" href="Account/Login">
+                    Staff log in <span class="bl-arrow" aria-hidden="true">&rarr;</span>
+                </a>
+            </div>
+
+            <dl class="bl-hero-meta">
+                <div>
+                    <dt>Stuck?</dt>
+                    <dd><a href="mailto:support@bordertechsolutions.com.au">Ask Trent</a></dd>
+                </div>
+                <div>
+                    <dt>About</dt>
+                    <dd><a href="/about">About this server</a></dd>
+                </div>
                 @if (_isRegistrationEnabled)
                 {
-                    <a class="btn btn-primary btn-lg" href="Account/Register" role="button">Register</a>
+                    <div>
+                        <dt>New admin</dt>
+                        <dd><a href="Account/Register">Register an account</a></dd>
+                    </div>
                 }
-            </p>
-        </div>
+            </dl>
+
+            <hr class="bl-border-line" />
+        </section>
     </NotAuthorized>
     <Authorized>
         <AuthorizedIndex />
     </Authorized>
 </AuthorizeView>
 
-@code 
+<style>
+    .bl-hero {
+        max-width: 980px;
+        margin: 1rem auto 2rem;
+        padding: clamp(1rem, 4vw, 2.5rem) clamp(0.5rem, 2vw, 1.5rem);
+    }
+
+    .bl-hero-eyebrow {
+        margin-bottom: 1.5rem;
+    }
+
+    .bl-hero-title {
+        font-family: "Fraunces", "Times New Roman", serif;
+        font-variation-settings: "opsz" 144, "SOFT" 30;
+        font-weight: 900;
+        font-size: clamp(2.4rem, 7.5vw, 6.4rem);
+        line-height: 0.97;
+        letter-spacing: -0.015em;
+        margin: 0 0 2rem;
+        color: var(--bl-ink);
+    }
+    [data-bs-theme="dark"] .bl-hero-title { color: #F5EFDD; }
+
+    .bl-hero-title .line {
+        display: block;
+    }
+
+    .bl-hero-title em {
+        font-style: italic;
+        color: var(--bl-red-dark);
+        font-weight: 700;
+    }
+    [data-bs-theme="dark"] .bl-hero-title em { color: #E5A99E; }
+
+    .bl-hero-title .tail {
+        font-style: italic;
+        font-weight: 500;
+        color: var(--bl-ink-soft);
+    }
+    [data-bs-theme="dark"] .bl-hero-title .tail { color: #C9BE9D; }
+
+    .bl-hero-lead {
+        font-family: "Newsreader", Georgia, serif;
+        font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+        line-height: 1.55;
+        max-width: 56ch;
+        color: var(--bl-ink-soft);
+        margin: 0 0 2.25rem;
+    }
+    [data-bs-theme="dark"] .bl-hero-lead { color: #C9BE9D; }
+
+    .bl-hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-bottom: 3rem;
+    }
+
+    .bl-arrow {
+        display: inline-block;
+        margin-left: 0.4em;
+        transition: transform .15s;
+    }
+    .btn:hover .bl-arrow { transform: translateX(3px); }
+
+    .bl-hero-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem 2rem;
+        margin: 0;
+        padding-top: 1.25rem;
+        border-top: 1px dashed rgba(26, 23, 20, 0.35);
+    }
+    [data-bs-theme="dark"] .bl-hero-meta {
+        border-top-color: rgba(236, 227, 206, 0.25);
+    }
+
+    .bl-hero-meta > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+    }
+
+    .bl-hero-meta dt {
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+        font-size: 0.7rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--bl-ink-mute);
+        font-weight: 500;
+        margin: 0;
+    }
+
+    .bl-hero-meta dd {
+        font-family: "Newsreader", Georgia, serif;
+        font-size: 1rem;
+        margin: 0;
+        color: var(--bl-ink);
+    }
+    [data-bs-theme="dark"] .bl-hero-meta dd { color: #ECE3CE; }
+    [data-bs-theme="dark"] .bl-hero-meta dt { color: #B5AB8E; }
+</style>
+
+@code
 {
     private bool _isRegistrationEnabled;
 

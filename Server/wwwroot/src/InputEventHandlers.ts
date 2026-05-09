@@ -8,6 +8,8 @@ import {
     TypeClipboardButton,
     ConnectButton,
     CtrlAltDelButton,
+    SpecialKeysButton,
+    SpecialKeysMenu,
     DisconnectButton,
     FileTransferButton,
     FileTransferInput,
@@ -172,6 +174,65 @@ export function ApplyInputHandlers() {
 
         CloseAllPopupMenus(null);
         await ViewerApp.MessageSender.SendCtrlAltDel();
+    });
+
+    SpecialKeysButton.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+
+        CloseAllPopupMenus(SpecialKeysMenu.id);
+
+        const x =
+            document.body.clientWidth -
+            SpecialKeysButton.getBoundingClientRect().right;
+        const right = `${x.toFixed(0)}px`;
+        const y = SpecialKeysButton.getBoundingClientRect().bottom;
+        const top = `${y.toFixed(0)}px`;
+
+        SpecialKeysMenu.style.right = right;
+        SpecialKeysMenu.style.top = top;
+        SpecialKeysMenu.classList.toggle("open");
+
+        window.addEventListener(
+            "click",
+            () => {
+                CloseAllPopupMenus(null);
+            },
+            { once: true }
+        );
+    });
+
+    SpecialKeysMenu.addEventListener("click", (ev) => {
+        // Keep the menu open while the user clicks combo buttons.
+        ev.stopPropagation();
+    });
+
+    SpecialKeysMenu.querySelectorAll<HTMLButtonElement>("button.key-combo[data-keys]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            if (ViewerApp.ViewOnlyMode) {
+                alert("View-only mode is enabled.");
+                return;
+            }
+            const raw = btn.getAttribute("data-keys") ?? "";
+            const keys = raw.split(",").map(k => k.trim()).filter(k => k.length > 0);
+            if (keys.length === 0) {
+                return;
+            }
+            await ViewerApp.MessageSender.SendKeyCombo(keys);
+        });
+    });
+
+    SpecialKeysMenu.querySelectorAll<HTMLButtonElement>("button.key-launch[data-launch]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            if (ViewerApp.ViewOnlyMode) {
+                alert("View-only mode is enabled.");
+                return;
+            }
+            const command = btn.getAttribute("data-launch") ?? "";
+            if (!command) {
+                return;
+            }
+            await ViewerApp.MessageSender.LaunchViaRun(command);
+        });
     });
     DisconnectButton.addEventListener("click", (ev) => {
         ConnectButton.removeAttribute("disabled");

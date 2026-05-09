@@ -1,4 +1,4 @@
-import { AudioButton, ChangeScreenButton, ScreenSelectMenu, ClipboardTransferButton, ClipboardTransferMenu, TypeClipboardButton, ConnectButton, CtrlAltDelButton, DisconnectButton, FileTransferButton, FileTransferInput, FitToScreenButton, ScreenViewer, BlockInputButton, InviteButton, KeyboardButton, TouchKeyboardInput, MenuFrame, MenuButton, ScreenViewerWrapper, WindowsSessionSelect, FileTransferMenu, FileUploadButtton, FileDownloadButton, ViewOnlyButton, FullScreenButton, RequesterNameInput, SessionIDInput, ConnectForm, CloseAllPopupMenus, ExtrasMenu, ExtrasMenuButton, WindowsSessionMenuButton, WindowsSessionMenu, MetricsButton, MetricsFrame, SetStatusMessage, BetaPillPullDown, } from "./UI.js";
+import { AudioButton, ChangeScreenButton, ScreenSelectMenu, ClipboardTransferButton, ClipboardTransferMenu, TypeClipboardButton, ConnectButton, CtrlAltDelButton, SpecialKeysButton, SpecialKeysMenu, DisconnectButton, FileTransferButton, FileTransferInput, FitToScreenButton, ScreenViewer, BlockInputButton, InviteButton, KeyboardButton, TouchKeyboardInput, MenuFrame, MenuButton, ScreenViewerWrapper, WindowsSessionSelect, FileTransferMenu, FileUploadButtton, FileDownloadButton, ViewOnlyButton, FullScreenButton, RequesterNameInput, SessionIDInput, ConnectForm, CloseAllPopupMenus, ExtrasMenu, ExtrasMenuButton, WindowsSessionMenuButton, WindowsSessionMenu, MetricsButton, MetricsFrame, SetStatusMessage, BetaPillPullDown, } from "./UI.js";
 import { Sound } from "./Sound.js";
 import { ViewerApp } from "./App.js";
 import { UploadFiles } from "./FileTransferService.js";
@@ -103,6 +103,54 @@ export function ApplyInputHandlers() {
         }
         CloseAllPopupMenus(null);
         await ViewerApp.MessageSender.SendCtrlAltDel();
+    });
+    SpecialKeysButton.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        CloseAllPopupMenus(SpecialKeysMenu.id);
+        const x = document.body.clientWidth -
+            SpecialKeysButton.getBoundingClientRect().right;
+        const right = `${x.toFixed(0)}px`;
+        const y = SpecialKeysButton.getBoundingClientRect().bottom;
+        const top = `${y.toFixed(0)}px`;
+        SpecialKeysMenu.style.right = right;
+        SpecialKeysMenu.style.top = top;
+        SpecialKeysMenu.classList.toggle("open");
+        window.addEventListener("click", () => {
+            CloseAllPopupMenus(null);
+        }, { once: true });
+    });
+    SpecialKeysMenu.addEventListener("click", (ev) => {
+        // Keep the menu open while the user clicks combo buttons.
+        ev.stopPropagation();
+    });
+    SpecialKeysMenu.querySelectorAll("button.key-combo[data-keys]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            var _a;
+            if (ViewerApp.ViewOnlyMode) {
+                alert("View-only mode is enabled.");
+                return;
+            }
+            const raw = (_a = btn.getAttribute("data-keys")) !== null && _a !== void 0 ? _a : "";
+            const keys = raw.split(",").map(k => k.trim()).filter(k => k.length > 0);
+            if (keys.length === 0) {
+                return;
+            }
+            await ViewerApp.MessageSender.SendKeyCombo(keys);
+        });
+    });
+    SpecialKeysMenu.querySelectorAll("button.key-launch[data-launch]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            var _a;
+            if (ViewerApp.ViewOnlyMode) {
+                alert("View-only mode is enabled.");
+                return;
+            }
+            const command = (_a = btn.getAttribute("data-launch")) !== null && _a !== void 0 ? _a : "";
+            if (!command) {
+                return;
+            }
+            await ViewerApp.MessageSender.LaunchViaRun(command);
+        });
     });
     DisconnectButton.addEventListener("click", (ev) => {
         ConnectButton.removeAttribute("disabled");

@@ -2,29 +2,212 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="BorderLink.Desktop.UI.App"
 			 RequestedThemeVariant="Light">
-    <Application.Styles>
+
+	<Application.Resources>
+		<!-- BTS paper palette -->
+		<SolidColorBrush x:Key="BlPaper"        Color="#ECE3CE" />
+		<SolidColorBrush x:Key="BlPaperDeep"    Color="#DDD2B6" />
+		<SolidColorBrush x:Key="BlPaperPale"    Color="#F5EFDD" />
+		<SolidColorBrush x:Key="BlPaperEdge"    Color="#C9BE9D" />
+		<SolidColorBrush x:Key="BlInk"          Color="#1A1714" />
+		<SolidColorBrush x:Key="BlInkSoft"      Color="#3A352D" />
+		<SolidColorBrush x:Key="BlInkMute"      Color="#6B6453" />
+		<SolidColorBrush x:Key="BlRed"          Color="#C8362B" />
+		<SolidColorBrush x:Key="BlRedDark"      Color="#962819" />
+		<SolidColorBrush x:Key="BlGreen"        Color="#2F4A35" />
+		<SolidColorBrush x:Key="BlOlive"        Color="#87794D" />
+		<SolidColorBrush x:Key="BlInkAlpha10"   Color="#1A1714" Opacity="0.10" />
+		<SolidColorBrush x:Key="BlRedAlpha20"   Color="#C8362B" Opacity="0.20" />
+	</Application.Resources>
+
+	<Application.Styles>
 		<FluentTheme />
 
-		<Style Selector="TextBlock.SectionHeader">
-			<Setter Property="FontWeight" Value="Bold"></Setter>
-			<Setter Property="FontSize" Value="18"></Setter>
+		<!-- Window — paper background, ink text -->
+		<Style Selector="Window">
+			<Setter Property="Background" Value="{DynamicResource BlPaper}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+			<Setter Property="FontSize" Value="14" />
 		</Style>
-		<Style Selector="Button.NormalButton">
-			<Setter Property="Background" Value="White"></Setter>
-			<Setter Property="BorderThickness" Value="1"></Setter>
-			<Setter Property="BorderBrush" Value="Black"></Setter>
-			<Setter Property="Padding" Value="6,4"></Setter>
+
+		<!-- TextBlock defaults -->
+		<Style Selector="TextBlock">
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+		</Style>
+
+		<!-- Section header — display serif -->
+		<Style Selector="TextBlock.SectionHeader">
+			<Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+			<Setter Property="FontWeight" Value="Bold" />
+			<Setter Property="FontSize" Value="22" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="LineHeight" Value="26" />
+		</Style>
+
+		<!-- Mono kicker label -->
+		<Style Selector="TextBlock.Kicker">
+			<Setter Property="FontFamily" Value="Consolas, 'Courier New', monospace" />
+			<Setter Property="FontSize" Value="10" />
+			<Setter Property="FontWeight" Value="Medium" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInkMute}" />
+		</Style>
+
+		<!-- Body small label -->
+		<Style Selector="TextBlock.FieldLabel">
+			<Setter Property="FontFamily" Value="Consolas, 'Courier New', monospace" />
+			<Setter Property="FontSize" Value="11" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInkMute}" />
+		</Style>
+
+		<!-- Default Button -->
+		<Style Selector="Button">
+			<Setter Property="FontFamily" Value="Consolas, 'Courier New', monospace" />
+			<Setter Property="FontWeight" Value="Medium" />
+			<Setter Property="FontSize" Value="12" />
+			<Setter Property="CornerRadius" Value="0" />
+			<Setter Property="Background" Value="{DynamicResource BlInk}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlPaper}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="Padding" Value="12,7" />
 			<Setter Property="HorizontalContentAlignment" Value="Center" />
 			<Setter Property="VerticalContentAlignment" Value="Center" />
 		</Style>
-		<Style Selector="Button.HyperlinkButton">
-			<Setter Property="Foreground" Value="DodgerBlue"></Setter>
-			<Setter Property="BorderThickness" Value="0"></Setter>
-			<Setter Property="BorderBrush" Value="Transparent"></Setter>
-			<Setter Property="Cursor" Value="Hand"></Setter>
-			<Setter Property="Background" Value="Transparent"></Setter>
-			<Setter Property="Padding" Value="0"></Setter>
+		<Style Selector="Button:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlRedDark}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlRedDark}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlPaper}" />
 		</Style>
-    </Application.Styles>
+		<Style Selector="Button:pressed /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlRed}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlRed}" />
+		</Style>
+		<Style Selector="Button:disabled /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlPaperDeep}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlPaperEdge}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInkMute}" />
+		</Style>
+
+		<!-- NormalButton — outlined ink button on paper -->
+		<Style Selector="Button.NormalButton">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="0" />
+			<Setter Property="Padding" Value="12,6" />
+		</Style>
+		<Style Selector="Button.NormalButton:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlInk}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlPaper}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+		</Style>
+
+		<!-- Quiet text-only button (e.g. options gear) -->
+		<Style Selector="Button.TextButton">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInkMute}" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Padding" Value="6,4" />
+		</Style>
+		<Style Selector="Button.TextButton:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlInkAlpha10}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderBrush" Value="Transparent" />
+		</Style>
+
+		<!-- HyperlinkButton — text-only, red on hover -->
+		<Style Selector="Button.HyperlinkButton">
+			<Setter Property="FontFamily" Value="Georgia, 'Times New Roman', serif" />
+			<Setter Property="Foreground" Value="{DynamicResource BlRedDark}" />
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="BorderThickness" Value="0" />
+			<Setter Property="Cursor" Value="Hand" />
+			<Setter Property="Padding" Value="0" />
+			<Setter Property="FontSize" Value="14" />
+			<Setter Property="FontWeight" Value="Normal" />
+		</Style>
+		<Style Selector="Button.HyperlinkButton:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="Transparent" />
+			<Setter Property="Foreground" Value="{DynamicResource BlRed}" />
+			<Setter Property="TextBlock.TextDecorations" Value="Underline" />
+		</Style>
+
+		<!-- TextBox — paper-pale with ink border -->
+		<Style Selector="TextBox">
+			<Setter Property="Background" Value="{DynamicResource BlPaperPale}" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="0" />
+			<Setter Property="SelectionBrush" Value="{DynamicResource BlRedAlpha20}" />
+			<Setter Property="SelectionForegroundBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="CaretBrush" Value="{DynamicResource BlRed}" />
+		</Style>
+		<Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+			<Setter Property="BorderBrush" Value="{DynamicResource BlRed}" />
+			<Setter Property="BorderThickness" Value="1" />
+		</Style>
+
+		<!-- ListBox — paper-pale with ink border -->
+		<Style Selector="ListBox">
+			<Setter Property="Background" Value="{DynamicResource BlPaperPale}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="0" />
+			<Setter Property="Padding" Value="2" />
+		</Style>
+		<Style Selector="ListBoxItem">
+			<Setter Property="CornerRadius" Value="0" />
+			<Setter Property="Padding" Value="6,4" />
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+		</Style>
+		<Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlInkAlpha10}" />
+			<Setter Property="TextBlock.Foreground" Value="{DynamicResource BlInk}" />
+		</Style>
+		<Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+			<Setter Property="Background" Value="{DynamicResource BlInkAlpha10}" />
+		</Style>
+
+		<!-- CheckBox — squared, ink palette -->
+		<Style Selector="CheckBox">
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+		</Style>
+
+		<!-- Border — used as panel container -->
+		<Style Selector="Border.Card">
+			<Setter Property="Background" Value="{DynamicResource BlPaperPale}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="0" />
+		</Style>
+
+		<!-- Dashed border-line rule -->
+		<Style Selector="Rectangle.BorderLine">
+			<Setter Property="Height" Value="1" />
+			<Setter Property="Fill" Value="{DynamicResource BlInk}" />
+			<Setter Property="Opacity" Value="0.55" />
+			<Setter Property="HorizontalAlignment" Value="Stretch" />
+		</Style>
+
+		<!-- ContextMenu / MenuItem -->
+		<Style Selector="ContextMenu">
+			<Setter Property="Background" Value="{DynamicResource BlPaperPale}" />
+			<Setter Property="BorderBrush" Value="{DynamicResource BlInk}" />
+			<Setter Property="BorderThickness" Value="1" />
+			<Setter Property="CornerRadius" Value="0" />
+		</Style>
+		<Style Selector="MenuItem">
+			<Setter Property="Foreground" Value="{DynamicResource BlInk}" />
+		</Style>
+
+		<!-- ScrollViewer -->
+		<Style Selector="ScrollViewer">
+			<Setter Property="Background" Value="Transparent" />
+		</Style>
+	</Application.Styles>
 
 </Application>

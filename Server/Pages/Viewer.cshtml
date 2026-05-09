@@ -67,6 +67,94 @@
         </select>
     </div>
 
+    <div id="specialKeysMenu" class="popup-menu special-keys-menu">
+        <div class="popup-menu-header">Send keys</div>
+        <div class="special-keys-grid">
+            <button class="key-combo" data-keys="Meta" title="Press the Windows / Meta key.">
+                <i class="fa-brands fa-windows"></i> Win
+            </button>
+            <button class="key-combo" data-keys="Meta,d" title="Show desktop (Win+D).">
+                <i class="fa-brands fa-windows"></i>+D
+            </button>
+            <button class="key-combo" data-keys="Meta,e" title="Open File Explorer (Win+E).">
+                <i class="fa-brands fa-windows"></i>+E
+            </button>
+            <button class="key-combo" data-keys="Meta,r" title="Open the Run dialog (Win+R).">
+                <i class="fa-brands fa-windows"></i>+R
+            </button>
+            <button class="key-combo" data-keys="Meta,l" title="Lock the workstation (Win+L).">
+                <i class="fa-brands fa-windows"></i>+L
+            </button>
+            <button class="key-combo" data-keys="Meta,Tab" title="Task view (Win+Tab).">
+                <i class="fa-brands fa-windows"></i>+Tab
+            </button>
+            <button class="key-combo" data-keys="Alt,Tab" title="Switch window (Alt+Tab).">
+                Alt+Tab
+            </button>
+            <button class="key-combo" data-keys="Alt,F4" title="Close active window (Alt+F4).">
+                Alt+F4
+            </button>
+            <button class="key-combo" data-keys="Control,Shift,Escape" title="Open Task Manager (Ctrl+Shift+Esc).">
+                Task Mgr
+            </button>
+            <button class="key-combo" data-keys="Control,Escape" title="Open Start menu (Ctrl+Esc).">
+                Ctrl+Esc
+            </button>
+            <button class="key-combo" data-keys="PrintScreen" title="Send Print Screen.">
+                PrtSc
+            </button>
+            <button class="key-combo" data-keys="Escape" title="Send Escape.">
+                Esc
+            </button>
+        </div>
+
+        <div class="popup-menu-header">Launch app</div>
+        <div class="special-keys-grid launch-grid">
+            <button class="key-launch" data-launch="taskmgr" title="Open Task Manager.">
+                <i class="fas fa-list-check"></i> Task Mgr
+            </button>
+            <button class="key-launch" data-launch="ms-settings:" title="Open Windows Settings.">
+                <i class="fas fa-gear"></i> Settings
+            </button>
+            <button class="key-launch" data-launch="control" title="Open Control Panel.">
+                <i class="fas fa-sliders"></i> Ctrl Panel
+            </button>
+            <button class="key-launch" data-launch="explorer" title="Open File Explorer.">
+                <i class="fas fa-folder-open"></i> Explorer
+            </button>
+            <button class="key-launch" data-launch="cmd" title="Open Command Prompt.">
+                <i class="fas fa-terminal"></i> CMD
+            </button>
+            <button class="key-launch" data-launch="powershell" title="Open Windows PowerShell.">
+                <i class="fas fa-terminal"></i> PS
+            </button>
+            <button class="key-launch" data-launch="services.msc" title="Open Services.">
+                <i class="fas fa-server"></i> Services
+            </button>
+            <button class="key-launch" data-launch="devmgmt.msc" title="Open Device Manager.">
+                <i class="fas fa-microchip"></i> Devices
+            </button>
+            <button class="key-launch" data-launch="regedit" title="Open Registry Editor.">
+                <i class="fas fa-database"></i> RegEdit
+            </button>
+            <button class="key-launch" data-launch="eventvwr" title="Open Event Viewer.">
+                <i class="fas fa-clipboard-list"></i> Events
+            </button>
+            <button class="key-launch" data-launch="diskmgmt.msc" title="Open Disk Management.">
+                <i class="fas fa-hard-drive"></i> Disks
+            </button>
+            <button class="key-launch" data-launch="msinfo32" title="Open System Information.">
+                <i class="fas fa-circle-info"></i> Sys Info
+            </button>
+        </div>
+
+        <button id="ctrlAltDelButton"
+                class="key-combo key-combo-danger d-none"
+                title="Send Ctrl+Alt+Del. Only works when the agent runs as SYSTEM (unattended mode).">
+            <i class="fas fa-sign-in-alt"></i> Ctrl+Alt+Del
+        </button>
+    </div>
+
     <div id="extrasMenu" class="popup-menu">
 
         <button id="audioButton"
@@ -178,11 +266,10 @@
                         Block Remote Input
                     </button>
 
-                    <button id="ctrlAltDelButton"
-                            title="Simulate the Ctrl+Alt+Del command on the remote computer.  Must be running as SYSTEM."
-                            class="d-none">
-                        <i class="fas fa-sign-in-alt"></i>
-                        Ctrl+Alt+Del
+                    <button id="specialKeysButton"
+                            title="Send keyboard shortcuts to the remote computer.">
+                        <i class="fas fa-keyboard"></i>
+                        Keys
                     </button>
                 </div>
 

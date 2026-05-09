@@ -232,6 +232,83 @@ button {
     margin-right: 8px;
 }
 
+/* Special-keys popup */
+.special-keys-menu.open {
+    padding: 12px 14px;
+    min-width: 300px;
+}
+
+.special-keys-menu .popup-menu-header {
+    font-family: "JetBrains Mono", ui-monospace, "Consolas", monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.special-keys-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.special-keys-menu button.key-combo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    white-space: nowrap;
+    padding: 7px 8px;
+    font-family: "JetBrains Mono", ui-monospace, "Consolas", monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    text-align: center;
+}
+
+.special-keys-menu button.key-combo i {
+    margin: 0;
+    font-size: 11px;
+}
+
+.special-keys-menu button.key-launch {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    width: 100%;
+    white-space: nowrap;
+    padding: 7px 10px;
+    font-family: "Newsreader", Georgia, serif;
+    font-size: 13px;
+    text-align: left;
+}
+
+.special-keys-menu button.key-launch i {
+    width: 14px;
+    text-align: center;
+    font-size: 12px;
+    opacity: 0.85;
+}
+
+.special-keys-menu .popup-menu-header + .special-keys-grid.launch-grid {
+    margin-bottom: 10px;
+}
+
+.special-keys-menu button.key-combo-danger {
+    width: 100%;
+    border-top: 1px dashed currentColor;
+    margin-top: 4px;
+    padding-top: 10px;
+    color: #C8362B;
+}
+
+.special-keys-menu button.key-combo-danger.d-none {
+    display: none;
+}
+
 #fileTransferProgress {
     vertical-align: middle;
     width: 100%;
