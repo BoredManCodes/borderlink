@@ -29,7 +29,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace Remotely.Desktop.Native.Linux;
+namespace BorderLink.Desktop.Native.Linux;
 
 public static class LibXrandr
 {

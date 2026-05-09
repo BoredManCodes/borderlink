@@ -1,9 +1,9 @@
-using Remotely.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Abstractions;
 using System.ComponentModel;
-using Remotely.Desktop.UI.Controls.Dialogs;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.UI.Controls.Dialogs;
+using BorderLink.Shared.Models;
 
-namespace Remotely.Desktop.UI.Services;
+namespace BorderLink.Desktop.UI.Services;
 
 public class ChatUiService : IChatUiService
 {

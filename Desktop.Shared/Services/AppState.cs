@@ -1,11 +1,11 @@
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Desktop.Shared.Messages;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Desktop.Shared.Messages;
+using BorderLink.Shared.Models;
 using Microsoft.Extensions.Logging;
 using Bitbound.SimpleMessenger;
 using System.Collections.Concurrent;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IAppState
 {

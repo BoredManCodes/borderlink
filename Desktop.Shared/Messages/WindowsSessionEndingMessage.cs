@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Desktop.Shared.Messages;
+namespace BorderLink.Desktop.Shared.Messages;
 
 public class WindowsSessionEndingMessage
 {

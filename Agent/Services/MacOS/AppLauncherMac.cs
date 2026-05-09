@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
-using Remotely.Agent.Interfaces;
+using BorderLink.Agent.Interfaces;
 
-namespace Remotely.Agent.Services.MacOS;
+namespace BorderLink.Agent.Services.MacOS;
 
 public class AppLauncherMac : IAppLauncher
 {

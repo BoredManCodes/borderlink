@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Remotely.Server.Auth;
-using Remotely.Server.Services;
+using BorderLink.Server.Auth;
+using BorderLink.Server.Services;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]

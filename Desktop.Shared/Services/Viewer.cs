@@ -1,15 +1,15 @@
 ﻿using System.Collections.Concurrent;
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Shared.Models;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Helpers;
-using Remotely.Shared.Models.Dtos;
-using Remotely.Desktop.Shared.ViewModels;
+using BorderLink.Shared.Helpers;
+using BorderLink.Shared.Models.Dtos;
+using BorderLink.Desktop.Shared.ViewModels;
 using Microsoft.AspNetCore.SignalR.Client;
-using Remotely.Shared.Services;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Shared.Services;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IViewer : IDisposable
 {

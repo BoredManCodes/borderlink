@@ -1,8 +1,8 @@
-﻿using Remotely.Server.Data;
-using Remotely.Server.Models;
+﻿using BorderLink.Server.Data;
+using BorderLink.Server.Models;
 using System.Text.Json;
 
-namespace Remotely.Server.Extensions;
+namespace BorderLink.Server.Extensions;
 
 public static class AppDbExtensions
 {

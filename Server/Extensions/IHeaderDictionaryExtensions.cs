@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Remotely.Server.Auth;
+using BorderLink.Server.Auth;
 
-namespace Remotely.Server.Extensions;
+namespace BorderLink.Server.Extensions;
 
 public static class IHeaderDictionaryExtensions
 {

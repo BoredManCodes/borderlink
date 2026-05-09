@@ -1,13 +1,13 @@
-using Remotely.Desktop.Shared.Messages;
-using Remotely.Desktop.UI.Services;
-using Remotely.Shared.Enums;
+using BorderLink.Desktop.Shared.Messages;
+using BorderLink.Desktop.UI.Services;
+using BorderLink.Shared.Enums;
 using Bitbound.SimpleMessenger;
 using Microsoft.Win32;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
-namespace Remotely.Desktop.Win.Services;
+namespace BorderLink.Desktop.Win.Services;
 
 public interface IMessageLoop
 {

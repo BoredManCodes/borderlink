@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Dtos;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Dtos;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Agent.Services.Windows;
+namespace BorderLink.Agent.Services.Windows;
 
 public class DeviceInfoGeneratorWin : DeviceInfoGeneratorBase, IDeviceInformationService
 {

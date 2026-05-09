@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
-using Remotely.Server.Components.Pages;
-using Remotely.Server.Enums;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Components.Pages;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Components.Scripts;
+namespace BorderLink.Server.Components.Scripts;
 
 [Authorize]
 public partial class ScriptSchedules : AuthComponentBase

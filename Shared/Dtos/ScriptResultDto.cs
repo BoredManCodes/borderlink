@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.DtoEntityBases;
+﻿using BorderLink.Shared.DtoEntityBases;
 
-namespace Remotely.Shared.Dtos;
+namespace BorderLink.Shared.Dtos;
 
 public class ScriptResultDto : ScriptResultBase
 {

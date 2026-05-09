@@ -11,7 +11,7 @@
 	RewriteRule /(.*)           http://localhost:5000/$1 [P,L]
 
 	ProxyPreserveHost On
-	#Proxy Requests to Remotely Server
+	#Proxy Requests to BorderLink Server
 	<LocationMatch "/">
 		ProxyPass http://localhost:5000/ 
 		ProxyPassReverse http://localhost:5000/

@@ -1,12 +1,12 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Shared.Helpers;
-using Remotely.Shared.Models.Dtos;
+﻿using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Shared.Helpers;
+using BorderLink.Shared.Models.Dtos;
 using MessagePack;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IDtoMessageHandler
 {

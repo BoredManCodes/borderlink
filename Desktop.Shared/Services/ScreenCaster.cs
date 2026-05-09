@@ -1,16 +1,16 @@
 using SkiaSharp;
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Shared.Models;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Helpers;
-using Remotely.Shared.Models.Dtos;
-using Remotely.Shared.Services;
+using BorderLink.Shared.Helpers;
+using BorderLink.Shared.Models.Dtos;
+using BorderLink.Shared.Services;
 using Microsoft.IO;
 using Bitbound.SimpleMessenger;
-using Remotely.Desktop.Shared.Messages;
+using BorderLink.Desktop.Shared.Messages;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IScreenCaster : IDisposable
 {

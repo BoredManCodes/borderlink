@@ -1,8 +1,8 @@
-﻿using Remotely.Desktop.Shared;
-using Remotely.Desktop.Shared.Abstractions;
+﻿using BorderLink.Desktop.Shared;
+using BorderLink.Desktop.Shared.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Remotely.Desktop.UI.Services;
+namespace BorderLink.Desktop.UI.Services;
 
 public class SessionIndicator : ISessionIndicator
 {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Remotely.Shared.ViewModels;
+namespace BorderLink.Shared.ViewModels;
 
 public interface IInvokePropertyChanged
 {

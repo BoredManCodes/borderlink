@@ -1,18 +1,18 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.ViewModels;
-using Remotely.Desktop.UI.Controls.Dialogs;
-using Remotely.Desktop.UI.Services;
-using Remotely.Desktop.UI.Views;
+﻿using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.ViewModels;
+using BorderLink.Desktop.UI.Controls.Dialogs;
+using BorderLink.Desktop.UI.Services;
+using BorderLink.Desktop.UI.Views;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using Remotely.Shared.Extensions;
+using BorderLink.Shared.Extensions;
 using System.IO;
 
-namespace Remotely.Desktop.Win.Services;
+namespace BorderLink.Desktop.Win.Services;
 
 public class FileTransferServiceWin : IFileTransferService
 {

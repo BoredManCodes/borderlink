@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Auth;
+﻿namespace BorderLink.Server.Auth;
 
 public static class PolicyNames
 {

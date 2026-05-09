@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Extensions;
-using Remotely.Shared.Models;
-using Remotely.Shared.Primitives;
-using Remotely.Shared.Services;
-using Remotely.Shared.Utilities;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Extensions;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Primitives;
+using BorderLink.Shared.Services;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Services.Linux;
+namespace BorderLink.Agent.Services.Linux;
 
 
 public class AppLauncherLinux : IAppLauncher

@@ -1,18 +1,18 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
+﻿using BorderLink.Desktop.Shared.Abstractions;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Services;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Shared.Services;
+using BorderLink.Desktop.Shared.Services;
 using System.Diagnostics;
-using Remotely.Shared.Utilities;
-using Remotely.Desktop.Shared.Startup;
-using Remotely.Desktop.Linux.Startup;
-using Remotely.Desktop.UI.Services;
+using BorderLink.Shared.Utilities;
+using BorderLink.Desktop.Shared.Startup;
+using BorderLink.Desktop.Linux.Startup;
+using BorderLink.Desktop.UI.Services;
 using Avalonia;
-using Remotely.Desktop.UI;
+using BorderLink.Desktop.UI;
 
-namespace Remotely.Desktop.Linux;
+namespace BorderLink.Desktop.Linux;
 
 public class Program
 {
@@ -26,7 +26,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var version = AppVersionHelper.GetAppVersion();
-        var logger = new FileLogger("Remotely_Desktop", version, "Program.cs");
+        var logger = new FileLogger("BorderLink_Desktop", version, "Program.cs");
         var filePath = Environment.ProcessPath ?? Environment.GetCommandLineArgs().First();
         var serverUrl = Debugger.IsAttached ? "http://localhost:5000" : string.Empty;
         var getEmbeddedResult = EmbeddedServerDataProvider.Instance.TryGetEmbeddedData(filePath);
@@ -50,7 +50,7 @@ public class Program
             {
                 builder.SetMinimumLevel(LogLevel.Debug);
             }
-            builder.AddProvider(new FileLoggerProvider("Remotely_Desktop", version));
+            builder.AddProvider(new FileLoggerProvider("BorderLink_Desktop", version));
         });
 
         var provider = services.BuildServiceProvider();
@@ -70,7 +70,7 @@ public class Program
 
         var result = await provider.UseRemoteControlClient(
             args,
-            "The remote control client for Remotely.",
+            "The remote control client for BorderLink.",
             serverUrl,
             false);
 

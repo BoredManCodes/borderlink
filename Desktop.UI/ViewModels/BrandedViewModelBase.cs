@@ -1,12 +1,12 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media.Imaging;
-using Remotely.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Reactive;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 using System.Reflection;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Services;
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface IBrandedViewModelBase
 {
@@ -73,7 +73,7 @@ public class BrandedViewModelBase : ObservableObject, IBrandedViewModelBase
                     using var imageStream =
                         Assembly
                             .GetExecutingAssembly()
-                            .GetManifestResourceStream("Remotely.Desktop.Shared.Assets.DefaultIcon.png") ?? new MemoryStream();
+                            .GetManifestResourceStream("BorderLink.Desktop.Shared.Assets.DefaultIcon.png") ?? new MemoryStream();
 
                     Icon = new Bitmap(imageStream);
                 }

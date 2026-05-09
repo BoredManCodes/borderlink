@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Desktop.Shared.Abstractions;
+namespace BorderLink.Desktop.Shared.Abstractions;
 
 public interface IRemoteControlAccessService
 {

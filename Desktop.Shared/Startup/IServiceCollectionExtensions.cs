@@ -1,11 +1,11 @@
-using Remotely.Desktop.Shared.Services;
-using Remotely.Shared.Services;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Shared.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Bitbound.SimpleMessenger;
 
-namespace Remotely.Desktop.Shared.Startup;
+namespace BorderLink.Desktop.Shared.Startup;
 
 public static class IServiceCollectionExtensions
 {

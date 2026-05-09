@@ -5,13 +5,13 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using Remotely.Server.Data
-@using Remotely.Shared
+@using BorderLink.Server.Data
+@using BorderLink.Shared
 
-@inject UserManager<RemotelyUser> UserManager
-@inject IUserStore<RemotelyUser> UserStore
-@inject SignInManager<RemotelyUser> SignInManager
-@inject IEmailSender<RemotelyUser> EmailSender
+@inject UserManager<BorderLinkUser> UserManager
+@inject IUserStore<BorderLinkUser> UserStore
+@inject SignInManager<BorderLinkUser> SignInManager
+@inject IEmailSender<BorderLinkUser> EmailSender
 @inject ILogger<Register> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
@@ -125,10 +125,10 @@ else
         RedirectManager.RedirectTo(ReturnUrl);
     }
 
-    private RemotelyUser CreateUser()
+    private BorderLinkUser CreateUser()
     {
         var organizationCount = DataService.GetOrganizationCount();
-        var user = new RemotelyUser
+        var user = new BorderLinkUser
             {
                 UserName = Input.Email,
                 Email = Input.Email,
@@ -138,7 +138,7 @@ else
                     OrganizationName = string.Empty,
                     IsDefaultOrganization = organizationCount == 0
                 },
-                UserOptions = new RemotelyUserOptions(),
+                UserOptions = new BorderLinkUserOptions(),
                 IsAdministrator = true,
                 LockoutEnabled = true
             };
@@ -151,13 +151,13 @@ else
         return user;
     }
 
-    private IUserEmailStore<RemotelyUser> GetEmailStore()
+    private IUserEmailStore<BorderLinkUser> GetEmailStore()
     {
         if (!UserManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        return (IUserEmailStore<RemotelyUser>)UserStore;
+        return (IUserEmailStore<BorderLinkUser>)UserStore;
     }
 
     private async Task<bool> IsRegistrationEnabled()

@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Shared.Models;
 using Bitbound.SimpleMessenger;
-using Remotely.Desktop.Win.Helpers;
-using Remotely.Desktop.Win.Models;
+using BorderLink.Desktop.Win.Helpers;
+using BorderLink.Desktop.Win.Models;
 using SharpDX;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -38,12 +38,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Result = Remotely.Shared.Primitives.Result;
-using Remotely.Desktop.Shared.Messages;
-using Remotely.Shared.Primitives;
-using Remotely.Desktop.Native.Windows;
+using Result = BorderLink.Shared.Primitives.Result;
+using BorderLink.Desktop.Shared.Messages;
+using BorderLink.Shared.Primitives;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Desktop.Win.Services;
+namespace BorderLink.Desktop.Win.Services;
 
 [SupportedOSPlatform("windows")]
 public class ScreenCapturerWin : IScreenCapturer

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Remotely.Agent.Interfaces;
+namespace BorderLink.Agent.Interfaces;
 
 public interface IUpdater
 {

@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Helpers;
+﻿namespace BorderLink.Shared.Helpers;
 
 public static class PathSanitizer
 {

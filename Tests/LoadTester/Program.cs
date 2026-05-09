@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Remotely.Agent.Services;
-using Remotely.Agent.Services.Windows;
+using BorderLink.Agent.Services;
+using BorderLink.Agent.Services.Windows;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Remotely.LoadTester;
+namespace BorderLink.LoadTester;
 
 internal class Program
 {
@@ -47,7 +47,7 @@ internal class Program
             {
                 Console.WriteLine("Command line arguments must include all of the following: ");
                 Console.WriteLine();
-                Console.WriteLine("-serverurl [full URL of the Remotely server]");
+                Console.WriteLine("-serverurl [full URL of the BorderLink server]");
                 Console.WriteLine();
                 Console.WriteLine("-organizationid [organization ID that the device will belong to]");
                 Console.WriteLine();

@@ -1,9 +1,9 @@
-﻿using Remotely.Server.Hubs;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Server.Hubs;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IScriptScheduleDispatcher
 {

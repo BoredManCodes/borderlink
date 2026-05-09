@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.UI.ViewModels.Fakes;
+﻿namespace BorderLink.Desktop.UI.ViewModels.Fakes;
 internal class FakeSessionIndicatorWindowViewModel : FakeBrandedViewModelBase, ISessionIndicatorWindowViewModel
 {
     public Task PromptForExit()

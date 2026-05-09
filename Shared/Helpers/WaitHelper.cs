@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Remotely.Shared.Helpers;
+namespace BorderLink.Shared.Helpers;
 
 public static class WaitHelper
 {

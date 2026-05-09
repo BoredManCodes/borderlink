@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.Shared;
+﻿namespace BorderLink.Desktop.Shared;
 
 public static class StaticServiceProvider
 {

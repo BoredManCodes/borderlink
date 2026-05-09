@@ -1,9 +1,9 @@
 using Avalonia.Controls;
-using Remotely.Desktop.Shared;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared;
+using BorderLink.Desktop.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Remotely.Desktop.UI.Views;
+namespace BorderLink.Desktop.UI.Views;
 public partial class MainView : UserControl
 {
     public MainView()

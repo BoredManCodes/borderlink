@@ -1,11 +1,11 @@
-﻿using Remotely.Desktop.Core.Enums;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Desktop.Core.Enums;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace Remotely.Desktop.Core
+namespace BorderLink.Desktop.Core
 {
     public class Conductor
     {

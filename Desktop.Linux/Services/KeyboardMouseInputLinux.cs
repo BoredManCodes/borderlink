@@ -1,10 +1,10 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Desktop.Shared.Services;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Native.Linux;
+using BorderLink.Desktop.Native.Linux;
 
-namespace Remotely.Desktop.Linux.Services;
+namespace BorderLink.Desktop.Linux.Services;
 
 public class KeyboardMouseInputLinux : IKeyboardMouseInput
 {

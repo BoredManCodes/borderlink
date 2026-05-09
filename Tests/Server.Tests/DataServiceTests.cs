@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Remotely.Server.Services;
-using Remotely.Shared.Dtos;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Dtos;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Remotely.Server.Tests;
+namespace BorderLink.Server.Tests;
 
 [TestClass]
 public class DataServiceTests

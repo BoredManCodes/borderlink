@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Remotely.Server.Data;
-using Remotely.Server.Services;
-using Remotely.Shared.Dtos;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Models;
+using BorderLink.Server.Data;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Dtos;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Models;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Remotely.Server.Tests;
+namespace BorderLink.Server.Tests;
 
 public class TestData
 {
     #region Organization1
     public Organization Org1 => Org1Admin1.Organization!;
 
-    public RemotelyUser Org1Admin1 { get; } = new()
+    public BorderLinkUser Org1Admin1 { get; } = new()
     {
         UserName = "org1admin1@test.com",
         IsAdministrator = true,
         IsServerAdmin = true,
         Organization = new Organization() { OrganizationName = "Org1" },
-        UserOptions = new RemotelyUserOptions()
+        UserOptions = new BorderLinkUserOptions()
     };
 
-    public RemotelyUser Org1Admin2 { get; private set; } = null!;
+    public BorderLinkUser Org1Admin2 { get; private set; } = null!;
 
     public Device Org1Device1 { get; private set; } = null!;
 
@@ -41,8 +41,8 @@ public class TestData
     };
 
     public string Org1Id => Org1.ID;
-    public RemotelyUser Org1User1 { get; private set; } = null!;
-    public RemotelyUser Org1User2 { get; private set; } = null!;
+    public BorderLinkUser Org1User1 { get; private set; } = null!;
+    public BorderLinkUser Org1User2 { get; private set; } = null!;
     #endregion
 
 
@@ -50,16 +50,16 @@ public class TestData
     #region Organization2
     public Organization Org2 => Org2Admin1.Organization!;
 
-    public RemotelyUser Org2Admin1 { get; } = new()
+    public BorderLinkUser Org2Admin1 { get; } = new()
     {
         UserName = "org2admin1@test.com",
         IsAdministrator = true,
         IsServerAdmin = false,
         Organization = new Organization() { OrganizationName = "Org2" },
-        UserOptions = new RemotelyUserOptions()
+        UserOptions = new BorderLinkUserOptions()
     };
 
-    public RemotelyUser Org2Admin2 { get; private set; } = null!;
+    public BorderLinkUser Org2Admin2 { get; private set; } = null!;
 
     public Device Org2Device1 { get; private set; } = null!;
 
@@ -76,8 +76,8 @@ public class TestData
     };
 
     public string Org2Id => Org2.ID;
-    public RemotelyUser Org2User1 { get; private set; } = null!;
-    public RemotelyUser Org2User2 { get; private set; } = null!;
+    public BorderLinkUser Org2User1 { get; private set; } = null!;
+    public BorderLinkUser Org2User2 { get; private set; } = null!;
     #endregion
 
     public void ClearData()
@@ -94,7 +94,7 @@ public class TestData
         ClearData();
 
         using var scope = IoCActivator.ServiceProvider.CreateScope();
-        using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<RemotelyUser>>();
+        using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<BorderLinkUser>>();
         var dataService = IoCActivator.ServiceProvider.GetRequiredService<IDataService>();
         var emailSender = IoCActivator.ServiceProvider.GetRequiredService<IEmailSenderEx>();
 

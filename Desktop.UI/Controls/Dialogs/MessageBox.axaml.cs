@@ -1,10 +1,10 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CommunityToolkit.Diagnostics;
-using Remotely.Desktop.Shared;
+using BorderLink.Desktop.Shared;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Remotely.Desktop.UI.Controls.Dialogs;
+namespace BorderLink.Desktop.UI.Controls.Dialogs;
 
 public partial class MessageBox : Window
 {

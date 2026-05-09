@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Models;
 using System.Drawing;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Remotely.Desktop.Win.Helpers;
+namespace BorderLink.Desktop.Win.Helpers;
 
 internal static class DisplaysEnumerationHelper
 {

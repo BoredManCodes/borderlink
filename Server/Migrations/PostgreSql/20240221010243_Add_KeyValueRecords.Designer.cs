@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using Remotely.Server.Data;
+using BorderLink.Server.Data;
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.PostgreSql
+namespace BorderLink.Server.Migrations.PostgreSql
 {
     [DbContext(typeof(PostgreSqlDbContext))]
     [Migration("20240221010243_Add_KeyValueRecords")]
@@ -25,7 +25,7 @@ namespace Remotely.Server.Migrations.PostgreSql
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DeviceGroupRemotelyUser", b =>
+            modelBuilder.Entity("DeviceGroupBorderLinkUser", b =>
                 {
                     b.Property<string>("DeviceGroupsID")
                         .HasColumnType("text");
@@ -37,7 +37,7 @@ namespace Remotely.Server.Migrations.PostgreSql
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("DeviceGroupRemotelyUser");
+                    b.ToTable("DeviceGroupBorderLinkUser");
                 });
 
             modelBuilder.Entity("DeviceGroupScriptSchedule", b =>
@@ -202,7 +202,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
 
-                    b.ToTable("RemotelyUsers", (string)null);
+                    b.ToTable("BorderLinkUsers", (string)null);
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
 
@@ -290,7 +290,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Alert", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Alert", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -328,7 +328,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("Alerts");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ApiToken", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ApiToken", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -355,7 +355,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("ApiTokens");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.BrandingInfo", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.BrandingInfo", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -381,7 +381,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("BrandingInfos");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Device", b =>
                 {
                     b.Property<string>("ID")
                         .HasColumnType("text");
@@ -474,7 +474,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("Devices");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceGroup", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -496,7 +496,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("DeviceGroups");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.InviteLink", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -525,7 +525,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("InviteLinks");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.KeyValueRecord", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.KeyValueRecord", b =>
                 {
                     b.Property<Guid>("Key")
                         .ValueGeneratedOnAdd()
@@ -539,7 +539,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("KeyValueRecords");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Organization", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Organization", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -561,7 +561,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.SavedScript", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -615,7 +615,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("SavedScripts");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptResult", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptResult", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -684,7 +684,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("ScriptResults");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptRun", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -725,7 +725,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("ScriptRuns");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -775,7 +775,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("ScriptSchedules");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.SharedFile", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.SharedFile", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -804,7 +804,7 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.ToTable("SharedFiles");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.BorderLinkUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -828,18 +828,18 @@ namespace Remotely.Server.Migrations.PostgreSql
 
                     b.HasIndex("UserName");
 
-                    b.HasDiscriminator().HasValue("RemotelyUser");
+                    b.HasDiscriminator().HasValue("BorderLinkUser");
                 });
 
-            modelBuilder.Entity("DeviceGroupRemotelyUser", b =>
+            modelBuilder.Entity("DeviceGroupBorderLinkUser", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.DeviceGroup", null)
+                    b.HasOne("BorderLink.Shared.Entities.DeviceGroup", null)
                         .WithMany()
                         .HasForeignKey("DeviceGroupsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.RemotelyUser", null)
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -848,13 +848,13 @@ namespace Remotely.Server.Migrations.PostgreSql
 
             modelBuilder.Entity("DeviceGroupScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.DeviceGroup", null)
+                    b.HasOne("BorderLink.Shared.Entities.DeviceGroup", null)
                         .WithMany()
                         .HasForeignKey("DeviceGroupsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptSchedule", null)
+                    b.HasOne("BorderLink.Shared.Entities.ScriptSchedule", null)
                         .WithMany()
                         .HasForeignKey("ScriptSchedulesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -863,13 +863,13 @@ namespace Remotely.Server.Migrations.PostgreSql
 
             modelBuilder.Entity("DeviceScriptRun", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Device", null)
+                    b.HasOne("BorderLink.Shared.Entities.Device", null)
                         .WithMany()
                         .HasForeignKey("DevicesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptRun", null)
+                    b.HasOne("BorderLink.Shared.Entities.ScriptRun", null)
                         .WithMany()
                         .HasForeignKey("ScriptRunsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -878,13 +878,13 @@ namespace Remotely.Server.Migrations.PostgreSql
 
             modelBuilder.Entity("DeviceScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Device", null)
+                    b.HasOne("BorderLink.Shared.Entities.Device", null)
                         .WithMany()
                         .HasForeignKey("DevicesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptSchedule", null)
+                    b.HasOne("BorderLink.Shared.Entities.ScriptSchedule", null)
                         .WithMany()
                         .HasForeignKey("ScriptSchedulesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -942,21 +942,21 @@ namespace Remotely.Server.Migrations.PostgreSql
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Alert", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Alert", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Device", "Device")
+                    b.HasOne("BorderLink.Shared.Entities.Device", "Device")
                         .WithMany("Alerts")
                         .HasForeignKey("DeviceID")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("Alerts")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.RemotelyUser", "User")
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.ClientCascade)
@@ -969,9 +969,9 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ApiToken", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ApiToken", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("ApiTokens")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -980,22 +980,22 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.BrandingInfo", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.BrandingInfo", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithOne("BrandingInfo")
-                        .HasForeignKey("Remotely.Shared.Entities.BrandingInfo", "OrganizationId");
+                        .HasForeignKey("BorderLink.Shared.Entities.BrandingInfo", "OrganizationId");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Device", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.DeviceGroup", "DeviceGroup")
+                    b.HasOne("BorderLink.Shared.Entities.DeviceGroup", "DeviceGroup")
                         .WithMany("Devices")
                         .HasForeignKey("DeviceGroupID");
 
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("Devices")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1006,9 +1006,9 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceGroup", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("DeviceGroups")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.ClientCascade)
@@ -1017,9 +1017,9 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.InviteLink", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("InviteLinks")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1028,15 +1028,15 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.SavedScript", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.RemotelyUser", "Creator")
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Creator")
                         .WithMany("SavedScripts")
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("SavedScripts")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1047,29 +1047,29 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptResult", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptResult", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Device", "Device")
+                    b.HasOne("BorderLink.Shared.Entities.Device", "Device")
                         .WithMany("ScriptResults")
                         .HasForeignKey("DeviceID")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("ScriptResults")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.SavedScript", "SavedScript")
+                    b.HasOne("BorderLink.Shared.Entities.SavedScript", "SavedScript")
                         .WithMany("ScriptResults")
                         .HasForeignKey("SavedScriptId");
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptSchedule", "Schedule")
+                    b.HasOne("BorderLink.Shared.Entities.ScriptSchedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId");
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptRun", "ScriptRun")
+                    b.HasOne("BorderLink.Shared.Entities.ScriptRun", "ScriptRun")
                         .WithMany("Results")
                         .HasForeignKey("ScriptRunId");
 
@@ -1084,19 +1084,19 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("ScriptRun");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptRun", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("ScriptRuns")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.SavedScript", "SavedScript")
+                    b.HasOne("BorderLink.Shared.Entities.SavedScript", "SavedScript")
                         .WithMany("ScriptRuns")
                         .HasForeignKey("SavedScriptId");
 
-                    b.HasOne("Remotely.Shared.Entities.ScriptSchedule", "Schedule")
+                    b.HasOne("BorderLink.Shared.Entities.ScriptSchedule", "Schedule")
                         .WithMany("ScriptRuns")
                         .HasForeignKey("ScheduleId");
 
@@ -1107,15 +1107,15 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.RemotelyUser", "Creator")
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Creator")
                         .WithMany("ScriptSchedules")
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("ScriptSchedules")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.ClientCascade)
@@ -1126,19 +1126,19 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.SharedFile", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.SharedFile", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
                         .WithMany("SharedFiles")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.BorderLinkUser", b =>
                 {
-                    b.HasOne("Remotely.Shared.Entities.Organization", "Organization")
-                        .WithMany("RemotelyUsers")
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("BorderLinkUsers")
                         .HasForeignKey("OrganizationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1146,19 +1146,19 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Device", b =>
                 {
                     b.Navigation("Alerts");
 
                     b.Navigation("ScriptResults");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceGroup", b =>
                 {
                     b.Navigation("Devices");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.Organization", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.Organization", b =>
                 {
                     b.Navigation("Alerts");
 
@@ -1172,7 +1172,7 @@ namespace Remotely.Server.Migrations.PostgreSql
 
                     b.Navigation("InviteLinks");
 
-                    b.Navigation("RemotelyUsers");
+                    b.Navigation("BorderLinkUsers");
 
                     b.Navigation("SavedScripts");
 
@@ -1185,24 +1185,24 @@ namespace Remotely.Server.Migrations.PostgreSql
                     b.Navigation("SharedFiles");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.SavedScript", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.Navigation("ScriptResults");
 
                     b.Navigation("ScriptRuns");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptRun", b =>
                 {
                     b.Navigation("Results");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.ScriptSchedule", b =>
                 {
                     b.Navigation("ScriptRuns");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Entities.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Entities.BorderLinkUser", b =>
                 {
                     b.Navigation("Alerts");
 

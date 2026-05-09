@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Models;
 
-namespace Remotely.Desktop.Shared.Abstractions;
+namespace BorderLink.Desktop.Shared.Abstractions;
 
 public interface IChatUiService
 {

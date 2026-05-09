@@ -1,8 +1,8 @@
-﻿using Remotely.Desktop.Shared.Reactive;
+﻿using BorderLink.Desktop.Shared.Reactive;
 using System.Windows.Input;
-using Remotely.Desktop.UI.Controls.Dialogs;
+using BorderLink.Desktop.UI.Controls.Dialogs;
 
-namespace Remotely.Desktop.UI.ViewModels.Fakes;
+namespace BorderLink.Desktop.UI.ViewModels.Fakes;
 
 public class FakeMessageBoxViewModel : FakeBrandedViewModelBase, IMessageBoxViewModel
 {

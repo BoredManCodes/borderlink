@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Remotely.Server.Migrations.Sqlite;
+namespace BorderLink.Server.Migrations.Sqlite;
 
 public partial class PublicIP : Migration
 {

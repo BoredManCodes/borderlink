@@ -1,20 +1,20 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
-using Remotely.Server.Enums;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services;
-using Remotely.Server.Services.Stores;
-using Remotely.Shared;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Utilities;
-using Remotely.Shared.ViewModels;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services;
+using BorderLink.Server.Services.Stores;
+using BorderLink.Shared;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Utilities;
+using BorderLink.Shared.ViewModels;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace Remotely.Server.Components.Devices;
+namespace BorderLink.Server.Components.Devices;
 
 public partial class DeviceCard : AuthComponentBase
 {

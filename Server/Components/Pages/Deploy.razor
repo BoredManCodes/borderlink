@@ -68,7 +68,7 @@
     Attended Support
 </h4>
 <p class="text-info">
-    You can upload custom versions of the attended support client (i.e. "Remotely_Desktop.exe")
+    You can upload custom versions of the attended support client (i.e. "BorderLink_Desktop.exe")
     and send the download link to end-users when they need support. For example, you could sign
     the EXE with a commercial certificate so the end-user (hopefully) doesn't see a SmartScreen
     warning about the file.
@@ -246,10 +246,10 @@
     private string GetLinuxScript(string platformId)
     {
         return
-            $"sudo rm -f /tmp/Install-Remotely.sh && " +
-            $"sudo wget -q -O /tmp/Install-Remotely.sh {NavMan.BaseUri}api/ClientDownloads/{platformId}/{_organizationId} && " +
-            $"sudo chmod +x /tmp/Install-Remotely.sh && " +
-            $"sudo /tmp/Install-Remotely.sh";
+            $"sudo rm -f /tmp/Install-BorderLink.sh && " +
+            $"sudo wget -q -O /tmp/Install-BorderLink.sh {NavMan.BaseUri}api/ClientDownloads/{platformId}/{_organizationId} && " +
+            $"sudo chmod +x /tmp/Install-BorderLink.sh && " +
+            $"sudo /tmp/Install-BorderLink.sh";
     }
 
 
@@ -265,14 +265,14 @@
 
     private void SetFileInfos()
     {
-        _winX64File = HostEnv.ContentRootFileProvider.GetFileInfo("AppData/Win-x64/Remotely_Desktop.exe");
+        _winX64File = HostEnv.ContentRootFileProvider.GetFileInfo("AppData/Win-x64/BorderLink_Desktop.exe");
         if (_winX64File?.Exists == true && _winX64File?.PhysicalPath is not null)
         {
             var fileInfo = new FileInfo(_winX64File.PhysicalPath);
             _winX64CreatedDate = fileInfo.CreationTimeUtc;
         }
 
-        _winX86File = HostEnv.ContentRootFileProvider.GetFileInfo("AppData/Win-x86/Remotely_Desktop.exe");
+        _winX86File = HostEnv.ContentRootFileProvider.GetFileInfo("AppData/Win-x86/BorderLink_Desktop.exe");
         if (_winX86File?.Exists == true && _winX86File?.PhysicalPath is not null)
         {
             var fileInfo = new FileInfo(_winX86File.PhysicalPath);

@@ -1,3 +1,3 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Remotely.Desktop.Win.Tests")]
+[assembly: InternalsVisibleTo("BorderLink.Desktop.Win.Tests")]

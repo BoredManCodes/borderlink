@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.Enums;
-using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Enums;
+using BorderLink.Shared.Models;
 
-namespace Remotely.Shared.Interfaces;
+namespace BorderLink.Shared.Interfaces;
 
 public interface IDesktopHubClient
 {

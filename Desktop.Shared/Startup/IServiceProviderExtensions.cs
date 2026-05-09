@@ -1,15 +1,15 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Desktop.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Primitives;
+using BorderLink.Shared.Primitives;
 using System.CommandLine;
 using System.CommandLine.NamingConventionBinder;
 using System.Runtime.Versioning;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Desktop.Shared.Startup;
+namespace BorderLink.Desktop.Shared.Startup;
 
 public static class IServiceProviderExtensions
 {

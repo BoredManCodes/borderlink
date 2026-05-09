@@ -1,6 +1,6 @@
-﻿using Remotely.Desktop.Core.Interfaces;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Desktop.Core.Interfaces;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Remotely.Desktop.Core.Services
+namespace BorderLink.Desktop.Core.Services
 {
     public class ChatHostService : IChatClientService
     {
@@ -28,7 +28,7 @@ namespace Remotely.Desktop.Core.Services
 
         public async Task StartChat(string requesterID, string organizationName)
         {
-            NamedPipeStream = new NamedPipeServerStream("Remotely_Chat" + requesterID, PipeDirection.InOut, 10, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+            NamedPipeStream = new NamedPipeServerStream("BorderLink_Chat" + requesterID, PipeDirection.InOut, 10, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             Writer = new StreamWriter(NamedPipeStream);
             Reader = new StreamReader(NamedPipeStream);
 

@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.Helpers;
+﻿using BorderLink.Shared.Helpers;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IExpiringTokenService
 {

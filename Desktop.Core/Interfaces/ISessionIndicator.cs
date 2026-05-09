@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.Core.Interfaces
+﻿namespace BorderLink.Desktop.Core.Interfaces
 {
     public interface ISessionIndicator
     {

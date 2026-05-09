@@ -1,15 +1,15 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.ViewModels;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.ViewModels;
 using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
-using Remotely.Desktop.UI.Controls.Dialogs;
-using Remotely.Desktop.UI.Views;
-using Remotely.Desktop.UI.Services;
+using BorderLink.Desktop.UI.Controls.Dialogs;
+using BorderLink.Desktop.UI.Views;
+using BorderLink.Desktop.UI.Services;
 using System.Threading;
 using System.IO;
 
-namespace Remotely.Desktop.Linux.Services;
+namespace BorderLink.Desktop.Linux.Services;
 
 public class FileTransferServiceLinux : IFileTransferService
 {

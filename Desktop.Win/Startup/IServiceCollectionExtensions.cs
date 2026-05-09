@@ -1,11 +1,11 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
+﻿using BorderLink.Desktop.Shared.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using Remotely.Desktop.Shared.Startup;
-using Remotely.Desktop.UI.Startup;
+using BorderLink.Desktop.Shared.Startup;
+using BorderLink.Desktop.UI.Startup;
 using System.Runtime.Versioning;
-using Remotely.Desktop.Win.Services;
+using BorderLink.Desktop.Win.Services;
 
-namespace Remotely.Desktop.Win.Startup;
+namespace BorderLink.Desktop.Win.Startup;
 
 public static class IServiceCollectionExtensions
 {

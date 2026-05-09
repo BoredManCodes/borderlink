@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Remotely.Desktop.Core
+namespace BorderLink.Desktop.Core
 {
     public class ServiceContainer
     {

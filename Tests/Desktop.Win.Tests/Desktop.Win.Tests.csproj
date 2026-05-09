@@ -7,9 +7,9 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>Remotely.Desktop.Win.Tests</RootNamespace>
+    <RootNamespace>BorderLink.Desktop.Win.Tests</RootNamespace>
 
-    <AssemblyName>Remotely.Desktop.Win.Tests</AssemblyName>
+    <AssemblyName>BorderLink.Desktop.Win.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

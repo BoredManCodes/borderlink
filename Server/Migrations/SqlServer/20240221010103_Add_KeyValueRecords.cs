@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.SqlServer;
+namespace BorderLink.Server.Migrations.SqlServer;
 
 /// <inheritdoc />
 public partial class Add_KeyValueRecords : Migration
@@ -12,7 +12,7 @@ public partial class Add_KeyValueRecords : Migration
     {
         migrationBuilder.AlterColumn<string>(
             name: "Discriminator",
-            table: "RemotelyUsers",
+            table: "BorderLinkUsers",
             type: "nvarchar(13)",
             maxLength: 13,
             nullable: false,
@@ -40,7 +40,7 @@ public partial class Add_KeyValueRecords : Migration
 
         migrationBuilder.AlterColumn<string>(
             name: "Discriminator",
-            table: "RemotelyUsers",
+            table: "BorderLinkUsers",
             type: "nvarchar(max)",
             nullable: false,
             oldClrType: typeof(string),

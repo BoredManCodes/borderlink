@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Remotely.Server.Components.Account;
+namespace BorderLink.Server.Components.Account;
 
 internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
 {

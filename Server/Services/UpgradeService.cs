@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Services;
+﻿namespace BorderLink.Server.Services;
 
 public interface IUpgradeService
 {
@@ -48,7 +48,7 @@ public class UpgradeService : IUpgradeService
         try
         {
             using var client = _httpClientFactory.CreateClient();
-            var response = await client.GetAsync("https://github.com/immense/Remotely/releases/latest");
+            var response = await client.GetAsync("https://github.com/BoredManCodes/borderlink/releases/latest");
             var versionTag = $"{response.RequestMessage?.RequestUri}".Split("/").LastOrDefault();
             if (string.IsNullOrWhiteSpace(versionTag))
             {
@@ -57,7 +57,7 @@ public class UpgradeService : IUpgradeService
             var versionString = versionTag[1..];
             var remoteVersion = Version.Parse(versionString);
 
-            var filePath = Directory.GetFiles(Directory.GetCurrentDirectory(), "Remotely_Server.dll", SearchOption.AllDirectories).First();
+            var filePath = Directory.GetFiles(Directory.GetCurrentDirectory(), "BorderLink_Server.dll", SearchOption.AllDirectories).First();
             var fileVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(filePath).FileVersion;
             if (string.IsNullOrWhiteSpace(fileVersion))
             {

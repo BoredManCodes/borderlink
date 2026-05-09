@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
-using Remotely.Server.Components.Scripts;
-using Remotely.Server.Components.TreeView;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
+using BorderLink.Server.Components.Scripts;
+using BorderLink.Server.Components.TreeView;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
 using System.Collections;
 
-namespace Remotely.Server.Components.Pages;
+namespace BorderLink.Server.Components.Pages;
 
 [Authorize]
 public partial class ScriptsPage : AuthComponentBase

@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.RateLimiting;
+﻿namespace BorderLink.Server.RateLimiting;
 
 public static class PolicyNames
 {

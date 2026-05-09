@@ -1,6 +1,6 @@
-﻿using Remotely.Desktop.UI.Controls.Dialogs;
+﻿using BorderLink.Desktop.UI.Controls.Dialogs;
 
-namespace Remotely.Desktop.UI.Services;
+namespace BorderLink.Desktop.UI.Services;
 
 public interface IDialogProvider
 {

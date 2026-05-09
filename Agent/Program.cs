@@ -1,22 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Agent.Services;
-using Remotely.Shared.Utilities;
-using Remotely.Shared.Services;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Agent.Services;
+using BorderLink.Shared.Utilities;
+using BorderLink.Shared.Services;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 using System.Runtime.Versioning;
-using Remotely.Agent.Services.Linux;
-using Remotely.Agent.Services.MacOS;
-using Remotely.Agent.Services.Windows;
+using BorderLink.Agent.Services.Linux;
+using BorderLink.Agent.Services.MacOS;
+using BorderLink.Agent.Services.Windows;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
 using Microsoft.Win32;
 using System.Reflection;
 
-namespace Remotely.Agent;
+namespace BorderLink.Agent;
 
 public class Program
 {

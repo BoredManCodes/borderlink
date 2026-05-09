@@ -1,12 +1,12 @@
-﻿using Remotely.Shared.Extensions;
+﻿using BorderLink.Shared.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Remotely.Server.Auth;
-using Remotely.Server.Extensions;
-using Remotely.Server.Services;
-using Remotely.Shared.Models;
+using BorderLink.Server.Auth;
+using BorderLink.Server.Extensions;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Models;
 using System.Text.Json;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]

@@ -1,5 +1,5 @@
-using Remotely.Server.Components.Account.Pages;
-using Remotely.Server.Components.Account.Pages.Manage;
+using BorderLink.Server.Components.Account.Pages;
+using BorderLink.Server.Components.Account.Pages.Manage;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Security.Claims;
 using System.Text.Json;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
 namespace Microsoft.AspNetCore.Routing;
@@ -25,7 +25,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         accountGroup.MapPost("/PerformExternalLogin", (
             HttpContext context,
-            [FromServices] SignInManager<RemotelyUser> signInManager,
+            [FromServices] SignInManager<BorderLinkUser> signInManager,
             [FromForm] string provider,
             [FromForm] string returnUrl) =>
         {
@@ -44,7 +44,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         accountGroup.MapPost("/Logout", async (
             ClaimsPrincipal user,
-            SignInManager<RemotelyUser> signInManager,
+            SignInManager<BorderLinkUser> signInManager,
             [FromForm] string returnUrl) =>
         {
             await signInManager.SignOutAsync();
@@ -55,7 +55,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         manageGroup.MapPost("/LinkExternalLogin", async (
             HttpContext context,
-            [FromServices] SignInManager<RemotelyUser> signInManager,
+            [FromServices] SignInManager<BorderLinkUser> signInManager,
             [FromForm] string provider) =>
         {
             // Clear the existing external cookie to ensure a clean login process
@@ -75,7 +75,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
         manageGroup.MapPost("/DownloadPersonalData", async (
             HttpContext context,
-            [FromServices] UserManager<RemotelyUser> userManager,
+            [FromServices] UserManager<BorderLinkUser> userManager,
             [FromServices] AuthenticationStateProvider authenticationStateProvider) =>
         {
             var user = await userManager.GetUserAsync(context.User);
@@ -89,7 +89,7 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
 
             // Only include personal data for download
             var personalData = new Dictionary<string, string>();
-            var personalDataProps = typeof(RemotelyUser).GetProperties().Where(
+            var personalDataProps = typeof(BorderLinkUser).GetProperties().Where(
                 prop => Attribute.IsDefined(prop, typeof(PersonalDataAttribute)));
             foreach (var p in personalDataProps)
             {

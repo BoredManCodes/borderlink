@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Models;
+﻿namespace BorderLink.Server.Models;
 
 public class Toast
 {

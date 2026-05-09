@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class Alert
 {
@@ -24,7 +24,7 @@ public class Alert
     public string OrganizationID { get; set; } = null!;
 
     [JsonIgnore]
-    public RemotelyUser? User { get; set; }
+    public BorderLinkUser? User { get; set; }
     public string UserID { get; set; } = null!;
     public string? Details { get; set; }
 }

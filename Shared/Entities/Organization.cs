@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class Organization
 {
@@ -34,6 +34,6 @@ public class Organization
     [StringLength(25)]
     public required string OrganizationName { get; set; }
 
-    public ICollection<RemotelyUser> RemotelyUsers { get; set; } = [];
+    public ICollection<BorderLinkUser> BorderLinkUsers { get; set; } = [];
     public ICollection<SharedFile> SharedFiles { get; set; } = [];
 }

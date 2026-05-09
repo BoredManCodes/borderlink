@@ -3,12 +3,12 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Reactive;
 using Microsoft.Extensions.DependencyInjection;
-using Remotely.Shared.Models;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Shared.Models;
+using BorderLink.Desktop.Shared.Services;
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface IChatWindowViewModel : IBrandedViewModelBase
 {

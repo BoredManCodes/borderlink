@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-   Publishes the Remotely clients.
+   Publishes the BorderLink clients.
 .DESCRIPTION
-   Publishes the Remotely clients.
+   Publishes the BorderLink clients.
    To deploy the server, supply the following arguments: -rid win-x64 -outdir path\to\dir -hostname https://mysite.mydomain.com
 .COPYRIGHT
-   Copyright 2023 Immense Networks.  All rights reserved.
+   Copyright 2023 Border Tech Solutions.  All rights reserved.
 .EXAMPLE
    Run it from the Utilities folder (located in the solution directory).
    Or run "powershell -f Publish.ps1 -rid win-x64 -outdir path\to\dir -hostname https://mysite.mydomain.com
@@ -125,7 +125,7 @@ dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion -p:Publ
 dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion -p:PublishProfile=desktop-win-x64 --configuration Release "$Root\Desktop.Win"
 
 if ($SignAssemblies) {
-    &"$Root\Utilities\signtool.exe" sign /fd SHA256 /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x64\Remotely_Desktop.exe"
+    &"$Root\Utilities\signtool.exe" sign /fd SHA256 /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x64\BorderLink_Desktop.exe"
 }
 
 
@@ -133,34 +133,34 @@ if ($SignAssemblies) {
 dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion -p:PublishProfile=desktop-win-x86 --configuration Release "$Root\Desktop.Win"
 
 if ($SignAssemblies) {
-    &"$Root\Utilities\signtool.exe" sign /fd SHA256 /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x86\Remotely_Desktop.exe"
+    &"$Root\Utilities\signtool.exe" sign /fd SHA256 /f "$CertificatePath" /p $CertificatePassword /t http://timestamp.digicert.com "$Root\Server\wwwroot\Content\Win-x86\BorderLink_Desktop.exe"
 }
 
 # Compress Agents.
 $PublishDir = "$Root\Agent\bin\publish\win-x64"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\Remotely-Win-x64.zip" -Force
-Wait-ForExists -FilePath "$PublishDir\Remotely-Win-x64.zip"
-Move-Item -Path "$PublishDir\Remotely-Win-x64.zip" -Destination "$Root\Server\wwwroot\Content\Remotely-Win-x64.zip" -Force
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\BorderLink-Win-x64.zip" -Force
+Wait-ForExists -FilePath "$PublishDir\BorderLink-Win-x64.zip"
+Move-Item -Path "$PublishDir\BorderLink-Win-x64.zip" -Destination "$Root\Server\wwwroot\Content\BorderLink-Win-x64.zip" -Force
 
 $PublishDir = "$Root\Agent\bin\publish\win-x86"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\Remotely-Win-x86.zip" -Force
-Wait-ForExists -FilePath "$PublishDir\Remotely-Win-x86.zip"
-Move-Item -Path "$PublishDir\Remotely-Win-x86.zip" -Destination "$Root\Server\wwwroot\Content\Remotely-Win-x86.zip" -Force
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\BorderLink-Win-x86.zip" -Force
+Wait-ForExists -FilePath "$PublishDir\BorderLink-Win-x86.zip"
+Move-Item -Path "$PublishDir\BorderLink-Win-x86.zip" -Destination "$Root\Server\wwwroot\Content\BorderLink-Win-x86.zip" -Force
 
 $PublishDir = "$Root\Agent\bin\publish\linux-x64"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\Remotely-Linux.zip" -Force
-Wait-ForExists -FilePath "$PublishDir\Remotely-Linux.zip"
-Move-Item -Path "$PublishDir\Remotely-Linux.zip" -Destination "$Root\Server\wwwroot\Content\Remotely-Linux.zip" -Force
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\BorderLink-Linux.zip" -Force
+Wait-ForExists -FilePath "$PublishDir\BorderLink-Linux.zip"
+Move-Item -Path "$PublishDir\BorderLink-Linux.zip" -Destination "$Root\Server\wwwroot\Content\BorderLink-Linux.zip" -Force
 
 $PublishDir = "$Root\Agent\bin\publish\osx-x64"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\Remotely-MacOS-x64.zip" -Force
-Wait-ForExists -FilePath "$PublishDir\Remotely-MacOS-x64.zip"
-Move-Item -Path "$PublishDir\Remotely-MacOS-x64.zip" -Destination "$Root\Server\wwwroot\Content\Remotely-MacOS-x64.zip" -Force
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\BorderLink-MacOS-x64.zip" -Force
+Wait-ForExists -FilePath "$PublishDir\BorderLink-MacOS-x64.zip"
+Move-Item -Path "$PublishDir\BorderLink-MacOS-x64.zip" -Destination "$Root\Server\wwwroot\Content\BorderLink-MacOS-x64.zip" -Force
 
 $PublishDir = "$Root\Agent\bin\publish\osx-arm64"
-Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\Remotely-MacOS-arm64.zip" -Force
-Wait-ForExists -FilePath "$PublishDir\Remotely-MacOS-arm64.zip"
-Move-Item -Path "$PublishDir\Remotely-MacOS-arm64.zip" -Destination "$Root\Server\wwwroot\Content\Remotely-MacOS-arm64.zip" -Force
+Compress-Archive -Path "$PublishDir\*" -DestinationPath "$PublishDir\BorderLink-MacOS-arm64.zip" -Force
+Wait-ForExists -FilePath "$PublishDir\BorderLink-MacOS-arm64.zip"
+Move-Item -Path "$PublishDir\BorderLink-MacOS-arm64.zip" -Destination "$Root\Server\wwwroot\Content\BorderLink-MacOS-arm64.zip" -Force
 
 
 if ($RID.Length -gt 0 -and $OutDir.Length -gt 0) {

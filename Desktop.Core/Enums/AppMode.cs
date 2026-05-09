@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.Core.Enums
+﻿namespace BorderLink.Desktop.Core.Enums
 {
     public enum AppMode
     {

@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.UI.Controls.Dialogs;
+﻿namespace BorderLink.Desktop.UI.Controls.Dialogs;
 
 public enum MessageBoxType
 {

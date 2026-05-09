@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Remotely.Desktop.Core.Enums;
-using Remotely.Desktop.Core.Interfaces;
-using Remotely.Desktop.Core.Models;
-using Remotely.Desktop.Core.Utilities;
-using Remotely.Shared.Utilities;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Core.Enums;
+using BorderLink.Desktop.Core.Interfaces;
+using BorderLink.Desktop.Core.Models;
+using BorderLink.Desktop.Core.Utilities;
+using BorderLink.Shared.Utilities;
+using BorderLink.Shared.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using SkiaSharp;
 
-namespace Remotely.Desktop.Core.Services
+namespace BorderLink.Desktop.Core.Services
 {
     public interface IScreenCaster
     {

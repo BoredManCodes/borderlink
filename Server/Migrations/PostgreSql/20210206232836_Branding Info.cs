@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Remotely.Server.Migrations.PostgreSql;
+namespace BorderLink.Server.Migrations.PostgreSql;
 
 public partial class BrandingInfo : Migration
 {

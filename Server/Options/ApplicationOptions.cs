@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Options;
+﻿namespace BorderLink.Server.Options;
 
 public class ApplicationOptions
 {

@@ -1,6 +1,6 @@
 ﻿using SkiaSharp;
 
-namespace Remotely.Desktop.Shared.Extensions;
+namespace BorderLink.Desktop.Shared.Extensions;
 
 public static class SKBitmapExtensions
 {

@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.Entities;
+﻿using BorderLink.Shared.Entities;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IAgentHubSessionCache
 {

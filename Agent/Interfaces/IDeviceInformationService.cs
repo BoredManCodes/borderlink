@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.Dtos;
+﻿using BorderLink.Shared.Dtos;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Interfaces;
+namespace BorderLink.Agent.Interfaces;
 
 public interface IDeviceInformationService
 {

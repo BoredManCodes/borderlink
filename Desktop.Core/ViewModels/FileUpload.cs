@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 
-namespace Remotely.Desktop.Core.ViewModels
+namespace BorderLink.Desktop.Core.ViewModels
 {
     public class FileUpload : ViewModelBase
     {

@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.ViewModels;
+﻿using BorderLink.Shared.ViewModels;
 using System.Collections.Concurrent;
 
-namespace Remotely.Server.Services.Stores;
+namespace BorderLink.Server.Services.Stores;
 
 public interface ITerminalStore
 {

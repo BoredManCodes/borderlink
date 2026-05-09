@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.ViewModels;
+﻿namespace BorderLink.Shared.ViewModels;
 
 public class OrganizationUser
 {

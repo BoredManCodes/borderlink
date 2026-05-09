@@ -1,14 +1,14 @@
 ﻿using MessagePack;
-using Remotely.Desktop.Core.Enums;
-using Remotely.Desktop.Core.Interfaces;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Models.RemoteControlDtos;
-using Remotely.Shared.Utilities;
+using BorderLink.Desktop.Core.Enums;
+using BorderLink.Desktop.Core.Interfaces;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Models.RemoteControlDtos;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
-namespace Remotely.Desktop.Core.Services
+namespace BorderLink.Desktop.Core.Services
 {
     public interface IDtoMessageHandler
     {

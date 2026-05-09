@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Models;
+﻿namespace BorderLink.Shared.Models;
 
 public readonly struct SentFrame
 {

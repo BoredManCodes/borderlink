@@ -2,7 +2,7 @@ version: '3.4'
 
 
 services:
-  remotely:
+  borderlink:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=5000

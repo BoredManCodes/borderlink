@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Remotely.Server.Migrations.Sqlite;
+namespace BorderLink.Server.Migrations.Sqlite;
 
 public partial class AddScriptSchedules : Migration
 {
@@ -15,7 +15,7 @@ public partial class AddScriptSchedules : Migration
 
         migrationBuilder.DropColumn(
             name: "DisplayName",
-            table: "RemotelyUsers");
+            table: "BorderLinkUsers");
 
         migrationBuilder.DropColumn(
             name: "Token",
@@ -48,9 +48,9 @@ public partial class AddScriptSchedules : Migration
                     principalColumn: "ID",
                     onDelete: ReferentialAction.Restrict);
                 table.ForeignKey(
-                    name: "FK_SavedScripts_RemotelyUsers_CreatorId",
+                    name: "FK_SavedScripts_BorderLinkUsers_CreatorId",
                     column: x => x.CreatorId,
-                    principalTable: "RemotelyUsers",
+                    principalTable: "BorderLinkUsers",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Restrict);
             });
@@ -82,9 +82,9 @@ public partial class AddScriptSchedules : Migration
                     principalColumn: "ID",
                     onDelete: ReferentialAction.Restrict);
                 table.ForeignKey(
-                    name: "FK_ScriptSchedules_RemotelyUsers_CreatorId",
+                    name: "FK_ScriptSchedules_BorderLinkUsers_CreatorId",
                     column: x => x.CreatorId,
-                    principalTable: "RemotelyUsers",
+                    principalTable: "BorderLinkUsers",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Restrict);
             });
@@ -366,7 +366,7 @@ public partial class AddScriptSchedules : Migration
 
         migrationBuilder.AddColumn<string>(
             name: "DisplayName",
-            table: "RemotelyUsers",
+            table: "BorderLinkUsers",
             type: "TEXT",
             maxLength: 100,
             nullable: true);

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.FileProviders;
 
-namespace Remotely.Server.Data;
+namespace BorderLink.Server.Data;
 
 public class SqliteDbContextDesignTime : IDesignTimeDbContextFactory<SqliteDbContext>
 {
@@ -9,7 +9,7 @@ public class SqliteDbContextDesignTime : IDesignTimeDbContextFactory<SqliteDbCon
     {
         var appSettings = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:SQLite"] = "Data Source=remotely.db",
+            ["ConnectionStrings:SQLite"] = "Data Source=borderlink.db",
             ["ApplicationOptions:DbProvider"] = "sqlite"
         };
 
@@ -27,7 +27,7 @@ public class SqlServerDbContextDesignTime : IDesignTimeDbContextFactory<SqlServe
     {
         var appSettings = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:SqlServer"] = "Server=(localdb)\\mssqllocaldb;Database=Remotely-Server-53bc9b9d-9d6a-45d4-8429-2a2761773502;Trusted_Connection=True;MultipleActiveResultSets=true",
+            ["ConnectionStrings:SqlServer"] = "Server=(localdb)\\mssqllocaldb;Database=BorderLink-Server-53bc9b9d-9d6a-45d4-8429-2a2761773502;Trusted_Connection=True;MultipleActiveResultSets=true",
             ["ApplicationOptions:DbProvider"] = "SqlServer"
         };
 
@@ -45,7 +45,7 @@ public class PostgreSqlDbContextDesignTime : IDesignTimeDbContextFactory<Postgre
     {
         var appSettings = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:PostgreSql"] = "Host=localhost;Database=Remotely;Username=postgres;",
+            ["ConnectionStrings:PostgreSql"] = "Host=localhost;Database=BorderLink;Username=postgres;",
             ["ApplicationOptions:DbProvider"] = "PostgreSql"
         };
 

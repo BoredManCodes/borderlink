@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 
-namespace Remotely.Shared.Services;
+namespace BorderLink.Shared.Services;
 
 public interface IProcessInvoker
 {

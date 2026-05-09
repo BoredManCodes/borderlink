@@ -4,11 +4,11 @@ HostName=
 Organization=
 GUID="$(uuidgen)"
 UpdatePackagePath=""
-InstallDir="/usr/local/bin/Remotely"
-ETag=$(curl --head $HostName/Content/Remotely-MacOS-x64.zip | grep -i "etag" | cut -d' ' -f 2)
-LogPath="/var/log/remotely/Agent_Install.log"
+InstallDir="/usr/local/bin/BorderLink"
+ETag=$(curl --head $HostName/Content/BorderLink-MacOS-x64.zip | grep -i "etag" | cut -d' ' -f 2)
+LogPath="/var/log/borderlink/Agent_Install.log"
 
-mkdir -p /var/log/remotely
+mkdir -p /var/log/borderlink
 
 Args=( "$@" )
 ArgLength=${#Args[@]}
@@ -16,9 +16,9 @@ ArgLength=${#Args[@]}
 for (( i=0; i<${ArgLength}; i+=2 ));
 do
     if [ "${Args[$i]}" = "--uninstall" ]; then
-        sudo launchctl bootout system /Library/LaunchDaemons/remotely-agent.plist
+        sudo launchctl bootout system /Library/LaunchDaemons/borderlink-agent.plist
         rm -r -f $InstallDir/
-        rm -f /Library/LaunchDaemons/remotely-agent.plist
+        rm -f /Library/LaunchDaemons/borderlink-agent.plist
         exit
     elif [ "${Args[$i]}" = "--path" ]; then
         UpdatePackagePath="${Args[$i+1]}"
@@ -53,25 +53,25 @@ if [ -f "$InstallDir/ConnectionInfo.json" ]; then
     fi
 fi
 
-rm -r -f /Applications/Remotely
-rm -f /Library/LaunchDaemons/remotely-agent.plist
+rm -r -f /Applications/BorderLink
+rm -f /Library/LaunchDaemons/borderlink-agent.plist
 
 mkdir -p $InstallDir
 chmod -R 755 $InstallDir
 
 if [ -z "$UpdatePackagePath" ]; then
-    echo  "Downloading client..." >> /tmp/Remotely_Install.log
-    curl $HostName/Content/Remotely-MacOS-x64.zip --output $InstallDir/Remotely-MacOS-x64.zip
+    echo  "Downloading client..." >> /tmp/BorderLink_Install.log
+    curl $HostName/Content/BorderLink-MacOS-x64.zip --output $InstallDir/BorderLink-MacOS-x64.zip
 else
-    echo  "Copying install files..." >> /tmp/Remotely_Install.log
-    cp "$UpdatePackagePath" $InstallDir/Remotely-MacOS-x64.zip
+    echo  "Copying install files..." >> /tmp/BorderLink_Install.log
+    cp "$UpdatePackagePath" $InstallDir/BorderLink-MacOS-x64.zip
     rm -f "$UpdatePackagePath"
 fi
 
-unzip -o $InstallDir/Remotely-MacOS-x64.zip -d $InstallDir
-rm -f $InstallDir/Remotely-MacOS-x64.zip
-chmod +x $InstallDir/Remotely_Agent
-chmod +x $InstallDir/Desktop/Remotely_Desktop
+unzip -o $InstallDir/BorderLink-MacOS-x64.zip -d $InstallDir
+rm -f $InstallDir/BorderLink-MacOS-x64.zip
+chmod +x $InstallDir/BorderLink_Agent
+chmod +x $InstallDir/Desktop/BorderLink_Desktop
 
 connectionInfo="{
     \"DeviceID\":\"$GUID\", 
@@ -82,7 +82,7 @@ connectionInfo="{
 
 echo "$connectionInfo" > $InstallDir/ConnectionInfo.json
 
-curl --head $HostName/Content/Remotely-MacOS-x64.zip | grep -i "etag" | cut -d' ' -f 2 > $InstallDir/etag.txt
+curl --head $HostName/Content/BorderLink-MacOS-x64.zip | grep -i "etag" | cut -d' ' -f 2 > $InstallDir/etag.txt
 
 
 plistFile="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -90,16 +90,16 @@ plistFile="<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <plist version=\"1.0\">
 <dict>
     <key>Label</key>
-    <string>com.translucency.remotely-agent</string>
+    <string>com.bordertech.borderlink-agent</string>
     <key>ProgramArguments</key>
     <array>
-        <string>$InstallDir/Remotely_Agent</string>
+        <string>$InstallDir/BorderLink_Agent</string>
     </array>
     <key>KeepAlive</key>
     <true/>
 </dict>
 </plist>"
-echo "$plistFile" > "/Library/LaunchDaemons/remotely-agent.plist"
+echo "$plistFile" > "/Library/LaunchDaemons/borderlink-agent.plist"
 
-sudo launchctl bootstrap system /Library/LaunchDaemons/remotely-agent.plist
-sudo launchctl kickstart -k system/com.translucency.remotely-agent
+sudo launchctl bootstrap system /Library/LaunchDaemons/borderlink-agent.plist
+sudo launchctl kickstart -k system/com.bordertech.borderlink-agent

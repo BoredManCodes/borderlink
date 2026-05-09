@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.Enums;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Shared.Enums;
+using BorderLink.Shared.Utilities;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.DtoEntityBases;
+namespace BorderLink.Shared.DtoEntityBases;
 
 public abstract class ScriptResultBase
 {

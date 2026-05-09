@@ -1,8 +1,8 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Shared.Models;
 using System.Drawing;
 
-namespace Remotely.Desktop.Linux.Services;
+namespace BorderLink.Desktop.Linux.Services;
 
 public class CursorIconWatcherLinux : ICursorIconWatcher
 {

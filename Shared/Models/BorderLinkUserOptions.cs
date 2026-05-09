@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Remotely.Shared.Models;
+namespace BorderLink.Shared.Models;
 
-public class RemotelyUserOptions
+public class BorderLinkUserOptions
 {
     [Display(Name = "Display Name")]
     [StringLength(100)]

@@ -68,12 +68,12 @@ jobs:
           
           Write-Host "Publishing agent with version $CurrentVersion"
           dotnet publish /p:Version=$CurrentVersion /p:FileVersion=$CurrentVersion --runtime osx-x64 --self-contained --configuration Release --output "./Agent/bin/publish/" "./Agent/"
-          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/Remotely-MacOS-x64.zip" -Force
+          Compress-Archive -Path "./Agent/bin/publish/*" -DestinationPath "./Agent/bin/BorderLink-MacOS-x64.zip" -Force
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v2
         with:
-          path: ./Agent/bin/Remotely-MacOS-x64.zip
+          path: ./Agent/bin/BorderLink-MacOS-x64.zip
           name: Mac-Agent-x64
      
   build-windows:
@@ -83,7 +83,7 @@ jobs:
     needs: build-mac
 
     env:
-      Solution_Name: Remotely.sln      
+      Solution_Name: BorderLink.sln      
       Configuration: Release
       PfxBase64: ${{ secrets.BASE64_ENCODED_PFX }}
       PfxKey: ${{ secrets.PFX_KEY }}

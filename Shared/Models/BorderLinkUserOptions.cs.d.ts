@@ -1,4 +1,4 @@
-	interface remotelyUserOptions {
+	interface borderlinkUserOptions {
 		displayName: string;
 		commandModeShortcutPSCore: string;
 		commandModeShortcutWinPS: string;

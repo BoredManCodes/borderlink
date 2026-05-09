@@ -6,12 +6,12 @@
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.WebUtilities
-@using Remotely.Server.Data
+@using BorderLink.Server.Data
 
-@inject SignInManager<RemotelyUser> SignInManager
-@inject UserManager<RemotelyUser> UserManager
-@inject IUserStore<RemotelyUser> UserStore
-@inject IEmailSender<RemotelyUser> EmailSender
+@inject SignInManager<BorderLinkUser> SignInManager
+@inject UserManager<BorderLinkUser> UserManager
+@inject IUserStore<BorderLinkUser> UserStore
+@inject IEmailSender<BorderLinkUser> EmailSender
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ExternalLogin> Logger
@@ -164,26 +164,26 @@
         message = $"Error: {string.Join(",", result.Errors.Select(error => error.Description))}";
     }
 
-    private RemotelyUser CreateUser()
+    private BorderLinkUser CreateUser()
     {
         try
         {
-            return Activator.CreateInstance<RemotelyUser>();
+            return Activator.CreateInstance<BorderLinkUser>();
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(RemotelyUser)}'. " +
-                $"Ensure that '{nameof(RemotelyUser)}' is not an abstract class and has a parameterless constructor");
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(BorderLinkUser)}'. " +
+                $"Ensure that '{nameof(BorderLinkUser)}' is not an abstract class and has a parameterless constructor");
         }
     }
 
-    private IUserEmailStore<RemotelyUser> GetEmailStore()
+    private IUserEmailStore<BorderLinkUser> GetEmailStore()
     {
         if (!UserManager.SupportsUserEmail)
         {
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
-        return (IUserEmailStore<RemotelyUser>)UserStore;
+        return (IUserEmailStore<BorderLinkUser>)UserStore;
     }
 
     private sealed class InputModel

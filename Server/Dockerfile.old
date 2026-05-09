@@ -21,15 +21,15 @@ RUN \
 RUN \
   mkdir -p /app && \
   mkdir /config && \
-  wget -q https://github.com/immense/Remotely/releases/latest/download/Remotely_Server_Linux-x64.zip && \
-  unzip -o Remotely_Server_Linux-x64.zip -d /app && \
-  rm Remotely_Server_Linux-x64.zip
+  wget -q https://github.com/immense/Remotely/releases/latest/download/BorderLink_Server_Linux-x64.zip && \
+  unzip -o BorderLink_Server_Linux-x64.zip -d /app && \
+  rm BorderLink_Server_Linux-x64.zip
 
 RUN \
-  mkdir -p /remotely-data && \
-  sed -i 's/DataSource=Remotely.db/DataSource=\/remotely-data\/Remotely.db/' /app/appsettings.json
+  mkdir -p /borderlink-data && \
+  sed -i 's/DataSource=BorderLink.db/DataSource=\/borderlink-data\/BorderLink.db/' /app/appsettings.json
 
-VOLUME "/remotely-data"
+VOLUME "/borderlink-data"
 
 WORKDIR /app
 

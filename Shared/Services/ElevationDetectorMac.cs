@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Remotely.Shared.Services;
+namespace BorderLink.Shared.Services;
 
 public class ElevationDetectorMac : IElevationDetector
 {

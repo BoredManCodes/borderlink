@@ -1,10 +1,10 @@
-﻿using Remotely.Shared.Attributes;
-using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Attributes;
+using BorderLink.Shared.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class Device
 {

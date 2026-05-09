@@ -1,14 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Remotely.Server.Auth;
-using Remotely.Server.Extensions;
-using Remotely.Server.Services;
-using Remotely.Shared.Extensions;
-using Remotely.Shared.Models;
-using Remotely.Shared.Services;
+using BorderLink.Server.Auth;
+using BorderLink.Server.Extensions;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Extensions;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Services;
 using System.Text;
 using FileIO = System.IO.File;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -39,27 +39,27 @@ public class ClientDownloadsController : ControllerBase
         {
             case "WindowsDesktop-x64":
                 {
-                    var filePath = Path.Combine("Content", "Win-x64", "Remotely_Desktop.exe");
+                    var filePath = Path.Combine("Content", "Win-x64", "BorderLink_Desktop.exe");
                     return await GetDesktopFile(filePath);
                 }
             case "WindowsDesktop-x86":
                 {
-                    var filePath = Path.Combine("Content", "Win-x86", "Remotely_Desktop.exe");
+                    var filePath = Path.Combine("Content", "Win-x86", "BorderLink_Desktop.exe");
                     return await GetDesktopFile(filePath);
                 }
             case "UbuntuDesktop":
                 {
-                    var filePath = Path.Combine("Content", "Linux-x64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "Linux-x64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath);
                 }
             case "MacOS-x64":
                 {
-                    var filePath = Path.Combine("Content", "MacOS-x64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "MacOS-x64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath);
                 }
             case "MacOS-arm64":
                 {
-                    var filePath = Path.Combine("Content", "MacOS-arm64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "MacOS-arm64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath);
                 }
             default:
@@ -75,27 +75,27 @@ public class ClientDownloadsController : ControllerBase
         {
             case "WindowsDesktop-x64":
                 {
-                    var filePath = Path.Combine("Content", "Win-x64", "Remotely_Desktop.exe");
+                    var filePath = Path.Combine("Content", "Win-x64", "BorderLink_Desktop.exe");
                     return await GetDesktopFile(filePath, organizationId);
                 }
             case "WindowsDesktop-x86":
                 {
-                    var filePath = Path.Combine("Content", "Win-x86", "Remotely_Desktop.exe");
+                    var filePath = Path.Combine("Content", "Win-x86", "BorderLink_Desktop.exe");
                     return await GetDesktopFile(filePath, organizationId);
                 }
             case "UbuntuDesktop":
                 {
-                    var filePath = Path.Combine("Content", "Linux-x64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "Linux-x64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath, organizationId);
                 }
             case "MacOS-x64":
                 {
-                    var filePath = Path.Combine("Content", "MacOS-x64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "MacOS-x64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath);
                 }
             case "MacOS-arm64":
                 {
-                    var filePath = Path.Combine("Content", "MacOS-arm64", "Remotely_Desktop");
+                    var filePath = Path.Combine("Content", "MacOS-arm64", "BorderLink_Desktop");
                     return await GetDesktopFile(filePath);
                 }
             default:
@@ -177,7 +177,7 @@ public class ClientDownloadsController : ControllerBase
                     {
                         var effectiveScheme = settings.ForceClientHttps ? "https" : Request.Scheme;
 
-                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Install-Remotely.ps1");
+                        var filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Install-BorderLink.ps1");
                         if (!FileIO.Exists(filePath))
                         {
                             return NotFound();
@@ -198,7 +198,7 @@ public class ClientDownloadsController : ControllerBase
                         fileContents[orgIndex] = $"[string]$Organization = \"{organizationId}\"";
                         var fileBytes = Encoding.UTF8.GetBytes(string.Join("\n", fileContents));
 
-                        return File(fileBytes, "application/octet-stream", "Install-Remotely.ps1");
+                        return File(fileBytes, "application/octet-stream", "Install-BorderLink.ps1");
                     }
                 case "ManjaroInstaller-x64":
                     {

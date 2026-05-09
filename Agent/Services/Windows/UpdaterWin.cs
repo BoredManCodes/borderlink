@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Utilities;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +10,7 @@ using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Services.Windows;
+namespace BorderLink.Agent.Services.Windows;
 
 public class UpdaterWin : IUpdater
 {
@@ -74,7 +74,7 @@ public class UpdaterWin : IUpdater
             var serverUrl = _configService.GetConnectionInfo().Host;
 
             var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
-            var fileUrl = serverUrl + $"/Content/Remotely-Win-{platform}.zip";
+            var fileUrl = serverUrl + $"/Content/BorderLink-Win-{platform}.zip";
 
             using var httpClient = _httpClientFactory.CreateClient();
             using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
@@ -128,13 +128,13 @@ public class UpdaterWin : IUpdater
 
             _logger.LogInformation("Service Updater: Downloading install package.");
 
-            var zipPath = Path.Combine(Path.GetTempPath(), "RemotelyUpdate.zip");
+            var zipPath = Path.Combine(Path.GetTempPath(), "BorderLinkUpdate.zip");
 
-            var installerPath = Path.Combine(Path.GetTempPath(), "Install-Remotely.ps1");
+            var installerPath = Path.Combine(Path.GetTempPath(), "Install-BorderLink.ps1");
             var platform = Environment.Is64BitOperatingSystem ? "x64" : "x86";
 
             await _updateDownloader.DownloadFile(
-                 $"{serverUrl}/Content/Install-Remotely.ps1",
+                 $"{serverUrl}/Content/Install-BorderLink.ps1",
                  installerPath);
 
             await _updateDownloader.DownloadFile(

@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Utilities;
 using System.Collections.Concurrent;
 using System.Text.Json;
 
-namespace Remotely.Server.Components.Pages;
+namespace BorderLink.Server.Components.Pages;
 
 public partial class DeviceDetails : AuthComponentBase
 {

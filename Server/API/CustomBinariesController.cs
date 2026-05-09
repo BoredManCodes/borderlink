@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Remotely.Server.Services;
-using Remotely.Shared.Models;
-using Remotely.Shared.Services;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Services;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/custom-binaries")]
 [ApiController]
@@ -16,7 +16,7 @@ public class CustomBinariesController(
     public async Task<IActionResult> GetWinX86Desktop(string organizationId)
     {
         var embeddedData = await GetEmbeddedData(organizationId);
-        var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppData", "Win-x86", "Remotely_Desktop.exe");
+        var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppData", "Win-x86", "BorderLink_Desktop.exe");
         var fileName = _embeddedData.GetEncodedFileName(filePath, embeddedData);
         var rs = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         return File(rs, "application/octet-stream", fileName);
@@ -26,7 +26,7 @@ public class CustomBinariesController(
     public async Task<IActionResult> GetWinX64Desktop(string organizationId)
     {
         var embeddedData = await GetEmbeddedData(organizationId);
-        var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppData", "Win-x64", "Remotely_Desktop.exe");
+        var filePath = Path.Combine(_hostingEnvironment.ContentRootPath, "AppData", "Win-x64", "BorderLink_Desktop.exe");
         var fileName = _embeddedData.GetEncodedFileName(filePath, embeddedData);
         var rs = System.IO.File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
         return File(rs, "application/octet-stream", fileName);

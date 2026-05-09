@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Remotely.Server.Converters;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Models;
+using BorderLink.Server.Converters;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Models;
 using System.Text.Json;
 
-namespace Remotely.Server.Data;
+namespace BorderLink.Server.Data;
 
 public class AppDb : IdentityDbContext
 {
@@ -39,7 +39,7 @@ public class AppDb : IdentityDbContext
     public DbSet<ScriptRun> ScriptRuns { get; set; }
     public DbSet<ScriptSchedule> ScriptSchedules { get; set; }
     public DbSet<SharedFile> SharedFiles { get; set; }
-    public new DbSet<RemotelyUser> Users { get; set; }
+    public new DbSet<BorderLinkUser> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
@@ -59,13 +59,13 @@ public class AppDb : IdentityDbContext
 
         base.OnModelCreating(builder);
 
-        builder.Entity<IdentityUser>().ToTable("RemotelyUsers");
+        builder.Entity<IdentityUser>().ToTable("BorderLinkUsers");
 
         builder.Entity<Organization>()
             .HasMany(x => x.Devices)
             .WithOne(x => x.Organization);
         builder.Entity<Organization>()
-            .HasMany(x => x.RemotelyUsers)
+            .HasMany(x => x.BorderLinkUsers)
             .WithOne(x => x.Organization);
         builder.Entity<Organization>()
             .HasMany(x => x.DeviceGroups)
@@ -107,34 +107,34 @@ public class AppDb : IdentityDbContext
             .OnDelete(DeleteBehavior.ClientSetNull);
 
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .HasMany(x => x.DeviceGroups)
             .WithMany(x => x.Users);
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .HasMany(x => x.Alerts)
             .WithOne(x => x.User)
             .OnDelete(DeleteBehavior.ClientCascade);
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .Property(x => x.UserOptions)
             .HasConversion(
                 x => JsonSerializer.Serialize(x, jsonOptions),
-                x => JsonSerializer.Deserialize<RemotelyUserOptions>(x, jsonOptions));
+                x => JsonSerializer.Deserialize<BorderLinkUserOptions>(x, jsonOptions));
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .HasMany(x => x.SavedScripts)
             .WithOne(x => x.Creator)
             .HasForeignKey(x => x.CreatorId)
             .OnDelete(DeleteBehavior.ClientCascade);
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .HasMany(x => x.ScriptSchedules)
             .WithOne(x => x.Creator)
             .HasForeignKey(x => x.CreatorId)
             .OnDelete(DeleteBehavior.ClientCascade);
 
-        builder.Entity<RemotelyUser>()
+        builder.Entity<BorderLinkUser>()
             .HasIndex(x => x.UserName);
 
         builder.Entity<Device>()

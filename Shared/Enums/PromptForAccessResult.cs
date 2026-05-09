@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Enums;
+﻿namespace BorderLink.Shared.Enums;
 
 public enum PromptForAccessResult
 {

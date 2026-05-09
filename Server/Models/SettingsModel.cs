@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Server.Models;
+namespace BorderLink.Server.Models;
 
 public class SettingsModel
 {

@@ -1,4 +1,4 @@
-﻿using Remotely.Shared;
+﻿using BorderLink.Shared;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Remotely.Desktop.Core.Extensions
+namespace BorderLink.Desktop.Core.Extensions
 {
     public static class SKBitmapExtensions
     {

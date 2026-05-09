@@ -1,10 +1,10 @@
 ﻿#nullable enable
 
 using MessagePack;
-using Remotely.Shared.Models;
-using Remotely.Shared.Primitives;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Primitives;
 
-namespace Remotely.Shared.Services;
+namespace BorderLink.Shared.Services;
 
 public interface IEmbeddedServerDataProvider
 {

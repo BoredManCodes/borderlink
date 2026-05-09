@@ -1,12 +1,12 @@
 using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Dtos;
-using Remotely.Shared.Services;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Dtos;
+using BorderLink.Shared.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Services.MacOS;
+namespace BorderLink.Agent.Services.MacOS;
 
 public class DeviceInfoGeneratorMac : DeviceInfoGeneratorBase, IDeviceInformationService
 {

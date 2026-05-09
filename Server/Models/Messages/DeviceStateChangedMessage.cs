@@ -1,5 +1,5 @@
-﻿using Remotely.Shared.Entities;
+﻿using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Models.Messages;
+namespace BorderLink.Server.Models.Messages;
 
 public record DeviceStateChangedMessage(Device Device);

@@ -1,10 +1,10 @@
-﻿using Remotely.Shared.Extensions;
+﻿using BorderLink.Shared.Extensions;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface ILogsManager
 {
@@ -114,7 +114,7 @@ public class LogsManager : ILogsManager
         var tempDir = Directory.CreateDirectory(Path.Combine(baseDir, "temp", Guid.NewGuid().ToString())).FullName;
         var zipFilePath = Path.Combine(
             tempDir, 
-            $"Remotely_Logs-{DateTimeOffset.Now:yyyy-MM-dd-HH-mm-ss}.zip");
+            $"BorderLink_Logs-{DateTimeOffset.Now:yyyy-MM-dd-HH-mm-ss}.zip");
 
         using var zipArchive = ZipFile.Open(zipFilePath, ZipArchiveMode.Update);
 

@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>.net8.0</TargetFramework>
-    <RootNamespace>Remotely.Desktop.Core</RootNamespace>
-    <AssemblyName>Remotely_Desktop.Core</AssemblyName>
+    <RootNamespace>BorderLink.Desktop.Core</RootNamespace>
+    <AssemblyName>BorderLink_Desktop.Core</AssemblyName>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
@@ -32,11 +32,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Assets\Remotely_Icon.png" />
+    <None Remove="Assets\BorderLink_Icon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Assets\Remotely_Icon.png" />
+    <EmbeddedResource Include="Assets\BorderLink_Icon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,7 +57,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\Remotely_Icon.png" />
+    <Resource Include="Assets\BorderLink_Icon.png" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 
-namespace Remotely.Server.Components.TreeView;
+namespace BorderLink.Server.Components.TreeView;
 
 public partial class TreeView<T> : ComponentBase
 {

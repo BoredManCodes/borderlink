@@ -1,9 +1,9 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.UI.Services;
-using Remotely.Shared.Extensions;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.UI.Services;
+using BorderLink.Shared.Extensions;
 
-namespace Remotely.Desktop.Win.Services;
+namespace BorderLink.Desktop.Win.Services;
 
 public class ShutdownServiceWin : IShutdownService
 {

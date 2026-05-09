@@ -1,8 +1,8 @@
 ﻿using Bitbound.SimpleMessenger;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface ILoaderService
 {

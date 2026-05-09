@@ -1,7 +1,7 @@
-using Remotely.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Remotely.Desktop.UI.Startup;
+namespace BorderLink.Desktop.UI.Startup;
 
 public static class IServiceCollectionExtensions
 {

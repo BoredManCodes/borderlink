@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class ScriptRun
 {

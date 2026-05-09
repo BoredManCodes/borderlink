@@ -1,15 +1,15 @@
 ﻿using Avalonia.Controls;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Shared.Models;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Reactive;
 using Microsoft.Extensions.DependencyInjection;
-using Remotely.Desktop.UI.Controls.Dialogs;
+using BorderLink.Desktop.UI.Controls.Dialogs;
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface IMainViewViewModel : IBrandedViewModelBase
 {

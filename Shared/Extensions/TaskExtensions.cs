@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Extensions;
+﻿namespace BorderLink.Shared.Extensions;
 
 public static class TaskExtensions
 {

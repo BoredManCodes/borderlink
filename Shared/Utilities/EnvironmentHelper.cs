@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Shared.Utilities;
+namespace BorderLink.Shared.Utilities;
 
 // TODO: Make instanced and put behind interface.
 public static class EnvironmentHelper
@@ -12,10 +12,10 @@ public static class EnvironmentHelper
             switch (Platform)
             {
                 case Platform.Windows:
-                    return "Remotely_Agent.exe";
+                    return "BorderLink_Agent.exe";
                 case Platform.Linux:
                 case Platform.MacOS:
-                    return "Remotely_Agent";
+                    return "BorderLink_Agent";
                 default:
                     throw new PlatformNotSupportedException();
             }
@@ -29,10 +29,10 @@ public static class EnvironmentHelper
             switch (Platform)
             {
                 case Platform.Windows:
-                    return "Remotely_Desktop.exe";
+                    return "BorderLink_Desktop.exe";
                 case Platform.Linux:
                 case Platform.MacOS:
-                    return "Remotely_Desktop";
+                    return "BorderLink_Desktop";
                 default:
                     throw new PlatformNotSupportedException();
             }

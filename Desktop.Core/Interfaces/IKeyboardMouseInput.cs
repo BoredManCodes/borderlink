@@ -1,7 +1,7 @@
-﻿using Remotely.Desktop.Core.Enums;
-using Remotely.Desktop.Core.Services;
+﻿using BorderLink.Desktop.Core.Enums;
+using BorderLink.Desktop.Core.Services;
 
-namespace Remotely.Desktop.Core.Interfaces
+namespace BorderLink.Desktop.Core.Interfaces
 {
     public interface IKeyboardMouseInput
     {

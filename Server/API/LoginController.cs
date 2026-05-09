@@ -1,12 +1,12 @@
-﻿using Remotely.Server.Hubs;
-using Remotely.Server.Services;
+﻿using BorderLink.Server.Hubs;
+using BorderLink.Server.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Models;
-using Remotely.Shared.Entities;
+using BorderLink.Server.Models;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -16,12 +16,12 @@ public class LoginController : ControllerBase
     private readonly IDataService _dataService;
     private readonly IHubContext<DesktopHub> _desktopHub;
     private readonly IRemoteControlSessionCache _remoteControlSessionCache;
-    private readonly SignInManager<RemotelyUser> _signInManager;
+    private readonly SignInManager<BorderLinkUser> _signInManager;
     private readonly IHubContext<ViewerHub> _viewerHub;
     private readonly ILogger<LoginController> _logger;
 
     public LoginController(
-        SignInManager<RemotelyUser> signInManager,
+        SignInManager<BorderLinkUser> signInManager,
         IDataService dataService,
         IHubContext<DesktopHub> casterHubContext,
         IRemoteControlSessionCache remoteControlSessionCache,

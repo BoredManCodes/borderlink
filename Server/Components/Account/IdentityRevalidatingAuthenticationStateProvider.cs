@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System.Security.Claims;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Components.Account;
+namespace BorderLink.Server.Components.Account;
 
 // This is a server-side AuthenticationStateProvider that revalidates the security stamp for the connected user
 // every 30 minutes an interactive circuit is connected.
@@ -22,11 +22,11 @@ internal sealed class IdentityRevalidatingAuthenticationStateProvider(
     {
         // Get the user manager from a new scope to ensure it fetches fresh data
         await using var scope = scopeFactory.CreateAsyncScope();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<RemotelyUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<BorderLinkUser>>();
         return await ValidateSecurityStampAsync(userManager, authenticationState.User);
     }
 
-    private async Task<bool> ValidateSecurityStampAsync(UserManager<RemotelyUser> userManager, ClaimsPrincipal principal)
+    private async Task<bool> ValidateSecurityStampAsync(UserManager<BorderLinkUser> userManager, ClaimsPrincipal principal)
     {
         var user = await userManager.GetUserAsync(principal);
         if (user is null)

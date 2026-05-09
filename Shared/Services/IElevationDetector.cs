@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Services;
+﻿namespace BorderLink.Shared.Services;
 
 public interface IElevationDetector
 {

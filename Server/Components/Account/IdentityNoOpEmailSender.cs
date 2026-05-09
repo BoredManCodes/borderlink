@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Components.Account;
+namespace BorderLink.Server.Components.Account;
 
 // Remove the "else if (EmailSender is IdentityNoOpEmailSender)" block from RegisterConfirmation.razor after updating with a real implementation.
-internal sealed class IdentityNoOpEmailSender : IEmailSender<RemotelyUser>
+internal sealed class IdentityNoOpEmailSender : IEmailSender<BorderLinkUser>
 {
     private readonly IEmailSender emailSender = new NoOpEmailSender();
 
-    public Task SendConfirmationLinkAsync(RemotelyUser user, string email, string confirmationLink) =>
+    public Task SendConfirmationLinkAsync(BorderLinkUser user, string email, string confirmationLink) =>
         emailSender.SendEmailAsync(email, "Confirm your email", $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>.");
 
-    public Task SendPasswordResetLinkAsync(RemotelyUser user, string email, string resetLink) =>
+    public Task SendPasswordResetLinkAsync(BorderLinkUser user, string email, string resetLink) =>
         emailSender.SendEmailAsync(email, "Reset your password", $"Please reset your password by <a href='{resetLink}'>clicking here</a>.");
 
-    public Task SendPasswordResetCodeAsync(RemotelyUser user, string email, string resetCode) =>
+    public Task SendPasswordResetCodeAsync(BorderLinkUser user, string email, string resetCode) =>
         emailSender.SendEmailAsync(email, "Reset your password", $"Please reset your password using the following code: {resetCode}");
 }

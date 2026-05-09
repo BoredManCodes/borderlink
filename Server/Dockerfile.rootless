@@ -19,27 +19,27 @@ RUN \
   apt-get -y install aspnetcore-runtime-8.0
 
 RUN \
-  adduser --disabled-password --gecos '' -u 2001 remotely && \
-  mkdir -p /var/www/remotely && \
+  adduser --disabled-password --gecos '' -u 2001 borderlink && \
+  mkdir -p /var/www/borderlink && \
   mkdir /config && \
-  wget -q https://github.com/immense/Remotely/releases/latest/download/Remotely_Server_Linux-x64.zip && \
-  unzip -o Remotely_Server_Linux-x64.zip -d /var/www/remotely && \
-  rm Remotely_Server_Linux-x64.zip && \
-  chown -R remotely:remotely /var/www/remotely
+  wget -q https://github.com/immense/Remotely/releases/latest/download/BorderLink_Server_Linux-x64.zip && \
+  unzip -o BorderLink_Server_Linux-x64.zip -d /var/www/borderlink && \
+  rm BorderLink_Server_Linux-x64.zip && \
+  chown -R borderlink:borderlink /var/www/borderlink
 
 RUN \
-  mkdir -p /remotely-data && \
-  sed -i 's/DataSource=Remotely.db/DataSource=\/remotely-data\/Remotely.db/' /var/www/remotely/appsettings.json && \
-  chown -R remotely:remotely /remotely-data
+  mkdir -p /borderlink-data && \
+  sed -i 's/DataSource=BorderLink.db/DataSource=\/borderlink-data\/BorderLink.db/' /var/www/borderlink/appsettings.json && \
+  chown -R borderlink:borderlink /borderlink-data
 
-VOLUME "/remotely-data"
+VOLUME "/borderlink-data"
 
-WORKDIR /var/www/remotely
+WORKDIR /var/www/borderlink
 
 COPY DockerMain.sh /
 
 RUN chmod 755 /DockerMain.sh
 
-USER remotely
+USER borderlink
 
 ENTRYPOINT ["/DockerMain.sh"]

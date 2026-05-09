@@ -1,7 +1,7 @@
-﻿using Remotely.Server.Components.TreeView;
-using Remotely.Shared.Entities;
+﻿using BorderLink.Server.Components.TreeView;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Components.Scripts;
+namespace BorderLink.Server.Components.Scripts;
 
 public class ScriptTreeNode
 {

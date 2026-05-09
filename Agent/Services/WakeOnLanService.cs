@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Services;
+namespace BorderLink.Agent.Services;
 
 public interface IWakeOnLanService
 {

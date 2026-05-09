@@ -1,10 +1,10 @@
 ﻿@page "/Account/Manage/ResetAuthenticator"
 
 @using Microsoft.AspNetCore.Identity
-@using Remotely.Server.Data
+@using BorderLink.Server.Data
 
-@inject UserManager<RemotelyUser> UserManager
-@inject SignInManager<RemotelyUser> SignInManager
+@inject UserManager<BorderLinkUser> UserManager
+@inject SignInManager<BorderLinkUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<ResetAuthenticator> Logger

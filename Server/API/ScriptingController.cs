@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Hubs;
-using Remotely.Server.Services;
-using Remotely.Shared.Utilities;
-using Remotely.Shared.Enums;
-using Remotely.Server.Auth;
-using Remotely.Shared.Helpers;
-using Remotely.Shared;
-using Remotely.Server.Extensions;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Interfaces;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Utilities;
+using BorderLink.Shared.Enums;
+using BorderLink.Server.Auth;
+using BorderLink.Shared.Helpers;
+using BorderLink.Shared;
+using BorderLink.Server.Extensions;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Interfaces;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -24,9 +24,9 @@ public class ScriptingController : ControllerBase
     private readonly IAgentHubSessionCache _serviceSessionCache;
     private readonly IExpiringTokenService _expiringTokenService;
 
-    private readonly UserManager<RemotelyUser> _userManager;
+    private readonly UserManager<BorderLinkUser> _userManager;
 
-    public ScriptingController(UserManager<RemotelyUser> userManager,
+    public ScriptingController(UserManager<BorderLinkUser> userManager,
         IDataService dataService,
         IAgentHubSessionCache serviceSessionCache,
         IExpiringTokenService expiringTokenService,

@@ -1,11 +1,11 @@
-using Remotely.Server.Enums;
-using Remotely.Server.Models;
-using Remotely.Server.Services;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Interfaces;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Models;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Remotely.Server.Hubs;
+namespace BorderLink.Server.Hubs;
 
 public class DesktopHub : Hub<IDesktopHubClient>
 {

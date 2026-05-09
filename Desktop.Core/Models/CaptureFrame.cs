@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Remotely.Desktop.Core.Models
+namespace BorderLink.Desktop.Core.Models
 {
     public class CaptureFrame
     {

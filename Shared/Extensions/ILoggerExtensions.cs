@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.Primitives;
+﻿using BorderLink.Shared.Primitives;
 using Microsoft.Extensions.Logging;
 using System.Runtime.CompilerServices;
 
-namespace Remotely.Shared.Extensions;
+namespace BorderLink.Shared.Extensions;
 
 public static class ILoggerExtensions
 {

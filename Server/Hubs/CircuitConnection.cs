@@ -1,25 +1,25 @@
-﻿using Remotely.Server.Services;
-using Remotely.Shared.Helpers;
+﻿using BorderLink.Server.Services;
+using BorderLink.Shared.Helpers;
 using Bitbound.SimpleMessenger;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Models;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services.Stores;
-using Remotely.Shared;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Interfaces;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Models;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services.Stores;
+using BorderLink.Shared;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Interfaces;
+using BorderLink.Shared.Utilities;
 using System.Collections.Concurrent;
 
-namespace Remotely.Server.Hubs;
+namespace BorderLink.Server.Hubs;
 
 public interface ICircuitConnection
 {
     string ConnectionId { get; }
 
-    RemotelyUser User { get; }
+    BorderLinkUser User { get; }
 
     Task DeleteRemoteLogs(string deviceId);
 
@@ -73,7 +73,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     private readonly IAgentHubSessionCache _agentSessionCache;
     private readonly IMessenger _messenger;
     private readonly IToastService _toastService;
-    private RemotelyUser? _user;
+    private BorderLinkUser? _user;
 
     public CircuitConnection(
         IAuthService authService,
@@ -104,7 +104,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
 
     public string ConnectionId { get; } = Guid.NewGuid().ToString();
 
-    public RemotelyUser User
+    public BorderLinkUser User
     {
         get => _user ?? throw new InvalidOperationException("User is not set.");
         internal set => _user = value;
@@ -311,7 +311,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         var username = string.Empty;
         if (runAsHostedService)
         {
-            username = "Remotely Server";
+            username = "BorderLink Server";
         }
         else if (User is not null)
         {

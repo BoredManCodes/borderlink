@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Models;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
-namespace Remotely.Shared.Dtos;
+namespace BorderLink.Shared.Dtos;
 
 [DataContract]
 public class DeviceClientDto

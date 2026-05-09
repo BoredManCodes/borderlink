@@ -1,10 +1,10 @@
-using Remotely.Server.Filters;
-using Remotely.Server.Models;
+using BorderLink.Server.Filters;
+using BorderLink.Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Remotely.Server.Services;
+using BorderLink.Server.Services;
 
-namespace Remotely.Server.Pages;
+namespace BorderLink.Server.Pages;
 
 [ServiceFilter(typeof(ViewerAuthorizationFilter))]
 public class ViewerModel(IDataService _dataService) : PageModel
@@ -12,7 +12,7 @@ public class ViewerModel(IDataService _dataService) : PageModel
     public string FaviconUrl { get; } = "favicon.ico";
     public string LogoUrl { get; set; } = string.Empty;
     public string PageDescription { get; } = "Open-source remote support tools.";
-    public string PageTitle { get; } = "Remotely Remote Control";
+    public string PageTitle { get; } = "BorderLink Remote Control";
     public string ThemeUrl { get; private set; } = string.Empty;
     public string UserDisplayName { get; private set; } = string.Empty;
 
@@ -33,8 +33,8 @@ public class ViewerModel(IDataService _dataService) : PageModel
     private async Task<string> GetLogoUrl()
     {
         return await GetTheme() == ViewerPageTheme.Dark ?
-           "/images/viewer/remotely-logo-dark.svg" :
-           "/images/viewer/remotely-logo-light.svg";
+           "/images/viewer/borderlink-logo-dark.svg" :
+           "/images/viewer/borderlink-logo-light.svg";
     }
 
     private Task<ViewerPageTheme> GetTheme()

@@ -3,20 +3,20 @@ using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
-using Remotely.Server.Components.ModalContents;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.ViewModels;
+using BorderLink.Server.Components.ModalContents;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.ViewModels;
 using System.Text;
 using System.Text.Encodings.Web;
 
-namespace Remotely.Server.Components.Pages;
+namespace BorderLink.Server.Components.Pages;
 
 public partial class ManageOrganization : AuthComponentBase
 {
     private readonly List<DeviceGroup> _deviceGroups = new();
     private readonly List<InviteLink> _invites = new();
-    private readonly List<RemotelyUser> _orgUsers = new();
+    private readonly List<BorderLinkUser> _orgUsers = new();
     private bool _inviteAsAdmin;
     private string _inviteEmail = string.Empty;
     private bool _isLoading = true;
@@ -42,7 +42,7 @@ public partial class ManageOrganization : AuthComponentBase
     [Inject]
     private IToastService ToastService { get; set; } = null!;
     [Inject]
-    private UserManager<RemotelyUser> UserManager { get; set; } = null!;
+    private UserManager<BorderLinkUser> UserManager { get; set; } = null!;
 
 
     protected override async Task OnInitializedAsync()
@@ -153,7 +153,7 @@ public partial class ManageOrganization : AuthComponentBase
         _selectedDeviceGroupId = string.Empty;
     }
 
-    private async Task DeleteUser(RemotelyUser user)
+    private async Task DeleteUser(BorderLinkUser user)
     {
         EnsureUserSet();
 
@@ -179,7 +179,7 @@ public partial class ManageOrganization : AuthComponentBase
         ToastService.ShowToast("User deleted.");
     }
 
-    private async Task EditDeviceGroups(RemotelyUser user)
+    private async Task EditDeviceGroups(BorderLinkUser user)
     {
         void editDeviceGroupsModal(RenderTreeBuilder builder)
         {
@@ -265,7 +265,7 @@ public partial class ManageOrganization : AuthComponentBase
         var orgUsers = await DataService.GetAllUsersInOrganization(User.OrganizationID);
         _orgUsers.AddRange(orgUsers.OrderBy(x => x.UserName));
     }
-    private async Task ResetPassword(RemotelyUser user)
+    private async Task ResetPassword(BorderLinkUser user)
     {
         EnsureUserSet();
 
@@ -341,12 +341,12 @@ public partial class ManageOrganization : AuthComponentBase
             }
 
             var inviteURL = $"{NavManager.BaseUri}Invite/{newInvite.Value.ID}";
-            var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Invitation to Organization in Remotely",
-                    $@"<img src='{NavManager.BaseUri}images/Remotely_Logo.png'/>
+            var emailResult = await EmailSender.SendEmailAsync(invite.InvitedUser, "Invitation to Organization in BorderLink",
+                    $@"<img src='{NavManager.BaseUri}images/BorderLink_Logo.png'/>
                             <br><br>
                             Hello!
                             <br><br>
-                            You've been invited to join an organization in Remotely.
+                            You've been invited to join an organization in BorderLink.
                             <br><br>
                             You can join the organization by <a href='{HtmlEncoder.Default.Encode(inviteURL)}'>clicking here</a>.",
                     User.OrganizationID);
@@ -365,7 +365,7 @@ public partial class ManageOrganization : AuthComponentBase
         }
     }
 
-    private async Task SetUserIsAdmin(ChangeEventArgs args, RemotelyUser orgUser)
+    private async Task SetUserIsAdmin(ChangeEventArgs args, BorderLinkUser orgUser)
     {
         EnsureUserSet();
 

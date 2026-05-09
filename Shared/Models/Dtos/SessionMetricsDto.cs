@@ -1,7 +1,7 @@
 ﻿using MessagePack;
 using System.Runtime.Serialization;
 
-namespace Remotely.Shared.Models.Dtos;
+namespace BorderLink.Shared.Models.Dtos;
 
 [DataContract]
 public class SessionMetricsDto

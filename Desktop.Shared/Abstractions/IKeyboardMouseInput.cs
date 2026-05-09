@@ -1,7 +1,7 @@
-﻿using Remotely.Desktop.Shared.Enums;
-using Remotely.Desktop.Shared.Services;
+﻿using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Desktop.Shared.Services;
 
-namespace Remotely.Desktop.Shared.Abstractions;
+namespace BorderLink.Desktop.Shared.Abstractions;
 
 public interface IKeyboardMouseInput
 {

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Utilities;
+namespace BorderLink.Shared.Utilities;
 
 public class TimeSpanJsonConverter : JsonConverter<TimeSpan>
 {

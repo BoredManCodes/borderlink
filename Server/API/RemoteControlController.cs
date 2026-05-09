@@ -1,18 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models;
-using Remotely.Server.Services;
-using Remotely.Server.Auth;
-using Remotely.Shared.Helpers;
-using Remotely.Server.Extensions;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Interfaces;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models;
+using BorderLink.Server.Services;
+using BorderLink.Server.Auth;
+using BorderLink.Shared.Helpers;
+using BorderLink.Server.Extensions;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Interfaces;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -23,11 +23,11 @@ public class RemoteControlController : ControllerBase
     private readonly IAgentHubSessionCache _serviceSessionCache;
     private readonly IDataService _dataService;
     private readonly IOtpProvider _otpProvider;
-    private readonly SignInManager<RemotelyUser> _signInManager;
+    private readonly SignInManager<BorderLinkUser> _signInManager;
     private readonly ILogger<RemoteControlController> _logger;
 
     public RemoteControlController(
-        SignInManager<RemotelyUser> signInManager,
+        SignInManager<BorderLinkUser> signInManager,
         IDataService dataService,
         IRemoteControlSessionCache remoteControlSessionCache,
         IHubContext<AgentHub, IAgentHubClient> agentHub,

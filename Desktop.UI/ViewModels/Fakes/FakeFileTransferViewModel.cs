@@ -1,9 +1,9 @@
-﻿using Remotely.Desktop.Shared.Reactive;
-using Remotely.Desktop.Shared.ViewModels;
+﻿using BorderLink.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.ViewModels;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace Remotely.Desktop.UI.ViewModels.Fakes;
+namespace BorderLink.Desktop.UI.ViewModels.Fakes;
 
 public class FakeFileTransferViewModel : FakeBrandedViewModelBase, IFileTransferWindowViewModel
 {

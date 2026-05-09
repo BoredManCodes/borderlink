@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Dtos;
-using Remotely.Shared.Entities;
+﻿using BorderLink.Shared.Dtos;
+using BorderLink.Shared.Entities;
 using System.Runtime.Serialization;
 using System.Text.Json;
 
-namespace Remotely.Shared.Extensions;
+namespace BorderLink.Shared.Extensions;
 
 public static class DeviceExtensions
 {

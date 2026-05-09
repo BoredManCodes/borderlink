@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.SqlServer;
+namespace BorderLink.Server.Migrations.SqlServer;
 
 /// <inheritdoc />
 public partial class Remove_TitleBranding : Migration

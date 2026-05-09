@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Remotely.Server.Data;
+using BorderLink.Server.Data;
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.SqlServer
+namespace BorderLink.Server.Migrations.SqlServer
 {
     [DbContext(typeof(SqlServerDbContext))]
     [Migration("20221231192616_Remove RelayCode")]
@@ -24,7 +24,7 @@ namespace Remotely.Server.Migrations.SqlServer
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("DeviceGroupRemotelyUser", b =>
+            modelBuilder.Entity("DeviceGroupBorderLinkUser", b =>
                 {
                     b.Property<string>("DeviceGroupsID")
                         .HasColumnType("nvarchar(450)");
@@ -36,7 +36,7 @@ namespace Remotely.Server.Migrations.SqlServer
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("DeviceGroupRemotelyUser");
+                    b.ToTable("DeviceGroupBorderLinkUser");
                 });
 
             modelBuilder.Entity("DeviceGroupScriptSchedule", b =>
@@ -217,7 +217,7 @@ namespace Remotely.Server.Migrations.SqlServer
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("RemotelyUsers", (string)null);
+                    b.ToTable("BorderLinkUsers", (string)null);
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
@@ -303,7 +303,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Alert", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Alert", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -338,7 +338,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("Alerts");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ApiToken", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ApiToken", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -364,7 +364,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("ApiTokens");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.BrandingInfo", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.BrandingInfo", b =>
                 {
                     b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
@@ -418,7 +418,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("BrandingInfos");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Device", b =>
                 {
                     b.Property<string>("ID")
                         .HasColumnType("nvarchar(450)");
@@ -506,7 +506,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("Devices");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.DeviceGroup", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -526,7 +526,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("DeviceGroups");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.EventLog", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.EventLog", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -557,7 +557,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("EventLogs");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.InviteLink", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.InviteLink", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -585,7 +585,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("InviteLinks");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Organization", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Organization", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -603,7 +603,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("Organizations");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.SavedScript", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.SavedScript", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -655,7 +655,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("SavedScripts");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptResult", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptResult", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -719,7 +719,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("ScriptResults");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptRun", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -760,7 +760,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("ScriptRuns");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptSchedule", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -807,7 +807,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("ScriptSchedules");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.SharedFile", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.SharedFile", b =>
                 {
                     b.Property<string>("ID")
                         .ValueGeneratedOnAdd()
@@ -835,7 +835,7 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.ToTable("SharedFiles");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.BorderLinkUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -858,18 +858,18 @@ namespace Remotely.Server.Migrations.SqlServer
 
                     b.HasIndex("UserName");
 
-                    b.HasDiscriminator().HasValue("RemotelyUser");
+                    b.HasDiscriminator().HasValue("BorderLinkUser");
                 });
 
-            modelBuilder.Entity("DeviceGroupRemotelyUser", b =>
+            modelBuilder.Entity("DeviceGroupBorderLinkUser", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.DeviceGroup", null)
+                    b.HasOne("BorderLink.Shared.Models.DeviceGroup", null)
                         .WithMany()
                         .HasForeignKey("DeviceGroupsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Models.RemotelyUser", null)
+                    b.HasOne("BorderLink.Shared.Models.BorderLinkUser", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -878,13 +878,13 @@ namespace Remotely.Server.Migrations.SqlServer
 
             modelBuilder.Entity("DeviceGroupScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.DeviceGroup", null)
+                    b.HasOne("BorderLink.Shared.Models.DeviceGroup", null)
                         .WithMany()
                         .HasForeignKey("DeviceGroupsID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Models.ScriptSchedule", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptSchedule", null)
                         .WithMany()
                         .HasForeignKey("ScriptSchedulesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -893,13 +893,13 @@ namespace Remotely.Server.Migrations.SqlServer
 
             modelBuilder.Entity("DeviceScriptRun", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Device", null)
+                    b.HasOne("BorderLink.Shared.Models.Device", null)
                         .WithMany()
                         .HasForeignKey("DevicesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Models.ScriptRun", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptRun", null)
                         .WithMany()
                         .HasForeignKey("ScriptRunsId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -908,13 +908,13 @@ namespace Remotely.Server.Migrations.SqlServer
 
             modelBuilder.Entity("DeviceScriptRun1", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Device", null)
+                    b.HasOne("BorderLink.Shared.Models.Device", null)
                         .WithMany()
                         .HasForeignKey("DevicesCompletedID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Models.ScriptRun", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptRun", null)
                         .WithMany()
                         .HasForeignKey("ScriptRunsCompletedId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -923,13 +923,13 @@ namespace Remotely.Server.Migrations.SqlServer
 
             modelBuilder.Entity("DeviceScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Device", null)
+                    b.HasOne("BorderLink.Shared.Models.Device", null)
                         .WithMany()
                         .HasForeignKey("DevicesID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Remotely.Shared.Models.ScriptSchedule", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptSchedule", null)
                         .WithMany()
                         .HasForeignKey("ScriptSchedulesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -987,17 +987,17 @@ namespace Remotely.Server.Migrations.SqlServer
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Alert", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Alert", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Device", "Device")
+                    b.HasOne("BorderLink.Shared.Models.Device", "Device")
                         .WithMany("Alerts")
                         .HasForeignKey("DeviceID");
 
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("Alerts")
                         .HasForeignKey("OrganizationID");
 
-                    b.HasOne("Remotely.Shared.Models.RemotelyUser", "User")
+                    b.HasOne("BorderLink.Shared.Models.BorderLinkUser", "User")
                         .WithMany("Alerts")
                         .HasForeignKey("UserID");
 
@@ -1008,31 +1008,31 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ApiToken", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ApiToken", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("ApiTokens")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.BrandingInfo", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.BrandingInfo", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithOne("BrandingInfo")
-                        .HasForeignKey("Remotely.Shared.Models.BrandingInfo", "OrganizationId");
+                        .HasForeignKey("BorderLink.Shared.Models.BrandingInfo", "OrganizationId");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Device", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.DeviceGroup", "DeviceGroup")
+                    b.HasOne("BorderLink.Shared.Models.DeviceGroup", "DeviceGroup")
                         .WithMany("Devices")
                         .HasForeignKey("DeviceGroupID");
 
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("Devices")
                         .HasForeignKey("OrganizationID");
 
@@ -1041,40 +1041,40 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.DeviceGroup", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("DeviceGroups")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.EventLog", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.EventLog", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("EventLogs")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.InviteLink", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.InviteLink", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("InviteLinks")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.SavedScript", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.SavedScript", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.RemotelyUser", "Creator")
+                    b.HasOne("BorderLink.Shared.Models.BorderLinkUser", "Creator")
                         .WithMany("SavedScripts")
                         .HasForeignKey("CreatorId");
 
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("SavedScripts")
                         .HasForeignKey("OrganizationID");
 
@@ -1083,21 +1083,21 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptResult", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptResult", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Device", "Device")
+                    b.HasOne("BorderLink.Shared.Models.Device", "Device")
                         .WithMany("ScriptResults")
                         .HasForeignKey("DeviceID");
 
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("ScriptResults")
                         .HasForeignKey("OrganizationID");
 
-                    b.HasOne("Remotely.Shared.Models.ScriptSchedule", "Schedule")
+                    b.HasOne("BorderLink.Shared.Models.ScriptSchedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId");
 
-                    b.HasOne("Remotely.Shared.Models.ScriptRun", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptRun", null)
                         .WithMany("Results")
                         .HasForeignKey("ScriptRunId");
 
@@ -1108,26 +1108,26 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("Schedule");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptRun", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("ScriptRuns")
                         .HasForeignKey("OrganizationID");
 
-                    b.HasOne("Remotely.Shared.Models.ScriptSchedule", null)
+                    b.HasOne("BorderLink.Shared.Models.ScriptSchedule", null)
                         .WithMany("ScriptRuns")
                         .HasForeignKey("ScriptScheduleId");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptSchedule", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.RemotelyUser", "Creator")
+                    b.HasOne("BorderLink.Shared.Models.BorderLinkUser", "Creator")
                         .WithMany("ScriptSchedules")
                         .HasForeignKey("CreatorId");
 
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("ScriptSchedules")
                         .HasForeignKey("OrganizationID");
 
@@ -1136,37 +1136,37 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.SharedFile", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.SharedFile", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
                         .WithMany("SharedFiles")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.BorderLinkUser", b =>
                 {
-                    b.HasOne("Remotely.Shared.Models.Organization", "Organization")
-                        .WithMany("RemotelyUsers")
+                    b.HasOne("BorderLink.Shared.Models.Organization", "Organization")
+                        .WithMany("BorderLinkUsers")
                         .HasForeignKey("OrganizationID");
 
                     b.Navigation("Organization");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Device", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Device", b =>
                 {
                     b.Navigation("Alerts");
 
                     b.Navigation("ScriptResults");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.DeviceGroup", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.DeviceGroup", b =>
                 {
                     b.Navigation("Devices");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.Organization", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.Organization", b =>
                 {
                     b.Navigation("Alerts");
 
@@ -1182,7 +1182,7 @@ namespace Remotely.Server.Migrations.SqlServer
 
                     b.Navigation("InviteLinks");
 
-                    b.Navigation("RemotelyUsers");
+                    b.Navigation("BorderLinkUsers");
 
                     b.Navigation("SavedScripts");
 
@@ -1195,17 +1195,17 @@ namespace Remotely.Server.Migrations.SqlServer
                     b.Navigation("SharedFiles");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptRun", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptRun", b =>
                 {
                     b.Navigation("Results");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.ScriptSchedule", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.ScriptSchedule", b =>
                 {
                     b.Navigation("ScriptRuns");
                 });
 
-            modelBuilder.Entity("Remotely.Shared.Models.RemotelyUser", b =>
+            modelBuilder.Entity("BorderLink.Shared.Models.BorderLinkUser", b =>
                 {
                     b.Navigation("Alerts");
 

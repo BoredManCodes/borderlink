@@ -25,15 +25,15 @@
     <Compile Update="Entities\Device.cs">
       <Generator></Generator>
     </Compile>
-    <Compile Update="Models\RemotelyUserOptions.cs">
-      <LastGenOutput>RemotelyUserOptions.cs.d.ts</LastGenOutput>
+    <Compile Update="Models\BorderLinkUserOptions.cs">
+      <LastGenOutput>BorderLinkUserOptions.cs.d.ts</LastGenOutput>
       <Generator>DtsGenerator</Generator>
     </Compile>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Models\RemotelyUserOptions.cs.d.ts">
-      <DependentUpon>RemotelyUserOptions.cs</DependentUpon>
+    <None Update="Models\BorderLinkUserOptions.cs.d.ts">
+      <DependentUpon>BorderLinkUserOptions.cs</DependentUpon>
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
     </None>

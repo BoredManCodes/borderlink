@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.Sqlite;
+namespace BorderLink.Server.Migrations.Sqlite;
 
 /// <inheritdoc />
 public partial class ReplaceDbLoggerwithSerilog : Migration

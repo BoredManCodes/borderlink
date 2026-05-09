@@ -1,6 +1,6 @@
-using Remotely.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Abstractions;
 
-namespace Remotely.Desktop.Linux.Services;
+namespace BorderLink.Desktop.Linux.Services;
 
 public class AudioCapturerLinux : IAudioCapturer
 {

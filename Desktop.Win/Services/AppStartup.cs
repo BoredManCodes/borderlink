@@ -1,11 +1,11 @@
-using Remotely.Desktop.Native.Windows;
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Enums;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.UI.Services;
-using Remotely.Shared.Models;
+using BorderLink.Desktop.Native.Windows;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Enums;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.UI.Services;
+using BorderLink.Shared.Models;
 
-namespace Remotely.Desktop.Win.Services;
+namespace BorderLink.Desktop.Win.Services;
 
 internal class AppStartup : IAppStartup
 {

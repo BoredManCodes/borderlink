@@ -1,8 +1,8 @@
-using Remotely.Server.Enums;
-using Remotely.Server.Services;
-using Remotely.Shared.Helpers;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Helpers;
 
-namespace Remotely.Server.Models;
+namespace BorderLink.Server.Models;
 
 /// <summary>
 /// Contains data related to a remote control session.  Consuming projects

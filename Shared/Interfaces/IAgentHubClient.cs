@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Shared.Interfaces;
+namespace BorderLink.Shared.Interfaces;
 public interface IAgentHubClient
 {
     Task ChangeWindowsSession(

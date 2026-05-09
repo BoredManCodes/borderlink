@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Identity;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Components.Account;
+namespace BorderLink.Server.Components.Account;
 
-internal sealed class IdentityUserAccessor(UserManager<RemotelyUser> userManager, IdentityRedirectManager redirectManager)
+internal sealed class IdentityUserAccessor(UserManager<BorderLinkUser> userManager, IdentityRedirectManager redirectManager)
 {
-    public async Task<RemotelyUser> GetRequiredUserAsync(HttpContext context)
+    public async Task<BorderLinkUser> GetRequiredUserAsync(HttpContext context)
     {
         var user = await userManager.GetUserAsync(context.User);
 

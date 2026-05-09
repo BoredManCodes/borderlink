@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Enums;
+﻿namespace BorderLink.Server.Enums;
 
 [Flags]
 public enum StreamerState

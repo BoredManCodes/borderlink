@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Remotely.Server.Migrations.Sqlite;
+namespace BorderLink.Server.Migrations.Sqlite;
 
 public partial class DisplayName : Migration
 {
@@ -8,7 +8,7 @@ public partial class DisplayName : Migration
     {
         migrationBuilder.AddColumn<string>(
             name: "DisplayName",
-            table: "RemotelyUsers",
+            table: "BorderLinkUsers",
             maxLength: 100,
             nullable: true);
     }
@@ -17,6 +17,6 @@ public partial class DisplayName : Migration
     {
         migrationBuilder.DropColumn(
             name: "DisplayName",
-            table: "RemotelyUsers");
+            table: "BorderLinkUsers");
     }
 }

@@ -1,5 +1,5 @@
-﻿using Remotely.Server.Enums;
+﻿using BorderLink.Server.Enums;
 
-namespace Remotely.Server.Models.Messages;
+namespace BorderLink.Server.Models.Messages;
 
 public record DeviceCardStateChangedMessage(string DeviceId, DeviceCardState State);

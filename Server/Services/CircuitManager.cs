@@ -1,8 +1,8 @@
-﻿using Remotely.Server.Hubs;
+﻿using BorderLink.Server.Hubs;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface ICircuitManager
 {

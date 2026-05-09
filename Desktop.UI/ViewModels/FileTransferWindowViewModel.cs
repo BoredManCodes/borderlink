@@ -1,13 +1,13 @@
 ﻿using Avalonia.Threading;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.ViewModels;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.ViewModels;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
-using Remotely.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Abstractions;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Reactive;
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface IFileTransferWindowViewModel : IBrandedViewModelBase
 {
@@ -112,7 +112,7 @@ public class FileTransferWindowViewModel : BrandedViewModelBase, IFileTransferWi
         var startFolder = await window.StorageProvider.TryGetFolderFromPathAsync(new Uri(initialDir));
         var result = await window.StorageProvider.OpenFilePickerAsync(new()
         {
-            Title = "Upload File via Remotely",
+            Title = "Upload File via BorderLink",
             AllowMultiple = true,
             SuggestedStartLocation = startFolder
         });

@@ -8,10 +8,10 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=550, user-scalable=no" />
-    <title>Remotely</title>
+    <title>BorderLink</title>
     <base href="/" />
     <link href="css/site.css" rel="stylesheet" />
-    <link href="Remotely_Server.styles.css" rel="stylesheet" />
+    <link href="BorderLink_Server.styles.css" rel="stylesheet" />
     <script src="interop.js"></script>
 
     @if (_theme == Theme.Dark)
@@ -39,7 +39,7 @@
     [CascadingParameter]
     public required HttpContext HttpContext { get; set; }
 
-    private RemotelyUser? _user;
+    private BorderLinkUser? _user;
     private Theme _theme;
 
     protected override async Task OnInitializedAsync()

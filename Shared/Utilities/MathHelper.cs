@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Utilities;
+﻿namespace BorderLink.Shared.Utilities;
 
 public static class MathHelper
 {

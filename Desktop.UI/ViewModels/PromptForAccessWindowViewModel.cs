@@ -1,11 +1,11 @@
 ﻿using Avalonia.Controls;
-using Remotely.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Reactive;
 using Microsoft.Extensions.Logging;
 using System.Windows.Input;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Services;
 
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface IPromptForAccessWindowViewModel : IBrandedViewModelBase
 {

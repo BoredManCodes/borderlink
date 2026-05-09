@@ -1,7 +1,7 @@
 using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 
-namespace Remotely.Desktop.Native.Windows;
+namespace BorderLink.Desktop.Native.Windows;
 
 public static class User32
 {

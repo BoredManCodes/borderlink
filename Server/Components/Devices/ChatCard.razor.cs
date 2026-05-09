@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services;
-using Remotely.Server.Services.Stores;
-using Remotely.Shared.Enums;
-using Remotely.Shared.ViewModels;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services;
+using BorderLink.Server.Services.Stores;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.ViewModels;
 
-namespace Remotely.Server.Components.Devices;
+namespace BorderLink.Server.Components.Devices;
 
 public partial class ChatCard : AuthComponentBase
 {

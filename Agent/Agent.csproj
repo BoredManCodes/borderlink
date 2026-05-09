@@ -5,14 +5,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Copyright>Copyright © 2023 Immense Networks</Copyright>
-    <Description>Background service that maintains a connection to the Remotely server.  The service is used for remote support and maintenance by this computer's administrators.</Description>
+    <Copyright>Copyright © 2023 Border Tech Solutions</Copyright>
+    <Description>Background service that maintains a connection to the BorderLink server.  The service is used for remote support and maintenance by this computer's administrators.</Description>
     <Authors>Jared Goodwin</Authors>
-    <Product>Remotely Agent</Product>
-    <Company>Immense Networks</Company>
+    <Product>BorderLink Agent</Product>
+    <Company>Border Tech Solutions</Company>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <Platforms>AnyCPU;x86;x64</Platforms>
-    <AssemblyName>Remotely_Agent</AssemblyName>
+    <AssemblyName>BorderLink_Agent</AssemblyName>
     <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
   </PropertyGroup>

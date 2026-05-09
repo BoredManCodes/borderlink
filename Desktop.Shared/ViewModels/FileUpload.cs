@@ -1,6 +1,6 @@
-﻿using Remotely.Desktop.Shared.Reactive;
+﻿using BorderLink.Desktop.Shared.Reactive;
 
-namespace Remotely.Desktop.Shared.ViewModels;
+namespace BorderLink.Desktop.Shared.ViewModels;
 
 public partial class FileUpload : ObservableObject
 {

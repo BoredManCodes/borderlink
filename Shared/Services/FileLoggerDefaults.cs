@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.Primitives;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Shared.Primitives;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Shared.Services;
+namespace BorderLink.Shared.Services;
 public static class FileLoggerDefaults
 {
     private static readonly SemaphoreSlim _logLock = new(1, 1);
@@ -14,7 +14,7 @@ public static class FileLoggerDefaults
             {
                 var logsPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
-                    "Remotely",
+                    "BorderLink",
                     "Logs");
 
                 if (EnvironmentHelper.IsDebug)
@@ -28,9 +28,9 @@ public static class FileLoggerDefaults
             {
                 if (EnvironmentHelper.IsDebug)
                 {
-                    return "/var/log/remotely_debug";
+                    return "/var/log/borderlink_debug";
                 }
-                return "/var/log/remotely";
+                return "/var/log/borderlink";
             }
 
             throw new PlatformNotSupportedException();

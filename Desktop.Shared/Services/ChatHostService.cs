@@ -1,10 +1,10 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
+﻿using BorderLink.Desktop.Shared.Abstractions;
 using Microsoft.Extensions.Logging;
-using Remotely.Shared.Models;
+using BorderLink.Shared.Models;
 using System.IO.Pipes;
 using System.Text.Json;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IChatHostService
 {

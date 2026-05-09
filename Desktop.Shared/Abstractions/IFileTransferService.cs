@@ -1,7 +1,7 @@
-﻿using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.ViewModels;
+﻿using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.ViewModels;
 
-namespace Remotely.Desktop.Shared.Abstractions;
+namespace BorderLink.Desktop.Shared.Abstractions;
 
 public interface IFileTransferService
 {

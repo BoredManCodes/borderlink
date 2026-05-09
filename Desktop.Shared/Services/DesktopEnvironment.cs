@@ -1,7 +1,7 @@
-﻿using Remotely.Desktop.Native.Linux;
+﻿using BorderLink.Desktop.Native.Linux;
 using System.Security.Principal;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IDesktopEnvironment
 {

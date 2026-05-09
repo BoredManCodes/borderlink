@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class DeviceGroup
 {
@@ -22,7 +22,7 @@ public class DeviceGroup
     public string OrganizationID { get; set; } = null!;
 
     [JsonIgnore]
-    public List<RemotelyUser> Users { get; set; } = new();
+    public List<BorderLinkUser> Users { get; set; } = new();
 
     [JsonIgnore]
     public List<ScriptSchedule>? ScriptSchedules { get; set; }

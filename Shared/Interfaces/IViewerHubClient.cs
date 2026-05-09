@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Interfaces;
+﻿namespace BorderLink.Shared.Interfaces;
 
 public interface IViewerHubClient
 {

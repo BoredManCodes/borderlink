@@ -1,4 +1,4 @@
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public class RemoteControlSessionCleaner : BackgroundService
 {

@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Data;
+﻿namespace BorderLink.Server.Data;
 
 public interface IAppDbFactory
 {

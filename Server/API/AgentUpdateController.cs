@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Hubs;
-using Remotely.Server.RateLimiting;
-using Remotely.Server.Services;
-using Remotely.Shared.Interfaces;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.RateLimiting;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Interfaces;
 using System.Net;
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -50,16 +50,16 @@ public class AgentUpdateController : ControllerBase
             switch (platform.ToLower())
             {
                 case "win-x64":
-                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Remotely-Win-x64.zip");
+                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "BorderLink-Win-x64.zip");
                     break;
                 case "win-x86":
-                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Remotely-Win-x86.zip");
+                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "BorderLink-Win-x86.zip");
                     break;
                 case "linux":
-                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Remotely-Linux.zip");
+                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "BorderLink-Linux.zip");
                     break;
                 case "macos-x64":
-                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "Remotely-MacOS-x64.zip");
+                    filePath = Path.Combine(_hostEnv.WebRootPath, "Content", "BorderLink-MacOS-x64.zip");
                     break;
                 default:
                     _logger.LogWarning(
@@ -74,7 +74,7 @@ public class AgentUpdateController : ControllerBase
 
             var fileStream = System.IO.File.OpenRead(filePath);
 
-            return File(fileStream, "application/octet-stream", "RemotelyUpdate.zip");
+            return File(fileStream, "application/octet-stream", "BorderLinkUpdate.zip");
         }
         catch (Exception ex)
         {

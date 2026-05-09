@@ -3,14 +3,14 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <AssemblyName>Remotely_Desktop</AssemblyName>
+    <AssemblyName>BorderLink_Desktop</AssemblyName>
     <ApplicationIcon>Assets\favicon.ico</ApplicationIcon>
     <Description>Desktop client for allowing your IT admin to provide remote support.</Description>
-    <Copyright>Copyright © 2023 Immense Networks</Copyright>
-    <PackageId>Remotely Desktop</PackageId>
+    <Copyright>Copyright © 2023 Border Tech Solutions</Copyright>
+    <PackageId>BorderLink Desktop</PackageId>
     <Authors>Jared Goodwin</Authors>
-    <Company>Immense Networks</Company>
-    <Product>Remotely Desktop</Product>
+    <Company>Border Tech Solutions</Company>
+    <Product>BorderLink Desktop</Product>
     <Platforms>AnyCPU;x86;x64</Platforms>
     <StartupObject></StartupObject>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <None Remove="Assets\favicon.ico" />
-    <None Remove="Assets\Remotely_Icon.png" />
+    <None Remove="Assets\BorderLink_Icon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,7 +54,7 @@
 
   <ItemGroup>
     <Resource Include="Assets\favicon.ico" />
-    <EmbeddedResource Include="Assets\Remotely_Icon.png" />
+    <EmbeddedResource Include="Assets\BorderLink_Icon.png" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

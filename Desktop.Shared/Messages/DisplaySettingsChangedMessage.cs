@@ -1,2 +1,2 @@
-﻿namespace Remotely.Desktop.Shared.Messages;
+﻿namespace BorderLink.Desktop.Shared.Messages;
 public record DisplaySettingsChangedMessage();

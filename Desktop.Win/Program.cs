@@ -1,17 +1,17 @@
 ﻿using Avalonia;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.Startup;
-using Remotely.Desktop.UI;
-using Remotely.Desktop.UI.Services;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Startup;
+using BorderLink.Desktop.UI;
+using BorderLink.Desktop.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Remotely.Desktop.Win.Startup;
-using Remotely.Shared.Services;
-using Remotely.Shared.Utilities;
+using BorderLink.Desktop.Win.Startup;
+using BorderLink.Shared.Services;
+using BorderLink.Shared.Utilities;
 using System.Diagnostics;
 using System.Runtime.Versioning;
-using Remotely.Desktop.UI.Startup;
+using BorderLink.Desktop.UI.Startup;
 
-namespace Remotely.Desktop.Win;
+namespace BorderLink.Desktop.Win;
 
 public class Program
 {
@@ -27,7 +27,7 @@ public class Program
     public static async Task Main(string[] args)
     {
         var version = AppVersionHelper.GetAppVersion();
-        var logger = new FileLogger("Remotely_Desktop", version, "Program.cs");
+        var logger = new FileLogger("BorderLink_Desktop", version, "Program.cs");
         var filePath = Environment.ProcessPath ?? Environment.GetCommandLineArgs().First();
         var serverUrl = Debugger.IsAttached ? "https://localhost:5001" : string.Empty;
         var getEmbeddedResult =  EmbeddedServerDataProvider.Instance.TryGetEmbeddedData(filePath);
@@ -53,7 +53,7 @@ public class Program
             {
                 builder.SetMinimumLevel(LogLevel.Debug);
             }
-            builder.AddProvider(new FileLoggerProvider("Remotely_Desktop", version));
+            builder.AddProvider(new FileLoggerProvider("BorderLink_Desktop", version));
         });
 
         var provider = services.BuildServiceProvider();
@@ -73,7 +73,7 @@ public class Program
 
         var result = await provider.UseRemoteControlClient(
             args,
-            "The remote control client for Remotely.",
+            "The remote control client for BorderLink.",
             serverUrl,
             false);
 

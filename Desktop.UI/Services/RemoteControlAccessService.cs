@@ -1,8 +1,8 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Shared.Enums;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Shared.Enums;
 using Microsoft.Extensions.Logging;
 
-namespace Remotely.Desktop.UI.Services;
+namespace BorderLink.Desktop.UI.Services;
 
 public class RemoteControlAccessService : IRemoteControlAccessService
 {

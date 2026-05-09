@@ -1,17 +1,17 @@
-﻿using Remotely.Server.Services;
+﻿using BorderLink.Server.Services;
 using Bitbound.SimpleMessenger;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Caching.Memory;
-using Remotely.Server.Models.Messages;
-using Remotely.Shared;
-using Remotely.Shared.Dtos;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Interfaces;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Shared;
+using BorderLink.Shared.Dtos;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Interfaces;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Hubs;
+namespace BorderLink.Server.Hubs;
 
 public class AgentHub : Hub<IAgentHubClient>
 {

@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Services;
+﻿using BorderLink.Shared.Services;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public class DataCleanupService : BackgroundService, IDisposable
 {

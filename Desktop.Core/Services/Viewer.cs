@@ -1,10 +1,10 @@
-﻿using Remotely.Desktop.Core.Interfaces;
-using Remotely.Desktop.Core.Models;
-using Remotely.Desktop.Core.ViewModels;
-using Remotely.Shared.Utilities;
-using Remotely.Shared.Models;
-using Remotely.Shared.Models.RemoteControlDtos;
-using Remotely.Shared.Win32;
+﻿using BorderLink.Desktop.Core.Interfaces;
+using BorderLink.Desktop.Core.Models;
+using BorderLink.Desktop.Core.ViewModels;
+using BorderLink.Shared.Utilities;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Models.RemoteControlDtos;
+using BorderLink.Shared.Win32;
 using System;
 using System.Collections.Concurrent;
 using System.Drawing.Imaging;
@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Remotely.Desktop.Core.Services
+namespace BorderLink.Desktop.Core.Services
 {
     public class Viewer : IDisposable
     {

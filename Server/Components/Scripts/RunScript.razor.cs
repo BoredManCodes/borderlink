@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
-using Remotely.Server.Components.Pages;
-using Remotely.Server.Hubs;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Components.Pages;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Components.Scripts;
+namespace BorderLink.Server.Components.Scripts;
 
 [Authorize]
 public partial class RunScript : AuthComponentBase

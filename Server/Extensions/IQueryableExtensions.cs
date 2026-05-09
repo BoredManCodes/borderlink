@@ -1,4 +1,4 @@
-﻿namespace Remotely.Server.Extensions;
+﻿namespace BorderLink.Server.Extensions;
 
 public static class IQueryableExtensions
 {

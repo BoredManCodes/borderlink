@@ -1,8 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using Remotely.Server.Data
+@using BorderLink.Server.Data
 
-@inject SignInManager<RemotelyUser> SignInManager
+@inject SignInManager<BorderLinkUser> SignInManager
 @inject IdentityRedirectManager RedirectManager
 
 @if (externalLogins.Length == 0)

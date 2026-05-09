@@ -1,7 +1,7 @@
 ﻿using Microsoft.Win32.SafeHandles;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Desktop.Native.Windows;
 
 public static class SECUR32
 {

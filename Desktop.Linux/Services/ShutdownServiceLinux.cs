@@ -1,9 +1,9 @@
-using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Services;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.UI.Services;
+using BorderLink.Desktop.UI.Services;
 
-namespace Remotely.Desktop.Linux.Services;
+namespace BorderLink.Desktop.Linux.Services;
 
 public class ShutdownServiceLinux : IShutdownService
 {

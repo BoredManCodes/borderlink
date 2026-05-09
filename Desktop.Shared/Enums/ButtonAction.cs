@@ -1,4 +1,4 @@
-﻿namespace Remotely.Desktop.Shared.Enums;
+﻿namespace BorderLink.Desktop.Shared.Enums;
 
 public enum ButtonAction
 {

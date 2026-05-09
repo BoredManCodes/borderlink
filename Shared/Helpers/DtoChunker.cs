@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Models.Dtos;
+﻿using BorderLink.Shared.Models.Dtos;
 using MessagePack;
 using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Remotely.Shared.Helpers;
+namespace BorderLink.Shared.Helpers;
 
 public static class DtoChunker
 {

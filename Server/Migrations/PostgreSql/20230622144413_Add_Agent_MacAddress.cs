@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Remotely.Server.Migrations.PostgreSql;
+namespace BorderLink.Server.Migrations.PostgreSql;
 
 /// <inheritdoc />
 public partial class Add_Agent_MacAddress : Migration

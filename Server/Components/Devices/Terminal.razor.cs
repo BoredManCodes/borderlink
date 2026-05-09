@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.AspNetCore.Components.Web;
-using Remotely.Server.Components.ModalContents;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services;
-using Remotely.Server.Services.Stores;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Enums;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Components.ModalContents;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services;
+using BorderLink.Server.Services.Stores;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Components.Devices;
+namespace BorderLink.Server.Components.Devices;
 
 public partial class Terminal : AuthComponentBase, IDisposable
 {

@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Helpers;
+﻿using BorderLink.Shared.Helpers;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System.Drawing;
 
-namespace Remotely.Desktop.Win.Models;
+namespace BorderLink.Desktop.Win.Models;
 
 public class DirectXOutput : IDisposable
 {

@@ -1,7 +1,7 @@
-﻿using Remotely.Shared.Models;
+﻿using BorderLink.Shared.Models;
 using System;
 
-namespace Remotely.Desktop.Core.Interfaces
+namespace BorderLink.Desktop.Core.Interfaces
 {
     public interface ICursorIconWatcher
     {

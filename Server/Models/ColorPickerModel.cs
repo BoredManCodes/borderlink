@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Remotely.Server.Models;
+namespace BorderLink.Server.Models;
 
 public class ColorPickerModel
 {

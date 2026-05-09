@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Utilities;
+﻿using BorderLink.Shared.Utilities;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public class ScriptScheduler : IHostedService, IDisposable
 {

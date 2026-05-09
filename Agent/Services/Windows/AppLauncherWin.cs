@@ -1,17 +1,17 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Versioning;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Remotely.Desktop.Native.Windows;
+using BorderLink.Desktop.Native.Windows;
 
-namespace Remotely.Agent.Services.Windows;
+namespace BorderLink.Agent.Services.Windows;
 
 [SupportedOSPlatform("windows")]
 public class AppLauncherWin : IAppLauncher

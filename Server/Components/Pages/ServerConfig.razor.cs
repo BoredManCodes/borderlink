@@ -2,18 +2,18 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.SignalR;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Interfaces;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Interfaces;
 using System.Net;
 
-namespace Remotely.Server.Components.Pages;
+namespace BorderLink.Server.Components.Pages;
 
 public partial class ServerConfig : AuthComponentBase
 {
-    private readonly List<RemotelyUser> _userList = new();
+    private readonly List<BorderLinkUser> _userList = new();
     private string? _alertMessage;
     private string? _bannedDeviceSelected;
     private string? _bannedDeviceToAdd;
@@ -61,7 +61,7 @@ public partial class ServerConfig : AuthComponentBase
     private IEnumerable<string> OutdatedDevices => GetOutdatedDevices();
     private int TotalDevices => DataService.GetTotalDevices();
 
-    private IEnumerable<RemotelyUser> UserList
+    private IEnumerable<BorderLinkUser> UserList
     {
         get
         {
@@ -226,7 +226,7 @@ public partial class ServerConfig : AuthComponentBase
             return;
         }
 
-        var success = await EmailSender.SendEmailAsync(User.Email, "Remotely Test Email", "Congratulations! Your SMTP settings are working!", User.OrganizationID);
+        var success = await EmailSender.SendEmailAsync(User.Email, "BorderLink Test Email", "Congratulations! Your SMTP settings are working!", User.OrganizationID);
         if (success)
         {
             ToastService.ShowToast($"Test email sent to {User.Email}.  Check your inbox (or spam folder).");
@@ -239,7 +239,7 @@ public partial class ServerConfig : AuthComponentBase
         }
     }
 
-    private void SetIsServerAdmin(ChangeEventArgs ev, RemotelyUser user)
+    private void SetIsServerAdmin(ChangeEventArgs ev, BorderLinkUser user)
     {
         if (ev.Value is not bool isAdmin)
         {

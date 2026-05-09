@@ -1,12 +1,12 @@
-using Remotely.Shared.Models;
+using BorderLink.Shared.Models;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
-using static Remotely.Desktop.Native.Windows.ADVAPI32;
-using static Remotely.Desktop.Native.Windows.User32;
+using static BorderLink.Desktop.Native.Windows.ADVAPI32;
+using static BorderLink.Desktop.Native.Windows.User32;
 
-namespace Remotely.Desktop.Native.Windows;
+namespace BorderLink.Desktop.Native.Windows;
 
 // TODO: Use https://github.com/microsoft/CsWin32 for all p/invokes.
 public class Win32Interop

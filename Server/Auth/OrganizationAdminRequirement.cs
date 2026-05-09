@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
-namespace Remotely.Server.Auth;
+namespace BorderLink.Server.Auth;
 
 public class OrganizationAdminRequirement : IAuthorizationRequirement
 {

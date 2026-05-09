@@ -1,10 +1,10 @@
-﻿using Remotely.Desktop.Shared.Extensions;
+﻿using BorderLink.Desktop.Shared.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.IO;
-using Remotely.Shared.Primitives;
+using BorderLink.Shared.Primitives;
 using SkiaSharp;
 
-namespace Remotely.Desktop.Shared.Services;
+namespace BorderLink.Desktop.Shared.Services;
 
 public interface IImageHelper
 {

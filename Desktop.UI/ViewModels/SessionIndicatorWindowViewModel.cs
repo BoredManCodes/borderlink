@@ -1,9 +1,9 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.UI.Controls.Dialogs;
+﻿using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.UI.Controls.Dialogs;
 using Microsoft.Extensions.Logging;
-using Remotely.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.Services;
 
-namespace Remotely.Desktop.UI.ViewModels;
+namespace BorderLink.Desktop.UI.ViewModels;
 
 public interface ISessionIndicatorWindowViewModel : IBrandedViewModelBase
 {

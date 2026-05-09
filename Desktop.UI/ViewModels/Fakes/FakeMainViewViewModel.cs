@@ -1,13 +1,13 @@
-﻿using Remotely.Desktop.Shared.Abstractions;
-using Remotely.Desktop.Shared.Reactive;
-using Remotely.Desktop.Shared.Services;
-using Remotely.Desktop.Shared.ViewModels;
-using Remotely.Shared.Models;
-using Remotely.Shared.Models.Dtos;
+﻿using BorderLink.Desktop.Shared.Abstractions;
+using BorderLink.Desktop.Shared.Reactive;
+using BorderLink.Desktop.Shared.Services;
+using BorderLink.Desktop.Shared.ViewModels;
+using BorderLink.Shared.Models;
+using BorderLink.Shared.Models.Dtos;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace Remotely.Desktop.UI.ViewModels.Fakes;
+namespace BorderLink.Desktop.UI.ViewModels.Fakes;
 public class FakeMainViewViewModel : FakeBrandedViewModelBase, IMainViewViewModel
 {
 

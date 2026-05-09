@@ -1,8 +1,8 @@
 version: '3.4'
 
 networks:
-  remotely:
-    name: remotely-network
+  borderlink:
+    name: borderlink-network
     driver: bridge
     ipam:
       config:
@@ -10,16 +10,16 @@ networks:
           gateway: 172.28.0.1
 
 services:
-  remotely:
+  borderlink:
     image: immybot/remotely:latest
-    container_name: remotely
+    container_name: borderlink
     volumes:
-      - /var/www/remotely:/app/AppData
+      - /var/www/borderlink:/app/AppData
     restart: unless-stopped
     ports:
       - "5000:5000"
     networks:
-      - remotely
+      - borderlink
     environment:
       # ASPNETCORE environment variables should *not* be changed.
       - ASPNETCORE_ENVIRONMENT=Production
@@ -31,14 +31,14 @@ services:
       - Serilog__MinimumLevel__Override__System=Warning
 
       # Values for DbProvider are SQLite, SQLServer, and PostgreSQL.
-      - Remotely_ApplicationOptions__DbProvider=SQLite
+      - BorderLink_ApplicationOptions__DbProvider=SQLite
       # The Docker gateway will be used in Forwarded Headers, which is necessary to
       # to correctly determine request hostname and scheme within the app.  If you change
       # the network config, you must update this value as well.
-      - Remotely_ApplicationOptions__DockerGateway=172.28.0.1
+      - BorderLink_ApplicationOptions__DockerGateway=172.28.0.1
       # This path shouldn't be changed.  It points to the Docker volume.
-      - Remotely_ConnectionStrings__SQLite=Data Source=/app/AppData/Remotely.db
+      - BorderLink_ConnectionStrings__SQLite=Data Source=/app/AppData/BorderLink.db
       # If using SQL Server, change the connection string to point to your SQL Server instance.
-      - Remotely_ConnectionStrings__SQLServer=Server=(localdb)\\mssqllocaldb;Database=Remotely-Server-53bc9b9d-9d6a-45d4-8429-2a2761773502;Trusted_Connection=True;MultipleActiveResultSets=true
+      - BorderLink_ConnectionStrings__SQLServer=Server=(localdb)\\mssqllocaldb;Database=BorderLink-Server-53bc9b9d-9d6a-45d4-8429-2a2761773502;Trusted_Connection=True;MultipleActiveResultSets=true
       # If using PostgreSQL, change the connection string to point to your PostgreSQL instance.
-      - Remotely_ConnectionStrings__PostgreSQL=Host=localhost;Database=Remotely;Username=postgres;Password=changeme;
+      - BorderLink_ConnectionStrings__PostgreSQL=Host=localhost;Database=BorderLink;Username=postgres;Password=changeme;

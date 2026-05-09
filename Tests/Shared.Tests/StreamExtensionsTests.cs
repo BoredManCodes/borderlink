@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
-using Remotely.Shared.Extensions;
+using BorderLink.Shared.Extensions;
 
-namespace Remotely.Shared.Tests;
+namespace BorderLink.Shared.Tests;
 
 [TestClass]
 public class StreamExtensionsTests

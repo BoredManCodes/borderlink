@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Moq;
 
-namespace Remotely.Server.Tests.Mocks;
+namespace BorderLink.Server.Tests.Mocks;
 
 public class HubContextFixture<THub, THubClient>
     where THub : Hub<THubClient>

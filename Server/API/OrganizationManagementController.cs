@@ -1,18 +1,18 @@
-﻿using Remotely.Shared.Extensions;
+﻿using BorderLink.Shared.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Remotely.Server.Auth;
-using Remotely.Server.Extensions;
-using Remotely.Server.Services;
-using Remotely.Shared.Entities;
-using Remotely.Shared.ViewModels;
+using BorderLink.Server.Auth;
+using BorderLink.Server.Extensions;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.ViewModels;
 using System.Text;
 using System.Text.Encodings.Web;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace Remotely.Server.API;
+namespace BorderLink.Server.API;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -21,10 +21,10 @@ public class OrganizationManagementController : ControllerBase
     private readonly IDataService _dataService;
     private readonly IEmailSenderEx _emailSender;
     private readonly ILogger<OrganizationManagementController> _logger;
-    private readonly UserManager<RemotelyUser> _userManager;
+    private readonly UserManager<BorderLinkUser> _userManager;
 
     public OrganizationManagementController(
-        UserManager<RemotelyUser> userManager,
+        UserManager<BorderLinkUser> userManager,
         IDataService dataService,
         IEmailSenderEx emailSender,
         ILogger<OrganizationManagementController> logger)
@@ -315,12 +315,12 @@ public class OrganizationManagementController : ControllerBase
             }
 
             var inviteURL = $"{Request.Scheme}://{Request.Host}/Invite/{newInvite.Value.ID}";
-            var emailResult = await _emailSender.SendEmailAsync(invite.InvitedUser, "Invitation to Organization in Remotely",
-                        $@"<img src='{Request.Scheme}://{Request.Host}/images/Remotely_Logo.png'/>
+            var emailResult = await _emailSender.SendEmailAsync(invite.InvitedUser, "Invitation to Organization in BorderLink",
+                        $@"<img src='{Request.Scheme}://{Request.Host}/images/BorderLink_Logo.png'/>
                             <br><br>
                             Hello!
                             <br><br>
-                            You've been invited to join an organization in Remotely.
+                            You've been invited to join an organization in BorderLink.
                             <br><br>
                             You can join the organization by <a href='{HtmlEncoder.Default.Encode(inviteURL)}'>clicking here</a>.",
                         orgId);

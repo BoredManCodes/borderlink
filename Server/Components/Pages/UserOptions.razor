@@ -3,7 +3,7 @@
 @inherits AuthComponentBase
 
 @inject AuthenticationStateProvider AuthProvider
-@inject UserManager<RemotelyUser> UserManager
+@inject UserManager<BorderLinkUser> UserManager
 @inject IDataService DataService
 @inject IToastService ToastService
 @inject IModalService ModalService
@@ -91,7 +91,7 @@
 
 
 @code {
-    private RemotelyUserOptions _options = new();
+    private BorderLinkUserOptions _options = new();
     private string? _alertMessage;
 
     protected override async Task OnInitializedAsync()

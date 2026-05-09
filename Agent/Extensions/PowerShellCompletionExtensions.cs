@@ -1,9 +1,9 @@
-﻿using Remotely.Shared.Models;
-using Remotely.Shared.Utilities;
+﻿using BorderLink.Shared.Models;
+using BorderLink.Shared.Utilities;
 using System.Linq;
 using System.Management.Automation;
 
-namespace Remotely.Agent.Extensions;
+namespace BorderLink.Agent.Extensions;
 
 public static class PowerShellCompletionExtensions
 {

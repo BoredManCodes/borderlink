@@ -1,7 +1,7 @@
-﻿using Remotely.Server.Enums;
-using Remotely.Server.Models;
+﻿using BorderLink.Server.Enums;
+using BorderLink.Server.Models;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IToastService
 {

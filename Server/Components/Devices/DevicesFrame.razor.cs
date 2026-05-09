@@ -1,20 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
-using Remotely.Server.Enums;
-using Remotely.Server.Hubs;
-using Remotely.Server.Models.Messages;
-using Remotely.Server.Services;
-using Remotely.Server.Services.Stores;
-using Remotely.Shared.Attributes;
-using Remotely.Shared.Entities;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Hubs;
+using BorderLink.Server.Models.Messages;
+using BorderLink.Server.Services;
+using BorderLink.Server.Services.Stores;
+using BorderLink.Shared.Attributes;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Utilities;
 using System.Collections;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace Remotely.Server.Components.Devices;
+namespace BorderLink.Server.Components.Devices;
 
 [Authorize]
 public partial class DevicesFrame : AuthComponentBase

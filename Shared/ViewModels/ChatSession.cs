@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace Remotely.Shared.ViewModels;
+namespace BorderLink.Shared.ViewModels;
 
 public class ChatSession
 {

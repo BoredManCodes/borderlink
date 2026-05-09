@@ -1,8 +1,8 @@
-﻿using Remotely.Shared.ViewModels;
+﻿using BorderLink.Shared.ViewModels;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Remotely.Server.Services.Stores;
+namespace BorderLink.Server.Services.Stores;
 
 public interface IChatSessionStore
 {

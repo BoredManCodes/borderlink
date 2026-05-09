@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IThemeProvider
 {

@@ -1,6 +1,6 @@
-﻿using Remotely.Shared.Enums;
+﻿using BorderLink.Shared.Enums;
 
-namespace Remotely.Shared.ViewModels;
+namespace BorderLink.Shared.ViewModels;
 
 public class ChatHistoryItem
 {

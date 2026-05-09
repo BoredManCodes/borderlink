@@ -2,7 +2,7 @@
 using System.Numerics;
 using System.Runtime.Serialization;
 
-namespace Remotely.Shared.Models;
+namespace BorderLink.Shared.Models;
 
 [DataContract]
 public class DisplayInfo

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <AssemblyName>Remotely.Tests.LoadTester</AssemblyName>
+    <AssemblyName>BorderLink.Tests.LoadTester</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

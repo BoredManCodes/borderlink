@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <AssemblyName>Remotely.Shared.Tests</AssemblyName>
+    <AssemblyName>BorderLink.Shared.Tests</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace Remotely.Shared.Utilities;
+namespace BorderLink.Shared.Utilities;
 
 public class JsonSerializerHelper
 {

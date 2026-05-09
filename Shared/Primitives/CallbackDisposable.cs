@@ -1,4 +1,4 @@
-﻿namespace Remotely.Shared.Primitives;
+﻿namespace BorderLink.Shared.Primitives;
 
 
 /// <summary>

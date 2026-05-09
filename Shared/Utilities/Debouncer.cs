@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using Timer = System.Timers.Timer;
-namespace Remotely.Shared.Utilities;
+namespace BorderLink.Shared.Utilities;
 
 public static class Debouncer
 {

@@ -1,13 +1,13 @@
-using Remotely.Server.Enums;
-using Remotely.Server.Filters;
-using Remotely.Server.Models;
-using Remotely.Server.Services;
-using Remotely.Shared.Interfaces;
-using Remotely.Shared.Models;
+using BorderLink.Server.Enums;
+using BorderLink.Server.Filters;
+using BorderLink.Server.Models;
+using BorderLink.Server.Services;
+using BorderLink.Shared.Interfaces;
+using BorderLink.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
-namespace Remotely.Server.Hubs;
+namespace BorderLink.Server.Hubs;
 
 [ServiceFilter(typeof(ViewerAuthorizationFilter))]
 public class ViewerHub : Hub<IViewerHubClient>

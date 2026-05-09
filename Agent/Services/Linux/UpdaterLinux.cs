@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Remotely.Agent.Interfaces;
-using Remotely.Shared.Utilities;
+using BorderLink.Agent.Interfaces;
+using BorderLink.Shared.Utilities;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Remotely.Agent.Services.Linux;
+namespace BorderLink.Agent.Services.Linux;
 
 
 public class UpdaterLinux : IUpdater
@@ -74,7 +74,7 @@ public class UpdaterLinux : IUpdater
             var connectionInfo = _configService.GetConnectionInfo();
             var serverUrl = _configService.GetConnectionInfo().Host;
 
-            var fileUrl = serverUrl + $"/Content/Remotely-Linux.zip";
+            var fileUrl = serverUrl + $"/Content/BorderLink-Linux.zip";
 
             using var httpClient = _httpClientFactory.CreateClient();
             using var request = new HttpRequestMessage(HttpMethod.Head, fileUrl);
@@ -128,9 +128,9 @@ public class UpdaterLinux : IUpdater
 
             _logger.LogInformation("Service Updater: Downloading install package.");
 
-            var zipPath = Path.Combine(Path.GetTempPath(), "RemotelyUpdate.zip");
+            var zipPath = Path.Combine(Path.GetTempPath(), "BorderLinkUpdate.zip");
 
-            var installerPath = Path.Combine(Path.GetTempPath(), "RemotelyUpdate.sh");
+            var installerPath = Path.Combine(Path.GetTempPath(), "BorderLinkUpdate.sh");
 
             string platform;
 

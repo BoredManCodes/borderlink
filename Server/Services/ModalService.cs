@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Remotely.Server.Models;
+using BorderLink.Server.Models;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IModalService
 {

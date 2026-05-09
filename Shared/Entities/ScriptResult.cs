@@ -1,10 +1,10 @@
-﻿using Remotely.Shared.DtoEntityBases;
+﻿using BorderLink.Shared.DtoEntityBases;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.Serialization;
 using System.Text.Json.Serialization;
 
-namespace Remotely.Shared.Entities;
+namespace BorderLink.Shared.Entities;
 
 public class ScriptResult : ScriptResultBase
 {

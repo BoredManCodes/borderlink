@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
-using Remotely.Shared.Entities;
+using BorderLink.Shared.Entities;
 
-namespace Remotely.Server.Services;
+namespace BorderLink.Server.Services;
 
 public interface IAuthService
 {
     Task<bool> IsAuthenticated();
-    Task<Result<RemotelyUser>> GetUser();
+    Task<Result<BorderLinkUser>> GetUser();
 }
 
 public class AuthService : IAuthService
@@ -28,7 +28,7 @@ public class AuthService : IAuthService
         return principal?.User?.Identity?.IsAuthenticated ?? false;
     }
 
-    public async Task<Result<RemotelyUser>> GetUser()
+    public async Task<Result<BorderLinkUser>> GetUser()
     {
         var principal = await _authProvider.GetAuthenticationStateAsync();
 
@@ -37,6 +37,6 @@ public class AuthService : IAuthService
             return await _dataService.GetUserByName($"{principal.User.Identity.Name}");
         }
 
-        return Result.Fail<RemotelyUser>("Not authenticated.");
+        return Result.Fail<BorderLinkUser>("Not authenticated.");
     }
 }

@@ -5,11 +5,11 @@
 @using System.Text
 @using System.Text.Encodings.Web
 @using Microsoft.AspNetCore.Identity
-@using Remotely.Server.Data
+@using BorderLink.Server.Data
 @using QRCoder;
 @using QRCoder.Extensions;
 
-@inject UserManager<RemotelyUser> UserManager
+@inject UserManager<BorderLinkUser> UserManager
 @inject IdentityUserAccessor UserAccessor
 @inject UrlEncoder UrlEncoder
 @inject IdentityRedirectManager RedirectManager
@@ -80,7 +80,7 @@ else
     private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
 
     private string? message;
-    private RemotelyUser user = default!;
+    private BorderLinkUser user = default!;
     private string? sharedKey;
     private string? authenticatorUri;
     private string? _qrCodeDataUri;
@@ -129,7 +129,7 @@ else
         }
     }
 
-    private async ValueTask LoadSharedKeyAndQrCodeUriAsync(RemotelyUser user)
+    private async ValueTask LoadSharedKeyAndQrCodeUriAsync(BorderLinkUser user)
     {
         // Load the authenticator key & QR code URI to display on the form
         var unformattedKey = await UserManager.GetAuthenticatorKeyAsync(user);
@@ -184,7 +184,7 @@ else
         return string.Format(
             CultureInfo.InvariantCulture,
             AuthenticatorUriFormat,
-            UrlEncoder.Encode("Remotely"),
+            UrlEncoder.Encode("BorderLink"),
             UrlEncoder.Encode(email),
             unformattedKey);
     }

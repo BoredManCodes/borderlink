@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <AssemblyName>Remotely.Server.Tests</AssemblyName>
+    <AssemblyName>BorderLink.Server.Tests</AssemblyName>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 

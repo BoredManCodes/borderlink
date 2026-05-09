@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Remotely.Server.Services;
-using Remotely.Shared;
-using Remotely.Shared.Utilities;
+using BorderLink.Server.Services;
+using BorderLink.Shared;
+using BorderLink.Shared.Utilities;
 using System.Net;
 
-namespace Remotely.Server.Auth;
+namespace BorderLink.Server.Auth;
 
 public class ExpiringTokenFilter : ActionFilterAttribute, IAsyncAuthorizationFilter
 {
