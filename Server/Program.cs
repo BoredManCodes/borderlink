@@ -239,6 +239,7 @@ services.AddScoped<ILoaderService, LoaderService>();
 services.AddScoped(x => (CircuitHandler)x.GetRequiredService<ICircuitConnection>());
 services.AddSingleton<ICircuitManager, CircuitManager>();
 services.AddScoped<IAuthService, AuthService>();
+services.AddScoped<IAuditLogService, AuditLogService>();
 services.AddScoped<ISelectedCardsStore, SelectedCardsStore>();
 services.AddScoped<IExpiringTokenService, ExpiringTokenService>();
 services.AddScoped<IScriptScheduleDispatcher, ScriptScheduleDispatcher>();

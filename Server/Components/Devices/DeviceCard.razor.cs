@@ -62,6 +62,9 @@ public partial class DeviceCard : AuthComponentBase
     private IJsInterop JsInterop { get; init; } = null!;
 
     [Inject]
+    private NavigationManager NavManager { get; init; } = null!;
+
+    [Inject]
     private IModalService ModalService { get; init; } = null!;
 
     [Inject]
@@ -72,6 +75,9 @@ public partial class DeviceCard : AuthComponentBase
 
     [Inject]
     private IUpgradeService UpgradeService { get; init; } = null!;
+
+    [Inject]
+    private IAuditLogService AuditService { get; init; } = null!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -213,6 +219,16 @@ public partial class DeviceCard : AuthComponentBase
               Device.DeviceGroupID,
               Device.Notes);
 
+        await AuditService.LogAsync(
+            AuditActions.DeviceMetadataUpdate,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: Device.ID,
+            targetName: Device.DeviceName,
+            details: new { alias = Device.Alias, deviceGroupId = Device.DeviceGroupID, tags = Device.Tags });
+
         ToastService.ShowToast("Device settings saved.");
 
         await CircuitConnection.TriggerHeartbeat(Device.ID);
@@ -277,6 +293,15 @@ public partial class DeviceCard : AuthComponentBase
     private void OpenDeviceDetails()
     {
         JsInterop.OpenWindow($"/device-details/{Device.ID}", "_blank");
+    }
+
+    private async Task CopyQuickConnectLink()
+    {
+        var url = new Uri(new Uri(NavManager.BaseUri), $"QuickConnect/{Device.ID}").ToString();
+        var copied = await JsInterop.SetClipboardText(url);
+        ToastService.ShowToast(
+            copied ? "Quick connect link copied" : url,
+            classString: copied ? "bg-success" : "bg-info");
     }
 
     private void ShowAllDisks()

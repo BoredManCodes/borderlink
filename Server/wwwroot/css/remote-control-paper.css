@@ -1,0 +1,403 @@
+/* ════════════════════════════════════════════════════════════════════════
+   BORDERLINK VIEWER — PAPER THEME
+   Editorial · regional · warm newsprint
+   ════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    --bl-paper:        #ECE3CE;
+    --bl-paper-deep:   #DDD2B6;
+    --bl-paper-pale:   #F5EFDD;
+    --bl-paper-edge:   #C9BE9D;
+    --bl-ink:          #1A1714;
+    --bl-ink-soft:     #3A352D;
+    --bl-ink-mute:     #6B6453;
+    --bl-red:          #C8362B;
+    --bl-red-dark:     #962819;
+    --bl-green:        #2F4A35;
+    --bl-olive:        #87794D;
+    --bl-serif-display:"Fraunces", Georgia, "Times New Roman", serif;
+    --bl-serif-body:   "Newsreader", Georgia, serif;
+    --bl-mono:         "JetBrains Mono", ui-monospace, "SF Mono", Consolas, monospace;
+}
+
+/* ─── Body ─────────────────────────────────────────────────────────── */
+
+body {
+    font-family: var(--bl-serif-body);
+    background-color: var(--bl-paper);
+    background-image: none;
+    color: var(--bl-ink);
+}
+
+/* paper grain noise overlay */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.10 0 0 0 0 0.09 0 0 0 0 0.08 0 0 0 0.10 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.background-layers,
+.background-layer-1,
+.background-layer-2,
+.background-layer-3 {
+    background: transparent !important;
+    background-image: none !important;
+}
+
+/* ─── Connection box ───────────────────────────────────────────────── */
+
+.center-connection-box {
+    background: var(--bl-paper-pale);
+    border: 1px solid var(--bl-ink);
+    color: var(--bl-ink);
+    box-shadow: 6px 6px 0 var(--bl-ink);
+}
+
+.connect-header {
+    font-family: var(--bl-serif-display);
+    font-weight: 700;
+    color: var(--bl-ink);
+    font-style: italic;
+}
+
+.input-label {
+    font-family: var(--bl-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--bl-ink-mute);
+    font-weight: 500;
+}
+
+input, select {
+    background: var(--bl-paper);
+    border-color: var(--bl-ink);
+    color: var(--bl-ink);
+    border-radius: 0;
+    font-family: var(--bl-serif-body);
+}
+
+input:focus, select:focus {
+    border-color: var(--bl-red);
+    background: #fff8e6;
+}
+
+/* ─── Buttons ──────────────────────────────────────────────────────── */
+
+button {
+    background-color: var(--bl-ink);
+    border: 1px solid var(--bl-ink);
+    color: var(--bl-paper);
+    font-family: var(--bl-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-radius: 0;
+    transition: background-color .15s, color .15s, border-color .15s;
+}
+
+button:hover {
+    background-color: var(--bl-red-dark);
+    border-color: var(--bl-red-dark);
+    color: var(--bl-paper);
+}
+
+button:active {
+    background-color: var(--bl-red);
+    border-color: var(--bl-red);
+}
+
+button.toggled {
+    background-color: var(--bl-paper-deep);
+    border-color: var(--bl-ink);
+    color: var(--bl-red-dark);
+}
+
+button[disabled] {
+    background-color: var(--bl-paper-deep);
+    border-color: var(--bl-paper-edge);
+    color: var(--bl-ink-mute);
+    cursor: not-allowed;
+}
+
+#connectButton {
+    background-color: var(--bl-ink);
+    color: var(--bl-paper);
+    border: 1px solid var(--bl-ink);
+}
+
+#connectButton:hover {
+    background-color: var(--bl-red-dark);
+    border-color: var(--bl-red-dark);
+}
+
+#connectButton:disabled {
+    background-color: var(--bl-paper-deep);
+    color: var(--bl-ink-mute);
+    border: 1px solid var(--bl-paper-edge);
+}
+
+/* ─── Top menu (chevron + frame) ───────────────────────────────────── */
+
+#menuButton {
+    color: var(--bl-paper);
+    background-color: var(--bl-ink);
+    border: 1px solid var(--bl-ink);
+}
+
+#menuButton:hover {
+    color: var(--bl-paper);
+    background-color: var(--bl-red-dark);
+    border-color: var(--bl-red-dark);
+}
+
+#menuFrame {
+    color: var(--bl-ink);
+    background-color: var(--bl-paper-pale);
+    border-bottom: 1px solid var(--bl-ink);
+}
+
+#menuFrame button {
+    background-color: transparent;
+    color: var(--bl-ink);
+    border: 1px solid transparent;
+}
+
+#menuFrame button:hover {
+    background-color: var(--bl-ink);
+    color: var(--bl-paper);
+    border: 1px solid var(--bl-ink);
+}
+
+#menuFrame button.toggled {
+    background-color: var(--bl-paper-deep);
+    color: var(--bl-red-dark);
+    border-color: var(--bl-ink);
+}
+
+#menuFrame #disconnectButton {
+    background-color: var(--bl-red);
+    border: 1px solid var(--bl-red-dark);
+    color: var(--bl-paper);
+    font-size: 16px;
+}
+
+#menuFrame #disconnectButton:hover {
+    background-color: var(--bl-red-dark);
+    border-color: var(--bl-ink);
+}
+
+/* ─── Popup menus (extras, special-keys, file-transfer, etc.) ──────── */
+
+.popup-menu {
+    color: var(--bl-ink);
+    background-color: var(--bl-paper-pale);
+    border: 1px solid var(--bl-ink);
+    box-shadow: 4px 4px 0 var(--bl-ink);
+}
+
+.popup-menu button {
+    background-color: transparent;
+    color: var(--bl-ink);
+    border: 1px solid transparent;
+}
+
+.popup-menu button:hover {
+    background-color: var(--bl-ink);
+    color: var(--bl-paper);
+    border: 1px solid var(--bl-ink);
+}
+
+.special-keys-menu .popup-menu-header {
+    color: var(--bl-ink-mute);
+    font-family: var(--bl-mono);
+    border-bottom: 1px dashed var(--bl-paper-edge);
+    padding-bottom: 4px;
+}
+
+.special-keys-menu button.key-combo {
+    background: transparent;
+    color: var(--bl-ink);
+    border: 1px solid var(--bl-ink);
+}
+
+.special-keys-menu button.key-combo:hover {
+    background: var(--bl-ink);
+    color: var(--bl-paper);
+}
+
+.special-keys-menu button.key-launch {
+    background: transparent;
+    color: var(--bl-ink);
+    border: 1px solid var(--bl-paper-edge);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.special-keys-menu button.key-launch:hover {
+    background: var(--bl-paper-deep);
+    border-color: var(--bl-ink);
+    color: var(--bl-red-dark);
+}
+
+.special-keys-menu button.key-combo-danger {
+    background: transparent;
+    color: var(--bl-red-dark);
+    border: 1px solid transparent;
+    border-top: 1px dashed var(--bl-paper-edge);
+}
+
+.special-keys-menu button.key-combo-danger:hover {
+    background: var(--bl-red);
+    color: var(--bl-paper);
+    border-color: var(--bl-red);
+}
+
+/* ─── Status / connection / messages ───────────────────────────────── */
+
+.status-message {
+    color: var(--bl-ink-soft);
+    font-family: var(--bl-serif-body);
+    font-style: italic;
+}
+
+.toast-message {
+    background-color: var(--bl-ink);
+    color: var(--bl-paper);
+    border: 1px solid var(--bl-ink);
+    border-radius: 0;
+    font-family: var(--bl-mono);
+    font-size: 12px;
+}
+
+.modal-prompt {
+    background-color: var(--bl-paper-pale);
+    color: var(--bl-ink);
+    border: 1px solid var(--bl-ink);
+    border-radius: 0;
+    box-shadow: 8px 8px 0 var(--bl-ink);
+}
+
+.modal-prompt input {
+    background: var(--bl-paper);
+}
+
+.menu-options-header {
+    color: var(--bl-ink-mute);
+    font-family: var(--bl-mono);
+}
+
+/* ─── Logo / branding ──────────────────────────────────────────────── */
+
+.logo-title {
+    font-family: var(--bl-serif-display);
+    color: var(--bl-ink);
+    font-weight: 700;
+    font-style: italic;
+}
+
+.logo-subtitle {
+    font-family: var(--bl-mono);
+    color: var(--bl-red-dark);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+footer a {
+    color: var(--bl-red-dark);
+}
+
+footer a:hover {
+    color: var(--bl-red);
+}
+
+.copyright-text {
+    color: var(--bl-ink-mute) !important;
+    font-family: var(--bl-mono);
+    opacity: 0.8 !important;
+}
+
+/* ─── Connection state pills ───────────────────────────────────────── */
+
+#connectionRelayedIcon {
+    background-color: var(--bl-olive);
+}
+
+#connectionP2PIcon {
+    background-color: var(--bl-green);
+}
+
+/* ─── Metrics overlay ──────────────────────────────────────────────── */
+
+#metricsFrame {
+    background-color: rgba(26, 23, 20, 0.85);
+    color: var(--bl-paper);
+    border-top-left-radius: 0;
+    font-family: var(--bl-mono);
+}
+
+/* ─── Beta pill ────────────────────────────────────────────────────── */
+
+.beta-pill {
+    background-color: var(--bl-ink);
+    color: var(--bl-paper);
+    border-radius: 0;
+    font-family: var(--bl-mono);
+    border: 1px solid var(--bl-ink);
+}
+
+/* ─── File transfer notice ─────────────────────────────────────────── */
+
+#fileTransferDiv {
+    background-color: var(--bl-paper-pale);
+    color: var(--bl-ink);
+    border: 1px solid var(--bl-ink);
+    border-radius: 0;
+    font-family: var(--bl-mono);
+    font-size: 12px;
+}
+
+#fileTransferProgress {
+    background-color: var(--bl-paper-deep);
+    border: 1px solid var(--bl-ink);
+}
+
+#fileTransferProgress::-webkit-progress-bar {
+    background: var(--bl-paper-deep);
+}
+
+#fileTransferProgress::-webkit-progress-value {
+    background: var(--bl-green);
+}
+
+/* ─── Workarea / screen viewer (keep canvas neutral) ───────────────── */
+
+#workAreaGrid {
+    background: var(--bl-paper);
+}
+
+#screenViewerWrapper {
+    background: var(--bl-paper);
+    border: 1px solid var(--bl-paper-edge);
+}
+
+/* Lift content above the grain noise */
+#workAreaGrid,
+.connection-box-wrapper,
+#menuFrame,
+.popup-menu,
+#toastsWrapper,
+#fileTransferDiv,
+.modal-prompt,
+.horizontal-button-bar,
+footer {
+    position: relative;
+    z-index: 1;
+}

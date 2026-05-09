@@ -66,6 +66,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     private readonly IDataService _dataService;
     private readonly ISelectedCardsStore _cardStore;
     private readonly IAuthService _authService;
+    private readonly IAuditLogService _auditLog;
     private readonly ICircuitManager _circuitManager;
     private readonly IRemoteControlSessionCache _remoteControlSessionCache;
     private readonly IExpiringTokenService _expiringTokenService;
@@ -86,6 +87,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         IRemoteControlSessionCache remoteControlSessionCache,
         IAgentHubSessionCache agentSessionCache,
         IMessenger messenger,
+        IAuditLogService auditLog,
         ILogger<CircuitConnection> logger)
     {
         _dataService = dataService;
@@ -98,6 +100,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         _remoteControlSessionCache = remoteControlSessionCache;
         _agentSessionCache = agentSessionCache;
         _messenger = messenger;
+        _auditLog = auditLog;
         _logger = logger;
     }
 
@@ -111,20 +114,31 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     }
 
 
-    public Task DeleteRemoteLogs(string deviceId)
+    public async Task DeleteRemoteLogs(string deviceId)
     {
         var (canAccess, key) = CanAccessDevice(deviceId);
         if (!canAccess)
         {
             _toastService.ShowToast("Access denied.", classString: "bg-warning");
-            return Task.CompletedTask;
+            return;
         }
 
         _logger.LogInformation("Delete logs command sent.  Device: {deviceId}.  User: {username}",
             deviceId,
             User?.UserName);
 
-        return _agentHubContext.Clients.Client(key).DeleteLogs();
+        await _agentHubContext.Clients.Client(key).DeleteLogs();
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.DeviceLogsDeleted,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId);
+        }
     }
 
     public async Task ExecuteCommandOnAgent(ScriptingShell shell, string command, string[] deviceIDs)
@@ -146,6 +160,18 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
             authTokenForUploadingResults,
             $"{User.UserName}",
             ConnectionId);
+
+        foreach (var deviceId in deviceIDs)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.ScriptCommandExecute,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId,
+                details: new { shell = shell.ToString(), command });
+        }
     }
 
     public Task GetPowerShellCompletions(string inputText, int currentIndex, CompletionIntent intent, bool? forward)
@@ -170,16 +196,23 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
             ConnectionId);
     }
 
-    public Task GetRemoteLogs(string deviceId)
+    public async Task GetRemoteLogs(string deviceId)
     {
         var (canAccess, key) = CanAccessDevice(deviceId);
         if (!canAccess)
         {
             _toastService.ShowToast("Access denied.", classString: "bg-warning");
-            return Task.CompletedTask;
+            return;
         }
 
-        return _agentHubContext.Clients.Client(key).GetLogs(ConnectionId);
+        await _agentHubContext.Clients.Client(key).GetLogs(ConnectionId);
+        await _auditLog.LogAsync(
+            AuditActions.DeviceLogsViewed,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId);
     }
 
     public override async Task OnCircuitClosedAsync(Circuit circuit, CancellationToken cancellationToken)
@@ -213,6 +246,17 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         var connections = GetActiveConnectionsForUserOrg(deviceIDs);
         await _agentHubContext.Clients.Clients(connections).ReinstallAgent();
         _dataService.RemoveDevices(deviceIDs);
+
+        foreach (var id in deviceIDs)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.DeviceReinstall,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: id);
+        }
     }
 
     public async Task<Result<RemoteControlSession>> RemoteControl(string deviceId, bool viewOnly)
@@ -239,6 +283,15 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 "Remote control attempted by unauthorized user.  Device ID: {deviceId}.  User Name: {userName}.",
                 deviceId,
                 User.UserName);
+            await _auditLog.LogAsync(
+                AuditActions.RemoteControlBlocked,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId,
+                success: false,
+                resultMessage: "User lacks access to device.");
             return Result.Fail<RemoteControlSession>("Unauthorized.");
 
         }
@@ -287,18 +340,36 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
             orgResult.Value,
             User.OrganizationID);
 
+        await _auditLog.LogAsync(
+            AuditActions.RemoteControlStart,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId,
+            targetName: targetDevice.DeviceName,
+            details: new { sessionId, viewOnly });
+
         return Result.Ok(session);
     }
 
-    public Task RemoveDevices(string[] deviceIDs)
+    public async Task RemoveDevices(string[] deviceIDs)
     {
-        if (User is not null)
-        {
-            var filterDevices = _dataService.FilterDeviceIdsByUserPermission(deviceIDs, User);
-            _dataService.RemoveDevices(filterDevices);
-        }
+        if (User is null) return;
 
-        return Task.CompletedTask;
+        var filterDevices = _dataService.FilterDeviceIdsByUserPermission(deviceIDs, User);
+        _dataService.RemoveDevices(filterDevices);
+
+        foreach (var id in filterDevices)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.DeviceRemove,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: id);
+        }
     }
 
     public async Task RunScript(
@@ -333,6 +404,20 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 authToken);
         }
 
+        if (User is not null)
+        {
+            foreach (var deviceId in deviceIds)
+            {
+                await _auditLog.LogAsync(
+                    AuditActions.ScriptRun,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "Device",
+                    targetId: deviceId,
+                    details: new { savedScriptId, scriptRunId, scriptInputType });
+            }
+        }
     }
 
     public async Task SendChat(string message, string deviceId, bool isDisconnecting = false)
@@ -369,6 +454,15 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
             User.OrganizationID,
             isDisconnecting,
             ConnectionId);
+
+        await _auditLog.LogAsync(
+            AuditActions.ChatMessageSent,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId,
+            details: new { isDisconnecting, length = message?.Length ?? 0 });
     }
 
     public async Task<bool> TransferFileFromBrowserToAgent(string deviceId, string transferId, string[] fileIds)
@@ -397,6 +491,15 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 ConnectionId,
                 authToken);
 
+        await _auditLog.LogAsync(
+            AuditActions.FileTransferToAgent,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId,
+            details: new { transferId, fileCount = fileIds?.Length ?? 0 });
+
         return true;
     }
 
@@ -418,6 +521,17 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         var connections = GetActiveConnectionsForUserOrg(deviceIDs);
         await _agentHubContext.Clients.Clients(connections).UninstallAgent();
         _dataService.RemoveDevices(deviceIDs);
+
+        foreach (var id in deviceIDs)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.DeviceUninstall,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: id);
+        }
     }
 
     public async Task UpdateTags(string deviceID, string tags)
@@ -443,6 +557,15 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 "bg-success");
 
             await _messenger.Send(successMessage, ConnectionId);
+
+            await _auditLog.LogAsync(
+                AuditActions.DeviceTagsUpdate,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceID,
+                details: new { tags });
         }
     }
 
@@ -463,6 +586,15 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 .ToArray();
 
             await SendWakeCommand(device, availableDevices);
+
+            await _auditLog.LogAsync(
+                AuditActions.DeviceWake,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: device.ID,
+                targetName: device.DeviceName);
 
             return Result.Ok();
         }

@@ -1,5 +1,6 @@
 using BorderLink.Server.Components.Account.Pages;
 using BorderLink.Server.Components.Account.Pages.Manage;
+using BorderLink.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using System.Security.Claims;
 using System.Text.Json;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 
 #pragma warning disable IDE0130 // Namespace does not match folder structure
@@ -43,11 +45,24 @@ internal static class IdentityComponentsEndpointRouteBuilderExtensions
         });
 
         accountGroup.MapPost("/Logout", async (
+            HttpContext context,
             ClaimsPrincipal user,
             SignInManager<BorderLinkUser> signInManager,
+            [FromServices] IAuditLogService auditLog,
+            [FromServices] UserManager<BorderLinkUser> userManager,
             [FromForm] string returnUrl) =>
         {
+            var actor = await userManager.GetUserAsync(user);
             await signInManager.SignOutAsync();
+            if (actor is not null && !string.IsNullOrWhiteSpace(actor.OrganizationID))
+            {
+                await auditLog.LogAsync(
+                    AuditActions.Logout,
+                    actor.OrganizationID,
+                    userName: actor.UserName,
+                    userId: actor.Id,
+                    ipAddress: context.Connection.RemoteIpAddress?.ToString());
+            }
             return TypedResults.LocalRedirect($"~/{returnUrl}");
         });
 

@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using BorderLink.Server.Auth;
 using BorderLink.Server.Extensions;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Extensions;
 using BorderLink.Shared.Models;
 using BorderLink.Shared.Services;
 using System.Text;
+using System.Text.Json;
 using FileIO = System.IO.File;
 
 namespace BorderLink.Server.API;
@@ -16,6 +19,7 @@ public class ClientDownloadsController : ControllerBase
 {
     private readonly IDataService _dataService;
     private readonly IEmbeddedServerDataProvider _embeddedDataSearcher;
+    private readonly IAuditLogService _auditLog;
     private readonly SemaphoreSlim _fileLock = new(1, 1);
     private readonly IWebHostEnvironment _hostEnv;
     private readonly ILogger<ClientDownloadsController> _logger;
@@ -24,11 +28,13 @@ public class ClientDownloadsController : ControllerBase
         IWebHostEnvironment hostEnv,
         IEmbeddedServerDataProvider embeddedDataSearcher,
         IDataService dataService,
+        IAuditLogService auditLog,
         ILogger<ClientDownloadsController> logger)
     {
         _hostEnv = hostEnv;
         _embeddedDataSearcher = embeddedDataSearcher;
         _dataService = dataService;
+        _auditLog = auditLog;
         _logger = logger;
     }
 
@@ -114,6 +120,113 @@ public class ClientDownloadsController : ControllerBase
         return await GetInstallFile(orgId, platformID);
     }
 
+    /// <summary>
+    /// Returns the prebuilt NSIS agent installer with the org id and server
+    /// URL encoded into the filename. The installer reads its own filename
+    /// at startup, decodes the suffix, and pre-fills its config — so the
+    /// recipient can just double-click and go.
+    /// </summary>
+    [Authorize]
+    [HttpGet("agent/{platformId}")]
+    public async Task<IActionResult> GetAgentInstaller(
+        string platformId,
+        [FromQuery] string? alias = null,
+        [FromQuery] string? group = null)
+    {
+        var userName = User.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(userName))
+        {
+            return Unauthorized();
+        }
+
+        var userResult = await _dataService.GetUserByName(userName);
+        if (!userResult.IsSuccess)
+        {
+            return Unauthorized();
+        }
+
+        return await GetAgentInstallerFile(platformId, userResult.Value.OrganizationID, alias, group);
+    }
+
+    [HttpGet("agent/{platformId}/{organizationId}")]
+    public async Task<IActionResult> GetAgentInstaller(
+        string platformId,
+        string organizationId,
+        [FromQuery] string? alias = null,
+        [FromQuery] string? group = null)
+    {
+        return await GetAgentInstallerFile(platformId, organizationId, alias, group);
+    }
+
+    private async Task<IActionResult> GetAgentInstallerFile(
+        string platformId,
+        string organizationId,
+        string? alias,
+        string? group)
+    {
+        await LogRequest(nameof(GetAgentInstallerFile));
+
+        var arch = platformId switch
+        {
+            "WindowsAgentInstaller-x64" => "x64",
+            "WindowsAgentInstaller-x86" => "x86",
+            _ => null
+        };
+
+        if (arch is null)
+        {
+            return BadRequest("Unknown agent installer platform.");
+        }
+
+        var relativePath = Path.Combine("Content", $"BorderLink-Agent-Setup-{arch}.exe");
+        var fullPath = Path.Combine(_hostEnv.WebRootPath, relativePath);
+        if (!FileIO.Exists(fullPath))
+        {
+            _logger.LogWarning(
+                "Agent installer not found at {path}. Build it with Agent\\Installer\\Windows\\Build-Installer.ps1 and copy to wwwroot/Content.",
+                fullPath);
+            return NotFound("Agent installer hasn't been built and published. See Agent\\Installer\\Windows\\README.md.");
+        }
+
+        var settings = await _dataService.GetSettings();
+        var effectiveScheme = settings.ForceClientHttps ? "https" : Request.Scheme;
+        var serverUrl = $"{effectiveScheme}://{Request.Host}";
+
+        var fileName = BuildAgentInstallerFileName(arch, serverUrl, organizationId, alias, group);
+
+        await _auditLog.LogAsync(
+            AuditActions.AgentInstallerDownload,
+            organizationId,
+            userName: User.Identity?.Name,
+            ipAddress: Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
+            details: new { arch, alias, group });
+
+        return File(relativePath, "application/octet-stream", fileName);
+    }
+
+    private static string BuildAgentInstallerFileName(
+        string arch,
+        string serverUrl,
+        string organizationId,
+        string? alias,
+        string? group)
+    {
+        // Schema is intentionally short ({u,o,a,g}) so the produced filename
+        // stays well under the Windows MAX_PATH limit. Keep this in sync with
+        // ParseFilenameConfig in Agent/Installer/Windows/BorderLink-Agent.nsi.
+        var payload = new Dictionary<string, string> { ["u"] = serverUrl, ["o"] = organizationId };
+        if (!string.IsNullOrWhiteSpace(alias)) payload["a"] = alias;
+        if (!string.IsNullOrWhiteSpace(group)) payload["g"] = group;
+
+        var json = JsonSerializer.Serialize(payload);
+        var token = Convert.ToBase64String(Encoding.UTF8.GetBytes(json))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
+
+        return $"BorderLink-Agent-Setup-{arch}__{token}.exe";
+    }
+
     [HttpGet("{platformId}/{organizationId}")]
     public async Task<IActionResult> GetInstaller(string platformId, string organizationId)
     {
@@ -163,6 +276,13 @@ public class ClientDownloadsController : ControllerBase
     {
         var settings = await _dataService.GetSettings();
         await LogRequest(nameof(GetInstallFile));
+
+        await _auditLog.LogAsync(
+            AuditActions.AgentInstallerDownload,
+            organizationId,
+            userName: User.Identity?.Name,
+            ipAddress: Request.HttpContext.Connection.RemoteIpAddress?.ToString(),
+            details: new { platform = platformID });
 
         if (!await _fileLock.WaitAsync(TimeSpan.FromSeconds(15)))
         {

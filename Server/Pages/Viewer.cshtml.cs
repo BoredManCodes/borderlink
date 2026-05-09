@@ -18,29 +18,20 @@ public class ViewerModel(IDataService _dataService) : PageModel
 
     public async Task OnGet()
     {
-        var theme = await GetTheme();
-
-        ThemeUrl = theme switch
-        {
-            ViewerPageTheme.Dark => "/css/remote-control-dark.css",
-            ViewerPageTheme.Light => "/css/remote-control-light.css",
-            _ => "/css/remote-control-dark.css"
-        };
+        ThemeUrl = "/css/remote-control-paper.css";
         UserDisplayName = await GetUserDisplayName();
         LogoUrl = await GetLogoUrl();
     }
 
-    private async Task<string> GetLogoUrl()
+    private Task<string> GetLogoUrl()
     {
-        return await GetTheme() == ViewerPageTheme.Dark ?
-           "/images/viewer/borderlink-logo-dark.svg" :
-           "/images/viewer/borderlink-logo-light.svg";
+        return Task.FromResult("/images/viewer/borderlink-logo-light.svg");
     }
 
     private Task<ViewerPageTheme> GetTheme()
     {
-        // TODO: Implement light theme in new viewer design.
-        return Task.FromResult(ViewerPageTheme.Dark);
+        // Paper theme is the only viewer skin currently shipped.
+        return Task.FromResult(ViewerPageTheme.Light);
         //if (User.Identity.IsAuthenticated)
         //{
         //    var user = _dataService.GetUserByNameWithOrg(User.Identity.Name);

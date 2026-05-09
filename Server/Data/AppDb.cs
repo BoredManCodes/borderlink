@@ -28,6 +28,7 @@ public class AppDb : IdentityDbContext
     public DbSet<Alert> Alerts { get; set; }
 
     public DbSet<ApiToken> ApiTokens { get; set; }
+    public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
     public DbSet<BrandingInfo> BrandingInfos { get; set; }
     public DbSet<DeviceGroup> DeviceGroups { get; set; }
     public DbSet<Device> Devices { get; set; }
@@ -86,6 +87,15 @@ public class AppDb : IdentityDbContext
             .HasMany(x => x.Alerts)
             .WithOne(x => x.Organization);
         builder.Entity<Organization>()
+            .HasMany(x => x.AuditLogEntries)
+            .WithOne(x => x.Organization)
+            .HasForeignKey(x => x.OrganizationID)
+            .OnDelete(DeleteBehavior.ClientCascade);
+        builder.Entity<AuditLogEntry>()
+            .HasIndex(x => new { x.OrganizationID, x.Timestamp });
+        builder.Entity<AuditLogEntry>()
+            .HasIndex(x => x.Action);
+        builder.Entity<Organization>()
             .HasMany(x => x.ScriptRuns)
             .WithOne(x => x.Organization)
             .OnDelete(DeleteBehavior.ClientCascade);
@@ -109,7 +119,11 @@ public class AppDb : IdentityDbContext
 
         builder.Entity<BorderLinkUser>()
             .HasMany(x => x.DeviceGroups)
-            .WithMany(x => x.Users);
+            .WithMany(x => x.Users)
+            // Pin to the original (EF6-era) join table name. Without this,
+            // EF8+'s default many-to-many naming convention would emit a
+            // rename migration and drop the existing user/device-group links.
+            .UsingEntity(j => j.ToTable("DeviceGroupBorderLinkUser"));
 
         builder.Entity<BorderLinkUser>()
             .HasMany(x => x.Alerts)

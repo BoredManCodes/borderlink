@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using BorderLink.Server.Hubs;
 using BorderLink.Server.Models;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Interfaces;
 using System.Net;
@@ -34,6 +35,9 @@ public partial class ServerConfig : AuthComponentBase
 
     [Inject]
     public required IDataService DataService { get; init; }
+
+    [Inject]
+    public required IAuditLogService AuditService { get; init; }
 
     [Inject]
     public required IEmailSenderEx EmailSender { get; init; }
@@ -208,8 +212,15 @@ public partial class ServerConfig : AuthComponentBase
 
     private async Task Save()
     {
-        
+        EnsureUserSet();
+
         await DataService.SaveSettings(Input);
+
+        await AuditService.LogAsync(
+            AuditActions.ServerConfigUpdated,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id);
 
         ToastService.ShowToast("Configuration saved.");
     }

@@ -483,6 +483,23 @@ input[disabled], input[readonly], select[disabled] {
 .alert-warning { background: #efe7c8; border-color: var(--bl-olive); color: #574e2c; }
 .alert-danger  { background: #f6d6d2; border-color: var(--bl-red); color: var(--bl-red-dark); }
 
+/* Bootstrap's .alert-info/.alert-primary set --bs-alert-link-color to a pale tint
+   that washes out on the paper theme's cream background. Force readable colours. */
+.alert a,
+.alert .alert-link {
+    color: var(--bl-ink);
+    font-weight: 600;
+    text-decoration-color: var(--bl-red);
+}
+.alert a:hover,
+.alert .alert-link:hover {
+    color: var(--bl-red-dark);
+    text-decoration-color: var(--bl-red-dark);
+}
+.alert-success a, .alert-success .alert-link { color: var(--bl-green); }
+.alert-warning a, .alert-warning .alert-link { color: #574e2c; }
+.alert-danger  a, .alert-danger  .alert-link { color: var(--bl-red-dark); }
+
 .badge {
     border-radius: 0;
     font-family: var(--bl-mono);

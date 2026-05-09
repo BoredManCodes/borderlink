@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using BorderLink.Server.Components.ModalContents;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.ViewModels;
 using System.Text;
@@ -43,6 +44,8 @@ public partial class ManageOrganization : AuthComponentBase
     private IToastService ToastService { get; set; } = null!;
     [Inject]
     private UserManager<BorderLinkUser> UserManager { get; set; } = null!;
+    [Inject]
+    private IAuditLogService AuditService { get; set; } = null!;
 
 
     protected override async Task OnInitializedAsync()
@@ -82,6 +85,14 @@ public partial class ManageOrganization : AuthComponentBase
 
         ToastService.ShowToast("Device group created.");
         _deviceGroups.Add(deviceGroup);
+        await AuditService.LogAsync(
+            AuditActions.DeviceGroupCreated,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "DeviceGroup",
+            targetId: deviceGroup.ID,
+            targetName: deviceGroup.Name);
         _newDeviceGroupName = string.Empty;
     }
 
@@ -125,6 +136,14 @@ public partial class ManageOrganization : AuthComponentBase
 
         await DataService.DeleteInvite(User.OrganizationID, invite.ID);
         _invites.RemoveAll(x => x.ID == invite.ID);
+        await AuditService.LogAsync(
+            AuditActions.UserInviteRevoked,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "InviteLink",
+            targetId: invite.ID,
+            targetName: invite.InvitedUser);
         ToastService.ShowToast("Invitation deleted.");
     }
 
@@ -148,8 +167,16 @@ public partial class ManageOrganization : AuthComponentBase
             return;
         }
 
+        var deletedGroupId = _selectedDeviceGroupId;
         await DataService.DeleteDeviceGroup(User.OrganizationID, _selectedDeviceGroupId);
         _deviceGroups.RemoveAll(x => x.ID == _selectedDeviceGroupId);
+        await AuditService.LogAsync(
+            AuditActions.DeviceGroupRemoved,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "DeviceGroup",
+            targetId: deletedGroupId);
         _selectedDeviceGroupId = string.Empty;
     }
 
@@ -176,6 +203,14 @@ public partial class ManageOrganization : AuthComponentBase
 
         await DataService.DeleteUser(User.OrganizationID, user.Id);
         _orgUsers.RemoveAll(x => x.Id == user.Id);
+        await AuditService.LogAsync(
+            AuditActions.UserRemoved,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "User",
+            targetId: user.Id,
+            targetName: user.UserName);
         ToastService.ShowToast("User deleted.");
     }
 
@@ -241,6 +276,14 @@ public partial class ManageOrganization : AuthComponentBase
 
         DataService.UpdateOrganizationName(_organization.ID, newName);
         _organization.OrganizationName = newName;
+        _ = AuditService.LogAsync(
+            AuditActions.OrganizationRenamed,
+            _organization.ID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Organization",
+            targetId: _organization.ID,
+            targetName: newName);
         ToastService.ShowToast("Organization name changed.");
     }
 
@@ -313,6 +356,16 @@ public partial class ManageOrganization : AuthComponentBase
 
                 _orgUsers.Add(user);
 
+                await AuditService.LogAsync(
+                    AuditActions.UserInvited,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "User",
+                    targetId: user.Id,
+                    targetName: user.UserName,
+                    details: new { admin = _inviteAsAdmin, viaCreate = true });
+
                 _inviteAsAdmin = false;
                 _inviteEmail = string.Empty;
                 ToastService.ShowToast("User account created.");
@@ -354,6 +407,16 @@ public partial class ManageOrganization : AuthComponentBase
             {
                 ToastService.ShowToast("Invitation sent.");
 
+                await AuditService.LogAsync(
+                    AuditActions.UserInvited,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "InviteLink",
+                    targetId: newInvite.Value.ID,
+                    targetName: invite.InvitedUser,
+                    details: new { admin = _inviteAsAdmin });
+
                 _inviteAsAdmin = false;
                 _inviteEmail = string.Empty;
                 _invites.Add(newInvite.Value);
@@ -380,6 +443,15 @@ public partial class ManageOrganization : AuthComponentBase
         }
 
         await DataService.ChangeUserIsAdmin(User.OrganizationID, orgUser.Id, isAdmin);
+        await AuditService.LogAsync(
+            AuditActions.UserAdminToggled,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "User",
+            targetId: orgUser.Id,
+            targetName: orgUser.UserName,
+            details: new { isAdmin });
         ToastService.ShowToast("Administrator value set.");
     }
 

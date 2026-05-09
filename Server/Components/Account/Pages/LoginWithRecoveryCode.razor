@@ -3,9 +3,12 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using BorderLink.Server.Data
+@using BorderLink.Server.Services
+@using BorderLink.Shared
 
 @inject SignInManager<BorderLinkUser> SignInManager
 @inject UserManager<BorderLinkUser> UserManager
+@inject IAuditLogService AuditService
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<LoginWithRecoveryCode> Logger
 
@@ -37,6 +40,9 @@
     private string? message;
     private BorderLinkUser user = default!;
 
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
@@ -58,19 +64,29 @@
 
         var userId = await UserManager.GetUserIdAsync(user);
 
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+
         if (result.Succeeded)
         {
             Logger.LogInformation("User with ID '{UserId}' logged in with a recovery code.", userId);
+            await AuditService.LogAsync(AuditActions.LoginRecoveryCodeSuccess, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip);
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
         {
             Logger.LogWarning("User account locked out.");
+            await AuditService.LogAsync(AuditActions.LoginLockedOut, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip,
+                success: false, resultMessage: "Locked out during recovery code login.");
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
             Logger.LogWarning("Invalid recovery code entered for user with ID '{UserId}' ", userId);
+            await AuditService.LogAsync(AuditActions.LoginRecoveryCodeFailure, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip,
+                success: false, resultMessage: "Invalid recovery code.");
             message = "Error: Invalid recovery code entered.";
         }
     }

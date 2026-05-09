@@ -9,6 +9,8 @@
 @inject IJsInterop JsInterop
 @inject IModalService ModalService
 @inject IToastService ToastService
+@inject IAuditLogService AuditService
+@using BorderLink.Shared
 
 
 <h3>API Keys</h3>
@@ -103,6 +105,14 @@ else if (User is not null)
             ToastService.ShowToast2(result.Reason, ToastType.Error);
             return;
         }
+        await AuditService.LogAsync(
+            AuditActions.ApiKeyCreated,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "ApiToken",
+            targetId: result.Value.ID,
+            targetName: result.Value.Name);
         RefreshData();
         _alertMessage = "Key created.";
         _newKeySecret = secret;
@@ -124,6 +134,13 @@ else if (User is not null)
             ToastService.ShowToast2(deleteResult.Reason, ToastType.Error);
             return;
         }
+        await AuditService.LogAsync(
+            AuditActions.ApiKeyDeleted,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "ApiToken",
+            targetId: keyId);
         RefreshData();
         _alertMessage = "Key deleted.";
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using BorderLink.Server.Components.Pages;
 using BorderLink.Server.Enums;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 
 namespace BorderLink.Server.Components.Scripts;
@@ -33,6 +34,9 @@ public partial class SavedScripts : AuthComponentBase
 
     [Inject]
     public required ILogger<SavedScripts> Logger { get; set; }
+
+    [Inject]
+    public IAuditLogService AuditService { get; set; } = null!;
 
     private bool CanModifyScript
     {
@@ -89,6 +93,14 @@ public partial class SavedScripts : AuthComponentBase
         }
         
         await DataService.AddOrUpdateSavedScript(_selectedScript, User.Id);
+        await AuditService.LogAsync(
+            AuditActions.ScriptSaved,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "SavedScript",
+            targetId: _selectedScript.Id.ToString(),
+            targetName: _selectedScript.Name);
         await ParentPage.RefreshScripts();
         ToastService.ShowToast("Script saved.");
         _alertMessage = "Script saved.";
@@ -106,6 +118,8 @@ public partial class SavedScripts : AuthComponentBase
     {
         try
         {
+            EnsureUserSet();
+
             if (!CanDeleteScript)
             {
                 ToastService.ShowToast("You can't delete other people's scripts.", classString: "bg-warning");
@@ -115,7 +129,17 @@ public partial class SavedScripts : AuthComponentBase
             var result = await JsInterop.Confirm($"Are you sure you want to delete the script {_selectedScript.Name}?");
             if (result)
             {
+                var deletedId = _selectedScript.Id;
+                var deletedName = _selectedScript.Name;
                 await DataService.DeleteSavedScript(_selectedScript.Id);
+                await AuditService.LogAsync(
+                    AuditActions.ScriptDeleted,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "SavedScript",
+                    targetId: deletedId.ToString(),
+                    targetName: deletedName);
                 ToastService.ShowToast("Script deleted.");
                 _alertMessage = "Script deleted.";
                 await ParentPage.RefreshScripts();

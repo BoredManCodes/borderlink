@@ -1,0 +1,187 @@
+@page "/audit-log"
+@attribute [Authorize]
+@inherits AuthComponentBase
+@using BorderLink.Server.Services
+@using BorderLink.Shared
+@using BorderLink.Shared.Entities
+
+@inject IAuditLogService AuditService
+
+<h3>Audit Log</h3>
+
+@if (User?.IsAdministrator != true)
+{
+    <div class="alert alert-warning">
+        Only organization administrators can view the audit log.
+    </div>
+}
+else
+{
+    <div class="row mb-3">
+        <div class="col-sm-3">
+            <label class="form-label small text-muted">Action</label>
+            <select class="form-select form-select-sm" @bind="_filterAction" @bind:after="Reload">
+                <option value="">(all)</option>
+                @foreach (var a in _knownActions)
+                {
+                    <option value="@a">@a</option>
+                }
+            </select>
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label small text-muted">User</label>
+            <input type="text" class="form-control form-control-sm" @bind="_filterUser" @bind:after="Reload" placeholder="user@example.com" />
+        </div>
+        <div class="col-sm-3">
+            <label class="form-label small text-muted">Target ID</label>
+            <input type="text" class="form-control form-control-sm" @bind="_filterTargetId" @bind:after="Reload" placeholder="device id" />
+        </div>
+        <div class="col-sm-3 d-flex align-items-end">
+            <button class="btn btn-sm btn-outline-secondary me-2" @onclick="Reload">Refresh</button>
+            <button class="btn btn-sm btn-link" @onclick="ClearFilters">Clear</button>
+        </div>
+    </div>
+
+    @if (_loading)
+    {
+        <LoadingSignal StatusMessage="Loading audit log..." />
+    }
+    else if (!_entries.Any())
+    {
+        <p class="text-muted">No entries match the current filters.</p>
+    }
+    else
+    {
+        <div class="text-muted small mb-2">
+            Showing @_entries.Count of @_total. Latest first.
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead>
+                    <tr>
+                        <th>Timestamp (UTC)</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Result</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in _entries)
+                    {
+                        <tr class="@(e.Success ? "" : "table-danger")">
+                            <td><span class="font-monospace small">@e.Timestamp.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span></td>
+                            <td>@(e.UserName ?? "-")</td>
+                            <td><code>@e.Action</code></td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(e.TargetType))
+                                {
+                                    <span class="text-muted small">@e.TargetType:</span>
+                                    @if (!string.IsNullOrWhiteSpace(e.TargetName))
+                                    {
+                                        <text> </text>@e.TargetName
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(e.TargetId))
+                                    {
+                                        <span class="font-monospace small text-muted"> @e.TargetId</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (e.Success)
+                                {
+                                    <span class="text-success">ok</span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger">@(e.ResultMessage ?? "failed")</span>
+                                }
+                            </td>
+                            <td><span class="font-monospace small">@(e.IpAddress ?? "-")</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (_skip + _entries.Count < _total)
+        {
+            <button class="btn btn-sm btn-outline-secondary" @onclick="LoadMore">Load more</button>
+        }
+    }
+}
+
+@code {
+    private const int PageSize = 100;
+
+    private bool _loading = true;
+    private List<AuditLogEntry> _entries = new();
+    private int _total;
+    private int _skip;
+    private string _filterAction = string.Empty;
+    private string _filterUser = string.Empty;
+    private string _filterTargetId = string.Empty;
+
+    private static readonly string[] _knownActions = typeof(AuditActions)
+        .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+        .Where(f => f.IsLiteral && f.FieldType == typeof(string))
+        .Select(f => (string)f.GetRawConstantValue()!)
+        .OrderBy(x => x)
+        .ToArray();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        _skip = 0;
+        _entries.Clear();
+        await Load();
+    }
+
+    private async Task LoadMore()
+    {
+        _skip += PageSize;
+        await Load();
+    }
+
+    private async Task Load()
+    {
+        if (User?.IsAdministrator != true || string.IsNullOrWhiteSpace(User.OrganizationID))
+        {
+            _loading = false;
+            return;
+        }
+
+        _loading = true;
+        StateHasChanged();
+
+        var result = await AuditService.QueryAsync(
+            User.OrganizationID,
+            skip: _skip,
+            take: PageSize,
+            action:   string.IsNullOrWhiteSpace(_filterAction)   ? null : _filterAction,
+            userName: string.IsNullOrWhiteSpace(_filterUser)     ? null : _filterUser,
+            targetId: string.IsNullOrWhiteSpace(_filterTargetId) ? null : _filterTargetId);
+
+        _entries.AddRange(result.Entries);
+        _total = result.TotalCount;
+        _loading = false;
+    }
+
+    private async Task ClearFilters()
+    {
+        _filterAction = string.Empty;
+        _filterUser = string.Empty;
+        _filterTargetId = string.Empty;
+        await Reload();
+    }
+}

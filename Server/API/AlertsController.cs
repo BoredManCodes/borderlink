@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using BorderLink.Server.Auth;
 using BorderLink.Server.Extensions;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Models;
 using System.Text.Json;
 
@@ -16,17 +17,20 @@ public class AlertsController : ControllerBase
     private readonly IDataService _dataService;
     private readonly IEmailSenderEx _emailSender;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IAuditLogService _auditLog;
     private readonly ILogger<AlertsController> _logger;
 
     public AlertsController(
-        IDataService dataService, 
-        IEmailSenderEx emailSender, 
+        IDataService dataService,
+        IEmailSenderEx emailSender,
         IHttpClientFactory httpClientFactory,
+        IAuditLogService auditLog,
         ILogger<AlertsController> logger)
     {
         _dataService = dataService;
         _emailSender = emailSender;
         _httpClientFactory = httpClientFactory;
+        _auditLog = auditLog;
         _logger = logger;
     }
 
@@ -45,6 +49,12 @@ public class AlertsController : ControllerBase
             try
             {
                 await _dataService.AddAlert(alertOptions.AlertDeviceID, orgId, alertOptions.AlertMessage);
+                await _auditLog.LogAsync(
+                    AuditActions.AlertCreated,
+                    orgId,
+                    targetType: "Device",
+                    targetId: alertOptions.AlertDeviceID,
+                    details: new { message = alertOptions.AlertMessage });
             }
             catch (Exception ex)
             {
@@ -145,6 +155,12 @@ public class AlertsController : ControllerBase
         }
 
         await _dataService.DeleteAlert(alertResult.Value);
+        await _auditLog.LogAsync(
+            AuditActions.AlertDismissed,
+            orgId,
+            userName: User.Identity?.Name,
+            targetType: "Alert",
+            targetId: alertID);
         return Ok();
     }
 
@@ -164,6 +180,12 @@ public class AlertsController : ControllerBase
         {
             await _dataService.DeleteAllAlerts(orgId.ToString());
         }
+
+        await _auditLog.LogAsync(
+            AuditActions.AlertDismissed,
+            orgId,
+            userName: User?.Identity?.Name,
+            resultMessage: "Bulk dismiss");
 
         return Ok();
     }

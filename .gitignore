@@ -297,3 +297,9 @@ Server.Installer/Properties/launchSettings.json
 !/.vscode/tasks.json
 /Server/appsettings.Development.json
 /Server/AppData
+
+# Local Claude Code per-project settings
+.claude/
+
+# Windows agent installer build output
+Agent/Installer/Windows/out/

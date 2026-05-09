@@ -3,9 +3,12 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
 @using BorderLink.Server.Data
+@using BorderLink.Server.Services
+@using BorderLink.Shared
 
 @inject SignInManager<BorderLinkUser> SignInManager
 @inject UserManager<BorderLinkUser> UserManager
+@inject IAuditLogService AuditService
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<LoginWith2fa> Logger
 
@@ -48,6 +51,9 @@
     private string? message;
     private BorderLinkUser user = default!;
 
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
@@ -69,20 +75,29 @@
         var authenticatorCode = Input.TwoFactorCode!.Replace(" ", string.Empty).Replace("-", string.Empty);
         var result = await SignInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, RememberMe, Input.RememberMachine);
         var userId = await UserManager.GetUserIdAsync(user);
+        var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
 
         if (result.Succeeded)
         {
             Logger.LogInformation("User with ID '{UserId}' logged in with 2fa.", userId);
+            await AuditService.LogAsync(AuditActions.LoginTwoFactorSuccess, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip);
             RedirectManager.RedirectTo(ReturnUrl);
         }
         else if (result.IsLockedOut)
         {
             Logger.LogWarning("User with ID '{UserId}' account locked out.", userId);
+            await AuditService.LogAsync(AuditActions.LoginLockedOut, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip,
+                success: false, resultMessage: "Locked out during 2FA.");
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
             Logger.LogWarning("Invalid authenticator code entered for user with ID '{UserId}'.", userId);
+            await AuditService.LogAsync(AuditActions.LoginTwoFactorFailure, user.OrganizationID,
+                userName: user.UserName, userId: userId, ipAddress: ip,
+                success: false, resultMessage: "Invalid authenticator code.");
             message = "Error: Invalid authenticator code.";
         }
     }

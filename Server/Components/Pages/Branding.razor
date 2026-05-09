@@ -4,7 +4,9 @@
 @inject IDataService DataService
 @inject IToastService ToastService
 @inject IJsInterop JsInterop
+@inject IAuditLogService AuditService
 @using BorderLink.Server.Models
+@using BorderLink.Shared
 @using System.ComponentModel.DataAnnotations
 
 <h3 class="mb-3">Branding</h3>
@@ -81,6 +83,13 @@
         {
             _base64Icon = Convert.ToBase64String(_inputModel.IconBytes);
         }
+
+        await AuditService.LogAsync(
+            AuditActions.BrandingUpdated,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            details: new { productName = _inputModel?.ProductName, hasIcon = _inputModel?.IconBytes?.Length > 0 });
 
         _alertMessage = "Branding saved.";
         ToastService.ShowToast("Branding saved.");

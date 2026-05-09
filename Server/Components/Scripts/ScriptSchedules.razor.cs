@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using BorderLink.Server.Components.Pages;
 using BorderLink.Server.Enums;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Utilities;
 
@@ -47,6 +48,9 @@ public partial class ScriptSchedules : AuthComponentBase
 
     [Inject]
     public required ILogger<ScriptSchedules> Logger { get; set; }
+
+    [Inject]
+    private IAuditLogService AuditService { get; set; } = null!;
 
     private bool CanModifySchedule
     {
@@ -113,7 +117,17 @@ public partial class ScriptSchedules : AuthComponentBase
             var result = await JsInterop.Confirm($"Are you sure you want to delete the schedule {_selectedSchedule.Name}?");
             if (result)
             {
+                var deletedId = _selectedSchedule.Id;
+                var deletedName = _selectedSchedule.Name;
                 await DataService.DeleteScriptSchedule(_selectedSchedule.Id);
+                await AuditService.LogAsync(
+                    AuditActions.ScriptScheduleDeleted,
+                    User!.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "ScriptSchedule",
+                    targetId: deletedId.ToString(),
+                    targetName: deletedName);
                 ToastService.ShowToast("Schedule deleted.");
                 _alertMessage = "Schedule deleted.";
                 CreateNew();
@@ -202,6 +216,14 @@ public partial class ScriptSchedules : AuthComponentBase
         _selectedSchedule.DeviceGroups = _deviceGroups.Where(x => _selectedDeviceGroups.Contains(x.ID)).ToList();
 
         await DataService.AddOrUpdateScriptSchedule(_selectedSchedule);
+        await AuditService.LogAsync(
+            AuditActions.ScriptScheduleCreated,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "ScriptSchedule",
+            targetId: _selectedSchedule.Id.ToString(),
+            targetName: _selectedSchedule.Name);
         CreateNew();
         await RefreshSchedules();
         ToastService.ShowToast("Schedule saved.");

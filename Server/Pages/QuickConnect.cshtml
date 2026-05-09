@@ -1,0 +1,95 @@
+@page "{deviceId?}"
+@using BorderLink.Server.Pages
+@model QuickConnectModel
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quick Connect - BorderLink</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900&family=Newsreader:ital,opsz,wght@0,6..72,400&display=swap" rel="stylesheet" />
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #f5f1e8;
+            color: #1a1a1a;
+            font-family: 'Newsreader', Georgia, serif;
+        }
+        .wrap {
+            min-height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+        .card {
+            background: #fffdf7;
+            border: 1px solid #d8cfb8;
+            border-radius: 4px;
+            padding: 2.5rem 3rem;
+            max-width: 32rem;
+            box-shadow: 0 1px 0 #e5dec8;
+        }
+        h1 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 900;
+            margin: 0 0 1rem 0;
+            font-size: 1.75rem;
+        }
+        p {
+            margin: 0 0 1rem 0;
+            line-height: 1.5;
+        }
+        .device-id {
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 0.85rem;
+            background: #f0e9d4;
+            padding: 0.15rem 0.4rem;
+            border-radius: 2px;
+        }
+        a.btn {
+            display: inline-block;
+            background: #1a1a1a;
+            color: #fffdf7;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 2px;
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 700;
+        }
+        a.btn:hover {
+            background: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <h1>Quick Connect</h1>
+            @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+            {
+                <p>@Model.ErrorMessage</p>
+                @if (!string.IsNullOrWhiteSpace(Model.DeviceId))
+                {
+                    <p>Device: <span class="device-id">@Model.DeviceId</span></p>
+                }
+                <p><a class="btn" href="/">Back to devices</a></p>
+            }
+            else
+            {
+                <p>Starting session&hellip;</p>
+            }
+        </div>
+    </div>
+</body>
+</html>

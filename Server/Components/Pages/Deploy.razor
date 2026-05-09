@@ -8,7 +8,9 @@
 @inject IJsInterop JsInterop
 @inject IToastService Toasts
 @inject IWebHostEnvironment HostEnv
+@inject IAuditLogService AuditService
 @inject ILogger<Deploy> Logger
+@using BorderLink.Shared
 
 @if (_isLoading)
 {
@@ -319,6 +321,19 @@
             await rs.CopyToAsync(fs);
             Toasts.ShowToast2("Custom binary uploaded successfully", ToastType.Success);
             SetFileInfos();
+
+            var actor = (await Auth.GetUser()).Value;
+            if (actor is not null && !string.IsNullOrWhiteSpace(actor.OrganizationID))
+            {
+                await AuditService.LogAsync(
+                    AuditActions.CustomBinaryUpload,
+                    actor.OrganizationID,
+                    userName: actor.UserName,
+                    userId: actor.Id,
+                    targetType: "CustomBinary",
+                    targetId: Path.GetFileName(Path.GetDirectoryName(fileInfo.PhysicalPath)),
+                    targetName: ev.File.Name);
+            }
         }
         catch (Exception ex)
         {

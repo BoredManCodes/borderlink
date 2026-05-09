@@ -5,6 +5,7 @@ using BorderLink.Server.Hubs;
 using BorderLink.Server.Models;
 using BorderLink.Server.Services;
 using BorderLink.Server.Auth;
+using BorderLink.Shared;
 using BorderLink.Shared.Helpers;
 using BorderLink.Server.Extensions;
 using BorderLink.Shared.Entities;
@@ -23,6 +24,7 @@ public class RemoteControlController : ControllerBase
     private readonly IAgentHubSessionCache _serviceSessionCache;
     private readonly IDataService _dataService;
     private readonly IOtpProvider _otpProvider;
+    private readonly IAuditLogService _auditLog;
     private readonly SignInManager<BorderLinkUser> _signInManager;
     private readonly ILogger<RemoteControlController> _logger;
 
@@ -33,6 +35,7 @@ public class RemoteControlController : ControllerBase
         IHubContext<AgentHub, IAgentHubClient> agentHub,
         IAgentHubSessionCache serviceSessionCache,
         IOtpProvider otpProvider,
+        IAuditLogService auditLog,
         ILogger<RemoteControlController> logger)
     {
         _dataService = dataService;
@@ -40,6 +43,7 @@ public class RemoteControlController : ControllerBase
         _remoteControlSessionCache = remoteControlSessionCache;
         _serviceSessionCache = serviceSessionCache;
         _otpProvider = otpProvider;
+        _auditLog = auditLog;
         _signInManager = signInManager;
         _logger = logger;
     }
@@ -172,6 +176,16 @@ public class RemoteControlController : ControllerBase
         }
        
         var otp = _otpProvider.GetOtp(targetDevice.ID);
+
+        await _auditLog.LogAsync(
+            AuditActions.RemoteControlStartApi,
+            orgId,
+            userName: User.Identity?.Name,
+            targetType: "Device",
+            targetId: deviceID,
+            targetName: targetDevice.DeviceName,
+            ipAddress: HttpContext.Connection.RemoteIpAddress?.ToString(),
+            details: new { sessionId });
 
         return Ok($"{HttpContext.Request.Scheme}://{Request.Host}/Viewer?mode=Unattended&sessionId={sessionId}&accessKey={accessKey}&otp={otp}");
     }
