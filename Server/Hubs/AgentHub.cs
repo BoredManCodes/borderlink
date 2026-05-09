@@ -18,6 +18,7 @@ public class AgentHub : Hub<IAgentHubClient>
     private readonly IDataService _dataService;
     private readonly ICircuitManager _circuitManager;
     private readonly IExpiringTokenService _expiringTokenService;
+    private readonly IInventoryService _inventoryService;
     private readonly ILogger<AgentHub> _logger;
     private readonly IMessenger _messenger;
     private readonly IRemoteControlSessionCache _remoteControlSessions;
@@ -30,6 +31,7 @@ public class AgentHub : Hub<IAgentHubClient>
         IHubContext<ViewerHub> viewerHubContext,
         ICircuitManager circuitManager,
         IExpiringTokenService expiringTokenService,
+        IInventoryService inventoryService,
         IRemoteControlSessionCache remoteControlSessionCache,
         IMessenger messenger,
         ILogger<AgentHub> logger)
@@ -39,6 +41,7 @@ public class AgentHub : Hub<IAgentHubClient>
         _viewerHubContext = viewerHubContext;
         _circuitManager = circuitManager;
         _expiringTokenService = expiringTokenService;
+        _inventoryService = inventoryService;
         _remoteControlSessions = remoteControlSessionCache;
         _messenger = messenger;
         _logger = logger;
@@ -198,6 +201,12 @@ public class AgentHub : Hub<IAgentHubClient>
                 var message = new DeviceStateChangedMessage(Device);
                 await _messenger.Send(message, connection.ConnectionId);
             }
+
+            // Capture an inventory snapshot in the background. The agent
+            // already invokes other startup work (heartbeat, pending scripts),
+            // so we don't await this — it must not delay the connect handshake.
+            var deviceId = Device.ID;
+            _ = Task.Run(() => _inventoryService.TryRefreshSnapshotInBackground(deviceId));
 
             return true;
         }

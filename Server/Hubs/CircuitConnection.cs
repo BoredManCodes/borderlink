@@ -31,6 +31,13 @@ public interface ICircuitConnection
 
     Task ReinstallAgents(string[] deviceIDs);
 
+    /// <summary>
+    /// Asks the connected agent for a fresh installed-software inventory and
+    /// persists it. Returns <c>Fail</c> when the user lacks access, the
+    /// device is offline, or the agent fails to respond.
+    /// </summary>
+    Task<Result<DeviceInventorySnapshot>> RefreshDeviceInventory(string deviceId);
+
     Task<Result<RemoteControlSession>> RemoteControl(string deviceID, bool viewOnly);
 
     Task RemoveDevices(string[] deviceIDs);
@@ -64,6 +71,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
 {
     private readonly IHubContext<AgentHub, IAgentHubClient> _agentHubContext;
     private readonly IDataService _dataService;
+    private readonly IInventoryService _inventoryService;
     private readonly ISelectedCardsStore _cardStore;
     private readonly IAuthService _authService;
     private readonly IAuditLogService _auditLog;
@@ -79,6 +87,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     public CircuitConnection(
         IAuthService authService,
         IDataService dataService,
+        IInventoryService inventoryService,
         ISelectedCardsStore cardStore,
         IHubContext<AgentHub, IAgentHubClient> agentHubContext,
         ICircuitManager circuitManager,
@@ -91,6 +100,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         ILogger<CircuitConnection> logger)
     {
         _dataService = dataService;
+        _inventoryService = inventoryService;
         _agentHubContext = agentHubContext;
         _cardStore = cardStore;
         _authService = authService;
@@ -257,6 +267,36 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
                 targetType: "Device",
                 targetId: id);
         }
+    }
+
+    public async Task<Result<DeviceInventorySnapshot>> RefreshDeviceInventory(string deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Result.Fail<DeviceInventorySnapshot>("Device ID is required.");
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Inventory refresh attempted by unauthorized user. Device: {deviceId}. User: {username}.",
+                deviceId,
+                User?.UserName);
+            return Result.Fail<DeviceInventorySnapshot>("Unauthorized.");
+        }
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.InventoryRefresh,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId);
+        }
+
+        return await _inventoryService.RefreshSnapshot(deviceId);
     }
 
     public async Task<Result<RemoteControlSession>> RemoteControl(string deviceId, bool viewOnly)

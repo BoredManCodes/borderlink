@@ -1,6 +1,7 @@
 ﻿using BorderLink.Shared.Enums;
 
 namespace BorderLink.Shared.Interfaces;
+
 public interface IAgentHubClient
 {
     Task ChangeWindowsSession(
@@ -37,6 +38,8 @@ public interface IAgentHubClient
             string requestID,
             string command,
             string senderUsername);
+
+    Task<List<InstalledApp>> GetInstalledApps();
 
     Task GetLogs(string senderConnectionId);
 

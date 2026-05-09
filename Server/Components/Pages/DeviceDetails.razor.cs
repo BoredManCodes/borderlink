@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components.Web;
 using BorderLink.Server.Hubs;
 using BorderLink.Server.Models.Messages;
 using BorderLink.Server.Services;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Utilities;
 using System.Collections.Concurrent;
@@ -23,6 +24,23 @@ public partial class DeviceDetails : AuthComponentBase
     private bool _isLoading = true;
     private DeviceGroup[] _deviceGroups = Array.Empty<DeviceGroup>();
 
+    private List<InstalledApp>? _installedApps;
+    private DateTimeOffset? _inventoryCapturedAt;
+    private bool _isAppsRefreshing;
+    private string? _appsRefreshError;
+    private string? _appsSearchTerm;
+    private InstalledAppSortKey _appsSortKey = InstalledAppSortKey.Name;
+    private bool _appsSortDescending;
+
+    private enum InstalledAppSortKey
+    {
+        Name,
+        Version,
+        Publisher,
+        InstallDate,
+        Source,
+    }
+
     [Parameter]
     public string ActiveTab { get; set; } = string.Empty;
 
@@ -34,6 +52,9 @@ public partial class DeviceDetails : AuthComponentBase
 
     [Inject]
     private IDataService DataService { get; set; } = null!;
+
+    [Inject]
+    private IInventoryService InventoryService { get; set; } = null!;
 
 
     [Inject]
@@ -220,6 +241,155 @@ public partial class DeviceDetails : AuthComponentBase
             builder.AddMarkupContent(0, $"<div style='white-space: pre'>{disksString}</div>");
         }
         ModalService.ShowModal($"All Disks for {_device.DeviceName}", modalBody);
+    }
+
+    private void LoadInstalledApps()
+    {
+        // OnActivated is Action (not Func<Task>) — kick the load off as a
+        // background task so the tab activation completes immediately.
+        _ = LoadInstalledAppsCore();
+    }
+
+    private async Task LoadInstalledAppsCore()
+    {
+        if (_device is null)
+        {
+            return;
+        }
+
+        _appsRefreshError = null;
+
+        // If we already have apps loaded for this view, don't refetch
+        // automatically — the user has an explicit Refresh button.
+        if (_installedApps is not null)
+        {
+            return;
+        }
+
+        try
+        {
+            var snapshot = await InventoryService.GetLatestSnapshot(_device.ID);
+            if (snapshot is not null)
+            {
+                _installedApps = snapshot.Apps;
+                _inventoryCapturedAt = snapshot.CapturedAt;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+        catch (Exception ex)
+        {
+            _appsRefreshError = "Failed to load cached inventory: " + ex.Message;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task RefreshInstalledApps()
+    {
+        if (_device is null || _isAppsRefreshing)
+        {
+            return;
+        }
+
+        _isAppsRefreshing = true;
+        _appsRefreshError = null;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            var result = await CircuitConnection.RefreshDeviceInventory(_device.ID);
+            if (!result.IsSuccess)
+            {
+                _appsRefreshError = result.Reason;
+                ToastService.ShowToast2(result.Reason, Enums.ToastType.Warning);
+                return;
+            }
+
+            _installedApps = result.Value.Apps;
+            _inventoryCapturedAt = result.Value.CapturedAt;
+            ToastService.ShowToast("Inventory refreshed.");
+        }
+        catch (Exception ex)
+        {
+            _appsRefreshError = ex.Message;
+            ToastService.ShowToast2("Failed to refresh inventory.", Enums.ToastType.Error);
+        }
+        finally
+        {
+            _isAppsRefreshing = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void SortApps(InstalledAppSortKey key)
+    {
+        if (_appsSortKey == key)
+        {
+            _appsSortDescending = !_appsSortDescending;
+        }
+        else
+        {
+            _appsSortKey = key;
+            _appsSortDescending = false;
+        }
+    }
+
+    private string SortIndicator(InstalledAppSortKey key)
+    {
+        if (_appsSortKey != key)
+        {
+            return string.Empty;
+        }
+
+        return _appsSortDescending ? "▼" : "▲";
+    }
+
+    private IEnumerable<InstalledApp> GetFilteredSortedApps()
+    {
+        if (_installedApps is null)
+        {
+            return Array.Empty<InstalledApp>();
+        }
+
+        IEnumerable<InstalledApp> query = _installedApps;
+
+        if (!string.IsNullOrWhiteSpace(_appsSearchTerm))
+        {
+            var term = _appsSearchTerm.Trim();
+            query = query.Where(x =>
+                (x.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.Version?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.Publisher?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.Source?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        query = _appsSortKey switch
+        {
+            InstalledAppSortKey.Version => query.OrderBy(x => x.Version ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+            InstalledAppSortKey.Publisher => query.OrderBy(x => x.Publisher ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+            InstalledAppSortKey.InstallDate => query.OrderBy(x => x.InstallDate ?? DateTime.MinValue),
+            InstalledAppSortKey.Source => query.OrderBy(x => x.Source ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+            _ => query.OrderBy(x => x.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+        };
+
+        if (_appsSortDescending)
+        {
+            query = query.Reverse();
+        }
+
+        return query;
+    }
+
+    private async Task CopyUninstallCommand(InstalledApp app)
+    {
+        if (string.IsNullOrWhiteSpace(app.UninstallCommand))
+        {
+            return;
+        }
+
+        var copied = await JsInterop.SetClipboardText(app.UninstallCommand);
+        ToastService.ShowToast(copied
+            ? "Uninstall command copied to clipboard."
+            : "Failed to copy to clipboard.");
     }
 
     private void ShowFullScriptOutput(ScriptResult result)

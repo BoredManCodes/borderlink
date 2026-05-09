@@ -54,6 +54,9 @@ else
             <TabHeader Name="script-history" OnActivated="GetScriptHistory" NavigationUri="@($"/device-details/{DeviceId}/script-history")">
                 Script History
             </TabHeader>
+            <TabHeader Name="apps" OnActivated="LoadInstalledApps" NavigationUri="@($"/device-details/{DeviceId}/apps")">
+                Apps
+            </TabHeader>
         </TabHeaders>
 
         <TabContents>
@@ -269,6 +272,137 @@ else
                         }
                     </tbody>
                 </table>
+
+            </TabContent>
+
+            <TabContent Name="apps">
+
+                <div class="mb-3 mt-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h3 class="mb-0">
+                        Installed Software
+                        @if (_installedApps is not null)
+                        {
+                            <span class="text-muted ms-2" style="font-size: 1rem;">
+                                (@_installedApps.Count)
+                            </span>
+                        }
+                    </h3>
+                    <div class="text-end">
+                        <div class="text-muted small">
+                            @if (_inventoryCapturedAt is null)
+                            {
+                                <span>No inventory captured yet.</span>
+                            }
+                            else
+                            {
+                                <span>Last captured: @_inventoryCapturedAt.Value.LocalDateTime</span>
+                            }
+                        </div>
+                        <button class="btn btn-primary btn-sm mt-1"
+                                disabled="@_isAppsRefreshing"
+                                @onclick="RefreshInstalledApps">
+                            @if (_isAppsRefreshing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Refreshing...</span>
+                            }
+                            else
+                            {
+                                <i class="oi oi-reload me-1" aria-hidden="true"></i>
+                                <span>Refresh</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_appsRefreshError))
+                {
+                    <AlertBanner Message="@_appsRefreshError" />
+                }
+
+                @if (_installedApps is null && !_isAppsRefreshing)
+                {
+                    <div class="text-muted">
+                        Click <strong>Refresh</strong> to capture an inventory from the agent.
+                    </div>
+                }
+                else if (_installedApps is not null)
+                {
+                    <div class="mb-2">
+                        <input type="search"
+                               class="form-control"
+                               placeholder="Filter by name, version, publisher..."
+                               @bind-value="_appsSearchTerm"
+                               @bind-value:event="oninput" />
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th @onclick="@(() => SortApps(InstalledAppSortKey.Name))" style="cursor: pointer;">
+                                    Name @SortIndicator(InstalledAppSortKey.Name)
+                                </th>
+                                <th @onclick="@(() => SortApps(InstalledAppSortKey.Version))" style="cursor: pointer;">
+                                    Version @SortIndicator(InstalledAppSortKey.Version)
+                                </th>
+                                <th @onclick="@(() => SortApps(InstalledAppSortKey.Publisher))" style="cursor: pointer;">
+                                    Publisher @SortIndicator(InstalledAppSortKey.Publisher)
+                                </th>
+                                <th @onclick="@(() => SortApps(InstalledAppSortKey.InstallDate))" style="cursor: pointer;">
+                                    Install Date @SortIndicator(InstalledAppSortKey.InstallDate)
+                                </th>
+                                <th @onclick="@(() => SortApps(InstalledAppSortKey.Source))" style="cursor: pointer;">
+                                    Source @SortIndicator(InstalledAppSortKey.Source)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var rows = GetFilteredSortedApps();
+                            }
+                            @if (!rows.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        @if (string.IsNullOrWhiteSpace(_appsSearchTerm))
+                                        {
+                                            <span>No installed software was reported.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>No matches for "@_appsSearchTerm".</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var app in rows)
+                                {
+                                    <tr @key="app">
+                                        <td>@app.Name</td>
+                                        <td>@(app.Version ?? "-")</td>
+                                        <td>@(app.Publisher ?? "-")</td>
+                                        <td>@(app.InstallDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                        <td><span class="badge bg-secondary">@app.Source</span></td>
+                                        <td class="text-end">
+                                            @if (!string.IsNullOrWhiteSpace(app.UninstallCommand))
+                                            {
+                                                <button class="btn btn-sm btn-outline-secondary"
+                                                        title="Copy uninstall command"
+                                                        @onclick="@(() => CopyUninstallCommand(app))">
+                                                    <i class="oi oi-clipboard" aria-hidden="true"></i>
+                                                    <span class="ms-1">Copy uninstall</span>
+                                                </button>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
 
             </TabContent>
         </TabContents>

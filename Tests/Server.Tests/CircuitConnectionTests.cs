@@ -29,6 +29,8 @@ public class CircuitConnectionTests
     private Mock<IRemoteControlSessionCache> _remoteControlSessionCache;
     private Mock<IMessenger> _messenger;
     private Mock<IAgentHubSessionCache> _agentSessionCache;
+    private Mock<IInventoryService> _inventoryService;
+    private Mock<IAuditLogService> _auditLog;
     private Mock<ILogger<CircuitConnection>> _logger;
     private CircuitConnection _circuitConnection;
 #nullable enable
@@ -49,11 +51,14 @@ public class CircuitConnectionTests
         _remoteControlSessionCache = new Mock<IRemoteControlSessionCache>();
         _messenger = new Mock<IMessenger>();
         _agentSessionCache = new Mock<IAgentHubSessionCache>();
+        _inventoryService = new Mock<IInventoryService>();
+        _auditLog = new Mock<IAuditLogService>();
         _logger = new Mock<ILogger<CircuitConnection>>();
 
         _circuitConnection = new CircuitConnection(
             _authService.Object,
             _dataService,
+            _inventoryService.Object,
             _clientAppState.Object,
             _agentHubContextFixture.HubContextMock.Object,
             _circuitManager.Object,
@@ -62,6 +67,7 @@ public class CircuitConnectionTests
             _remoteControlSessionCache.Object,
             _agentSessionCache.Object,
             _messenger.Object,
+            _auditLog.Object,
             _logger.Object);
     }
 

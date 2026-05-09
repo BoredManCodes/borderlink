@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using BorderLink.Server.Converters;
+using BorderLink.Shared;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Models;
 using System.Text.Json;
@@ -31,6 +32,7 @@ public class AppDb : IdentityDbContext
     public DbSet<AuditLogEntry> AuditLogEntries { get; set; }
     public DbSet<BrandingInfo> BrandingInfos { get; set; }
     public DbSet<DeviceGroup> DeviceGroups { get; set; }
+    public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots { get; set; }
     public DbSet<Device> Devices { get; set; }
     public DbSet<InviteLink> InviteLinks { get; set; }
     public DbSet<KeyValueRecord> KeyValueRecords { get; set; }
@@ -188,6 +190,22 @@ public class AppDb : IdentityDbContext
                 x => JsonSerializer.Serialize(x, jsonOptions),
                 x => DeserializeStringArray(x, jsonOptions),
                 valueComparer: _stringArrayComparer);
+
+        builder.Entity<DeviceInventorySnapshot>()
+            .HasOne(x => x.Device)
+            .WithMany()
+            .HasForeignKey(x => x.DeviceID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<DeviceInventorySnapshot>()
+            .HasIndex(x => new { x.DeviceID, x.CapturedAt });
+
+        builder.Entity<DeviceInventorySnapshot>()
+            .Property(x => x.Apps)
+            .HasConversion(
+                x => JsonSerializer.Serialize(x, jsonOptions),
+                x => TryDeserializeProperty<List<InstalledApp>>(x, jsonOptions))
+            .Metadata.SetValueComparer(new ValueComparer<List<InstalledApp>>(true));
 
         builder.Entity<DeviceGroup>()
             .HasMany(x => x.Devices)

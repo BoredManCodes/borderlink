@@ -87,4 +87,7 @@ public static class AuditActions
     // Downloads
     public const string AgentInstallerDownload       = "Installer.Download";
     public const string CustomBinaryUpload           = "Installer.CustomBinaryUpload";
+
+    // Inventory
+    public const string InventoryRefresh             = "Inventory.Refresh";
 }

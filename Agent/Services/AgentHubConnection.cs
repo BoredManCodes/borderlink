@@ -8,6 +8,7 @@ using BorderLink.Shared;
 using BorderLink.Shared.Enums;
 using BorderLink.Shared.Interfaces;
 using BorderLink.Shared.Models;
+using System.Collections.Generic;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -39,6 +40,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
     private readonly IDeviceInformationService _deviceInfoService;
     private readonly IFileLogsManager _fileLogsManager;
     private readonly IHttpClientFactory _httpFactory;
+    private readonly IInstalledAppEnumerator _installedAppEnumerator;
     private readonly ILogger<AgentHubConnection> _logger;
     private readonly IScriptExecutor _scriptExecutor;
     private readonly IScriptingShellFactory _scriptingShellFactory;
@@ -59,6 +61,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         IUpdater updater,
         IDeviceInformationService deviceInfoService,
         IHttpClientFactory httpFactory,
+        IInstalledAppEnumerator installedAppEnumerator,
         IWakeOnLanService wakeOnLanService,
         IFileLogsManager fileLogsManager,
         IHostApplicationLifetime appLifetime,
@@ -73,6 +76,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _updater = updater;
         _deviceInfoService = deviceInfoService;
         _httpFactory = httpFactory;
+        _installedAppEnumerator = installedAppEnumerator;
         _wakeOnLanService = wakeOnLanService;
         _logger = logger;
         _fileLogsManager = fileLogsManager;
@@ -265,6 +269,20 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while executing command from API.");
+        }
+    }
+
+    public async Task<List<InstalledApp>> GetInstalledApps()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+            return await _installedAppEnumerator.GetInstalledApps(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while enumerating installed apps.");
+            return new List<InstalledApp>();
         }
     }
 
@@ -620,6 +638,8 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _hubConnection.On<ScriptingShell, string, string, string, string>(nameof(ExecuteCommand), ExecuteCommand);
 
         _hubConnection.On<ScriptingShell, string, string, string, string>(nameof(ExecuteCommandFromApi), ExecuteCommandFromApi);
+
+        _hubConnection.On(nameof(GetInstalledApps), GetInstalledApps);
 
         _hubConnection.On<string>(nameof(GetLogs), GetLogs);
 

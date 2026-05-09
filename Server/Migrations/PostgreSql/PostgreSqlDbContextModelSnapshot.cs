@@ -291,6 +291,30 @@ namespace BorderLink.Server.Migrations.PostgreSql
                     b.ToTable("DeviceGroups");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceInventorySnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Apps")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CapturedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceID", "CapturedAt");
+
+                    b.ToTable("DeviceInventorySnapshots");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
                     b.Property<string>("ID")
@@ -975,6 +999,17 @@ namespace BorderLink.Server.Migrations.PostgreSql
                         .IsRequired();
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceInventorySnapshot", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
                 });
 
             modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>

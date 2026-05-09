@@ -28,6 +28,7 @@ public class AgentHubTests
         circuitConnection.Setup(x => x.User).Returns(_testData.Org1Admin1);
         var viewerHub = new Mock<IHubContext<ViewerHub>>();
         var expiringTokenService = new Mock<IExpiringTokenService>();
+        var inventoryService = new Mock<IInventoryService>();
         var serviceSessionCache = new Mock<IAgentHubSessionCache>();
         var remoteControlSessions = new Mock<IRemoteControlSessionCache>();
         var messenger = new Mock<IMessenger>();
@@ -43,6 +44,7 @@ public class AgentHubTests
             viewerHub.Object,
             circuitManager.Object,
             expiringTokenService.Object,
+            inventoryService.Object,
             remoteControlSessions.Object,
             messenger.Object,
             logger.Object);
@@ -70,6 +72,7 @@ public class AgentHubTests
         circuitConnection.Setup(x => x.User).Returns(_testData.Org1Admin1);
         var viewerHub = new Mock<IHubContext<ViewerHub>>();
         var expiringTokenService = new Mock<IExpiringTokenService>();
+        var inventoryService = new Mock<IInventoryService>();
         var serviceSessionCache = new Mock<IAgentHubSessionCache>();
         var remoteControlSessions = new Mock<IRemoteControlSessionCache>();
         var messenger = new Mock<IMessenger>();
@@ -86,6 +89,7 @@ public class AgentHubTests
             viewerHub.Object,
             circuitManager.Object,
             expiringTokenService.Object,
+            inventoryService.Object,
             remoteControlSessions.Object,
             messenger.Object,
             logger.Object);
