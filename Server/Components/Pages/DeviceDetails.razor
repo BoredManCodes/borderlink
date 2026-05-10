@@ -298,20 +298,29 @@ else
                                 <span>Last captured: @_inventoryCapturedAt.Value.LocalDateTime</span>
                             }
                         </div>
-                        <button class="btn btn-primary btn-sm mt-1"
-                                disabled="@_isAppsRefreshing"
-                                @onclick="RefreshInstalledApps">
-                            @if (_isAppsRefreshing)
-                            {
-                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                <span>Refreshing...</span>
-                            }
-                            else
-                            {
-                                <i class="oi oi-reload me-1" aria-hidden="true"></i>
-                                <span>Refresh</span>
-                            }
-                        </button>
+                        <div class="mt-1">
+                            <button class="btn btn-outline-primary btn-sm me-2"
+                                    disabled="@(!_device.IsOnline)"
+                                    title="Search the device's package managers and install a new package"
+                                    @onclick="OpenInstallSoftwareModal">
+                                <i class="oi oi-plus me-1" aria-hidden="true"></i>
+                                <span>Install software...</span>
+                            </button>
+                            <button class="btn btn-primary btn-sm"
+                                    disabled="@_isAppsRefreshing"
+                                    @onclick="RefreshInstalledApps">
+                                @if (_isAppsRefreshing)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                    <span>Refreshing...</span>
+                                }
+                                else
+                                {
+                                    <i class="oi oi-reload me-1" aria-hidden="true"></i>
+                                    <span>Refresh</span>
+                                }
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -389,13 +398,31 @@ else
                                         <td class="text-end">
                                             @if (!string.IsNullOrWhiteSpace(app.UninstallCommand))
                                             {
-                                                <button class="btn btn-sm btn-outline-secondary"
+                                                <button class="btn btn-sm btn-outline-secondary me-1"
                                                         title="Copy uninstall command"
                                                         @onclick="@(() => CopyUninstallCommand(app))">
                                                     <i class="oi oi-clipboard" aria-hidden="true"></i>
-                                                    <span class="ms-1">Copy uninstall</span>
+                                                    <span class="ms-1">Copy</span>
                                                 </button>
                                             }
+                                            @{
+                                                var canUninstall = CanUninstallApp(app);
+                                                var isPending = _pendingUninstallKeys.Contains(AppKey(app));
+                                            }
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    disabled="@(!_device.IsOnline || !canUninstall || isPending)"
+                                                    title="@UninstallButtonTitle(app)"
+                                                    @onclick="@(() => OnUninstallClicked(app))">
+                                                @if (isPending)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="oi oi-trash me-1" aria-hidden="true"></i>
+                                                }
+                                                <span>Uninstall</span>
+                                            </button>
                                         </td>
                                     </tr>
                                 }
@@ -403,6 +430,11 @@ else
                         </tbody>
                     </table>
                 }
+
+                <InstallAppModal IsOpen="_isInstallModalOpen"
+                                 Device="_device"
+                                 OnClose="CloseInstallSoftwareModal"
+                                 OnInstallQueued="OnInstallQueued" />
 
             </TabContent>
         </TabContents>

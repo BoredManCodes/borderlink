@@ -1,0 +1,104 @@
+@using BorderLink.Shared
+@using BorderLink.Server.Hubs
+@using System.Net.Http.Json
+
+@if (IsOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog"
+         style="background-color: rgba(0,0,0,0.45);"
+         @onclick="OnBackdropClick">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document"
+             @onclick:stopPropagation>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Install software on @(_deviceName ?? "device")</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-2 mb-3">
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small mb-1">Source</label>
+                            <select class="form-select form-select-sm"
+                                    @bind="_selectedSource"
+                                    @bind:event="onchange">
+                                @foreach (var src in _availableSources)
+                                {
+                                    <option value="@src">@src</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <label class="form-label small mb-1">Search</label>
+                            <input type="search"
+                                   class="form-control form-control-sm"
+                                   placeholder="e.g. Git, Notepad++, htop..."
+                                   @bind-value="_searchTerm"
+                                   @bind-value:event="oninput" />
+                        </div>
+                    </div>
+
+                    @if (_isSearching)
+                    {
+                        <div class="text-center py-3">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            <span>Searching...</span>
+                        </div>
+                    }
+                    else if (!string.IsNullOrWhiteSpace(_errorMessage))
+                    {
+                        <AlertBanner Message="@_errorMessage" />
+                    }
+                    else if (_results.Count == 0 && !string.IsNullOrWhiteSpace(_lastSearched))
+                    {
+                        <div class="text-muted text-center py-3">
+                            No matches for "@_lastSearched".
+                        </div>
+                    }
+                    else if (_results.Count > 0)
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Version</th>
+                                    <th>Publisher</th>
+                                    <th>Id</th>
+                                    <th class="text-end"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var pkg in _results)
+                                {
+                                    <tr @key="pkg.Id">
+                                        <td>@pkg.Name</td>
+                                        <td>@(pkg.Version ?? "-")</td>
+                                        <td>@(pkg.Publisher ?? "-")</td>
+                                        <td><code class="small">@pkg.Id</code></td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-primary"
+                                                    disabled="@_isInstalling"
+                                                    @onclick="@(() => Install(pkg))">
+                                                Install
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="text-muted small">
+                            Type to search the device's package managers
+                            (winget/choco on Windows, apt on Linux, brew on macOS).
+                            Results appear after a short pause.
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="Close">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

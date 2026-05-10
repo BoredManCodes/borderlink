@@ -623,6 +623,61 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.ToTable("SharedFiles");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.SoftwareActionRun", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InitiatorId")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PackageId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PackageName")
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ScriptRunId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorId");
+
+                    b.HasIndex("ScriptRunId");
+
+                    b.HasIndex("OrganizationID", "CreatedAt");
+
+                    b.ToTable("SoftwareActionRuns");
+                });
+
             modelBuilder.Entity("BorderLinkUserDeviceGroup", b =>
                 {
                     b.Property<string>("DeviceGroupsID")
@@ -1126,6 +1181,31 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.SoftwareActionRun", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Initiator")
+                        .WithMany("SoftwareActionRuns")
+                        .HasForeignKey("InitiatorId");
+
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("SoftwareActionRuns")
+                        .HasForeignKey("OrganizationID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("BorderLink.Shared.Entities.ScriptRun", "ScriptRun")
+                        .WithMany()
+                        .HasForeignKey("ScriptRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initiator");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("ScriptRun");
+                });
+
             modelBuilder.Entity("BorderLinkUserDeviceGroup", b =>
                 {
                     b.HasOne("BorderLink.Shared.Entities.DeviceGroup", null)
@@ -1287,6 +1367,8 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("ScriptSchedules");
 
                     b.Navigation("SharedFiles");
+
+                    b.Navigation("SoftwareActionRuns");
                 });
 
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
@@ -1313,6 +1395,8 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("SavedScripts");
 
                     b.Navigation("ScriptSchedules");
+
+                    b.Navigation("SoftwareActionRuns");
                 });
 #pragma warning restore 612, 618
         }

@@ -42,6 +42,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
     private readonly IHttpClientFactory _httpFactory;
     private readonly IInstalledAppEnumerator _installedAppEnumerator;
     private readonly ILogger<AgentHubConnection> _logger;
+    private readonly IPackageSearcher _packageSearcher;
     private readonly IScriptExecutor _scriptExecutor;
     private readonly IScriptingShellFactory _scriptingShellFactory;
     private readonly IUninstaller _uninstaller;
@@ -62,6 +63,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         IDeviceInformationService deviceInfoService,
         IHttpClientFactory httpFactory,
         IInstalledAppEnumerator installedAppEnumerator,
+        IPackageSearcher packageSearcher,
         IWakeOnLanService wakeOnLanService,
         IFileLogsManager fileLogsManager,
         IHostApplicationLifetime appLifetime,
@@ -77,6 +79,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _deviceInfoService = deviceInfoService;
         _httpFactory = httpFactory;
         _installedAppEnumerator = installedAppEnumerator;
+        _packageSearcher = packageSearcher;
         _wakeOnLanService = wakeOnLanService;
         _logger = logger;
         _fileLogsManager = fileLogsManager;
@@ -283,6 +286,28 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         {
             _logger.LogError(ex, "Error while enumerating installed apps.");
             return new List<InstalledApp>();
+        }
+    }
+
+    public async Task<SoftwarePackage[]> SearchAvailablePackages(string query, int max)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return Array.Empty<SoftwarePackage>();
+            }
+
+            var capped = max <= 0 ? 50 : Math.Min(max, 200);
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+            var results = await _packageSearcher.Search(query, capped, cts.Token);
+            return results.ToArray();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while searching for available packages.");
+            return Array.Empty<SoftwarePackage>();
         }
     }
 
@@ -640,6 +665,9 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _hubConnection.On<ScriptingShell, string, string, string, string>(nameof(ExecuteCommandFromApi), ExecuteCommandFromApi);
 
         _hubConnection.On(nameof(GetInstalledApps), GetInstalledApps);
+
+        _hubConnection.On(nameof(SearchAvailablePackages),
+            (Func<string, int, Task<SoftwarePackage[]>>)SearchAvailablePackages);
 
         _hubConnection.On<string>(nameof(GetLogs), GetLogs);
 

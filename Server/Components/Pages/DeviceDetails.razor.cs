@@ -31,6 +31,8 @@ public partial class DeviceDetails : AuthComponentBase
     private string? _appsSearchTerm;
     private InstalledAppSortKey _appsSortKey = InstalledAppSortKey.Name;
     private bool _appsSortDescending;
+    private bool _isInstallModalOpen;
+    private readonly HashSet<string> _pendingUninstallKeys = new(StringComparer.Ordinal);
 
     private enum InstalledAppSortKey
     {
@@ -390,6 +392,180 @@ public partial class DeviceDetails : AuthComponentBase
         ToastService.ShowToast(copied
             ? "Uninstall command copied to clipboard."
             : "Failed to copy to clipboard.");
+    }
+
+    private static bool TryMapSourceToAction(InstalledApp app, out SoftwareActionSource source)
+    {
+        switch ((app.Source ?? string.Empty).Trim().ToLowerInvariant())
+        {
+            case "winget":
+                source = SoftwareActionSource.Winget;
+                return true;
+            case "choco":
+                source = SoftwareActionSource.Choco;
+                return true;
+            case "dpkg":
+            case "rpm":
+            case "apt":
+                source = SoftwareActionSource.Apt;
+                return true;
+            case "brew":
+                source = SoftwareActionSource.Brew;
+                return true;
+            case "registry":
+                source = SoftwareActionSource.Msi;
+                return true;
+            default:
+                source = SoftwareActionSource.Winget;
+                return false;
+        }
+    }
+
+    private static string AppKey(InstalledApp app) =>
+        $"{app.Source}|{app.Name}|{app.Version}";
+
+    private bool CanUninstallApp(InstalledApp app)
+    {
+        if (!TryMapSourceToAction(app, out _))
+        {
+            return false;
+        }
+
+        // Registry-only entries with no UninstallString aren't actionable.
+        if (string.Equals(app.Source, "registry", StringComparison.OrdinalIgnoreCase) &&
+            string.IsNullOrWhiteSpace(app.UninstallCommand))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private string UninstallButtonTitle(InstalledApp app)
+    {
+        if (string.Equals(app.Source, "registry", StringComparison.OrdinalIgnoreCase) &&
+            string.IsNullOrWhiteSpace(app.UninstallCommand))
+        {
+            return "No uninstaller registered.";
+        }
+
+        if (!TryMapSourceToAction(app, out _))
+        {
+            return $"Uninstall not supported for source '{app.Source}'.";
+        }
+
+        return $"Uninstall {app.Name} via {app.Source}.";
+    }
+
+    private async Task OnUninstallClicked(InstalledApp app)
+    {
+        if (_device is null || !CanUninstallApp(app))
+        {
+            return;
+        }
+
+        if (!TryMapSourceToAction(app, out var sourceEnum))
+        {
+            return;
+        }
+
+        var packageId = ResolvePackageIdForUninstall(app, sourceEnum);
+        if (string.IsNullOrWhiteSpace(packageId))
+        {
+            ToastService.ShowToast2(
+                "No package id available for uninstall.",
+                Enums.ToastType.Warning);
+            return;
+        }
+
+        var displayCommand = sourceEnum switch
+        {
+            SoftwareActionSource.Winget => $"winget uninstall {packageId}",
+            SoftwareActionSource.Choco => $"choco uninstall {packageId}",
+            SoftwareActionSource.Apt => $"apt-get remove {packageId}",
+            SoftwareActionSource.Brew => $"brew uninstall {packageId}",
+            SoftwareActionSource.Msi => $"the registered uninstaller for {packageId}",
+            _ => $"uninstall {packageId}",
+        };
+
+        var confirmed = await JsInterop.Confirm(
+            $"This will run \"{displayCommand}\" on {_device.DeviceName}. " +
+            "Output appears under Script History. Continue?");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        var key = AppKey(app);
+        _pendingUninstallKeys.Add(key);
+        try
+        {
+            var result = await CircuitConnection.RequestSoftwareUninstall(
+                _device.ID,
+                sourceEnum,
+                packageId,
+                app.Name);
+
+            if (!result.IsSuccess)
+            {
+                ToastService.ShowToast2(result.Reason, Enums.ToastType.Error);
+                return;
+            }
+
+            ToastService.ShowToast("Uninstall queued.");
+        }
+        finally
+        {
+            _pendingUninstallKeys.Remove(key);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static string? ResolvePackageIdForUninstall(InstalledApp app, SoftwareActionSource source)
+    {
+        // For winget/choco/brew/apt the package "id" we want is the
+        // human-typeable name (winget uses Id values like Git.Git but the
+        // Phase 1 enumerator stores those in Name when sourced from
+        // winget; for registry entries we fall back to DisplayName which
+        // the MSI uninstall PowerShell template handles).
+        return app.Name;
+    }
+
+    private void OpenInstallSoftwareModal()
+    {
+        _isInstallModalOpen = true;
+    }
+
+    private Task CloseInstallSoftwareModal()
+    {
+        _isInstallModalOpen = false;
+        return Task.CompletedTask;
+    }
+
+    private async Task OnInstallQueued(int scriptRunId)
+    {
+        // Schedule a follow-up inventory refresh so the new app appears
+        // without the user clicking Refresh manually. ScriptResultsController
+        // also refreshes on result, but this is a belt-and-braces
+        // background nudge while the install runs.
+        _isInstallModalOpen = false;
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(45));
+                if (_device is not null)
+                {
+                    await CircuitConnection.RefreshDeviceInventory(_device.ID);
+                }
+            }
+            catch
+            {
+                // Best-effort.
+            }
+        });
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ShowFullScriptOutput(ScriptResult result)

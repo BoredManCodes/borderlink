@@ -42,6 +42,7 @@ public class AppDb : IdentityDbContext
     public DbSet<ScriptRun> ScriptRuns { get; set; }
     public DbSet<ScriptSchedule> ScriptSchedules { get; set; }
     public DbSet<SharedFile> SharedFiles { get; set; }
+    public DbSet<SoftwareActionRun> SoftwareActionRuns { get; set; }
     public new DbSet<BorderLinkUser> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -196,6 +197,31 @@ public class AppDb : IdentityDbContext
             .WithMany()
             .HasForeignKey(x => x.DeviceID)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SoftwareActionRun>()
+            .HasOne(x => x.ScriptRun)
+            .WithMany()
+            .HasForeignKey(x => x.ScriptRunId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SoftwareActionRun>()
+            .HasOne(x => x.Organization)
+            .WithMany(x => x.SoftwareActionRuns)
+            .HasForeignKey(x => x.OrganizationID)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.Entity<SoftwareActionRun>()
+            .HasOne(x => x.Initiator)
+            .WithMany(x => x.SoftwareActionRuns)
+            .HasForeignKey(x => x.InitiatorId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
+        builder.Entity<SoftwareActionRun>()
+            .HasIndex(x => new { x.OrganizationID, x.CreatedAt });
+
+        builder.Entity<SoftwareActionRun>()
+            .HasIndex(x => x.ScriptRunId);
 
         builder.Entity<DeviceInventorySnapshot>()
             .HasIndex(x => new { x.DeviceID, x.CapturedAt });

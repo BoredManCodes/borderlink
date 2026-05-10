@@ -90,4 +90,9 @@ public static class AuditActions
 
     // Inventory
     public const string InventoryRefresh             = "Inventory.Refresh";
+
+    // Software actions
+    public const string SoftwareInstallRequested     = "Software.InstallRequested";
+    public const string SoftwareUninstallRequested   = "Software.UninstallRequested";
+    public const string SoftwareSearchPerformed      = "Software.SearchPerformed";
 }

@@ -20,6 +20,8 @@ public class BorderLinkUser : IdentityUser
     public List<SavedScript> SavedScripts { get; set; } = new();
     public List<ScriptSchedule> ScriptSchedules { get; set; } = new();
 
+    public List<SoftwareActionRun> SoftwareActionRuns { get; set; } = new();
+
     public string? TempPassword { get; set; }
 
     public BorderLinkUserOptions? UserOptions { get; set; }

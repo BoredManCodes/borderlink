@@ -230,6 +230,7 @@ services.AddScoped<LocalOnlyFilter>();
 services.AddScoped<ExpiringTokenFilter>();
 services.AddHostedService<DataCleanupService>();
 services.AddHostedService<ScriptScheduler>();
+services.AddHostedService<SoftwareActionScriptSeeder>();
 services.AddSingleton<IUpgradeService, UpgradeService>();
 services.AddScoped<IToastService, ToastService>();
 services.AddScoped<IModalService, ModalService>();

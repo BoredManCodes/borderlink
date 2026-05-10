@@ -6,6 +6,7 @@ using BorderLink.Server.Extensions;
 using BorderLink.Server.Services;
 using BorderLink.Shared.Dtos;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace BorderLink.Server.API;
 
@@ -13,17 +14,24 @@ namespace BorderLink.Server.API;
 [ApiController]
 public class ScriptResultsController : ControllerBase
 {
+    private static readonly Regex _rebootKeywordRegex = new(
+        @"\b(restart|reboot|requires? reboot|must restart|must reboot|reboot required|restart required|pending reboot|pending restart)\b",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private readonly IDataService _dataService;
     private readonly IEmailSenderEx _emailSender;
+    private readonly IInventoryService _inventoryService;
     private readonly ILogger<ScriptResultsController> _logger;
 
     public ScriptResultsController(
-        IDataService dataService, 
+        IDataService dataService,
         IEmailSenderEx emailSenderEx,
+        IInventoryService inventoryService,
         ILogger<ScriptResultsController> logger)
     {
         _dataService = dataService;
         _emailSender = emailSenderEx;
+        _inventoryService = inventoryService;
         _logger = logger;
     }
 
@@ -119,11 +127,71 @@ public class ScriptResultsController : ControllerBase
         if (result.ScriptRunId.HasValue)
         {
             await _dataService.AddScriptResultToScriptRun(scriptResult.Value.ID, result.ScriptRunId.Value);
+
+            // If this run was a software install/uninstall, kick off an
+            // inventory refresh so the Apps tab catches up within seconds.
+            // Also flag a reboot-required note if the agent's output hints
+            // at one. Best-effort: errors here must not affect the agent's
+            // result POST.
+            await TryHandleSoftwareActionFollowUp(result);
         }
 
         return new ScriptResultResponse()
         {
             Id = scriptResult.Value.ID
         };
+    }
+
+    private async Task TryHandleSoftwareActionFollowUp(ScriptResultDto result)
+    {
+        try
+        {
+            if (result.ScriptRunId is null)
+            {
+                return;
+            }
+
+            var actionRun = await _dataService.GetSoftwareActionRunByScriptRunId(result.ScriptRunId.Value);
+            if (actionRun is null)
+            {
+                return;
+            }
+
+            if (DetectRebootRequired(result))
+            {
+                await _dataService.UpdateSoftwareActionRunNotes(actionRun.Id, "Reboot pending");
+            }
+
+            // Fire-and-forget: inventory refresh probes the agent and
+            // can be slow.
+            _ = Task.Run(() => _inventoryService.TryRefreshSnapshotInBackground(result.DeviceID));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Software-action follow-up handler failed for ScriptRunId {scriptRunId}.",
+                result.ScriptRunId);
+        }
+    }
+
+    private static bool DetectRebootRequired(ScriptResultDto result)
+    {
+        return Matches(result.StandardOutput) || Matches(result.ErrorOutput);
+
+        static bool Matches(string[]? lines)
+        {
+            if (lines is null || lines.Length == 0)
+            {
+                return false;
+            }
+            foreach (var line in lines)
+            {
+                if (!string.IsNullOrEmpty(line) && _rebootKeywordRegex.IsMatch(line))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

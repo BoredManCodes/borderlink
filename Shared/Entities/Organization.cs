@@ -11,6 +11,8 @@ public class Organization
 
     public ICollection<AuditLogEntry> AuditLogEntries { get; set; } = [];
 
+    public ICollection<SoftwareActionRun> SoftwareActionRuns { get; set; } = [];
+
     public BrandingInfo? BrandingInfo { get; set; }
     public string? BrandingInfoId { get; set; }
 

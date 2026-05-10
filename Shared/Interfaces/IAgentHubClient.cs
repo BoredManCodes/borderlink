@@ -41,6 +41,14 @@ public interface IAgentHubClient
 
     Task<List<InstalledApp>> GetInstalledApps();
 
+    /// <summary>
+    /// Search the device's package managers (winget/choco/apt/brew) for
+    /// candidate packages matching <paramref name="query"/>. Returns at
+    /// most <paramref name="max"/> results. Empty list if no package
+    /// manager is available.
+    /// </summary>
+    Task<SoftwarePackage[]> SearchAvailablePackages(string query, int max);
+
     Task GetLogs(string senderConnectionId);
 
     Task GetPowerShellCompletions(

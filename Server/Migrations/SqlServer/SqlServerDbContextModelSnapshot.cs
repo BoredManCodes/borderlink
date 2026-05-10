@@ -624,6 +624,62 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.ToTable("SharedFiles");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.SoftwareActionRun", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("InitiatorId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Kind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PackageId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PackageName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("ScriptRunId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Source")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InitiatorId");
+
+                    b.HasIndex("ScriptRunId");
+
+                    b.HasIndex("OrganizationID", "CreatedAt");
+
+                    b.ToTable("SoftwareActionRuns");
+                });
+
             modelBuilder.Entity("BorderLinkUserDeviceGroup", b =>
                 {
                     b.Property<string>("DeviceGroupsID")
@@ -1133,6 +1189,31 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.Navigation("Organization");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.SoftwareActionRun", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Initiator")
+                        .WithMany("SoftwareActionRuns")
+                        .HasForeignKey("InitiatorId");
+
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("SoftwareActionRuns")
+                        .HasForeignKey("OrganizationID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("BorderLink.Shared.Entities.ScriptRun", "ScriptRun")
+                        .WithMany()
+                        .HasForeignKey("ScriptRunId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initiator");
+
+                    b.Navigation("Organization");
+
+                    b.Navigation("ScriptRun");
+                });
+
             modelBuilder.Entity("BorderLinkUserDeviceGroup", b =>
                 {
                     b.HasOne("BorderLink.Shared.Entities.DeviceGroup", null)
@@ -1294,6 +1375,8 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.Navigation("ScriptSchedules");
 
                     b.Navigation("SharedFiles");
+
+                    b.Navigation("SoftwareActionRuns");
                 });
 
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
@@ -1320,6 +1403,8 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.Navigation("SavedScripts");
 
                     b.Navigation("ScriptSchedules");
+
+                    b.Navigation("SoftwareActionRuns");
                 });
 #pragma warning restore 612, 618
         }

@@ -109,7 +109,10 @@ public class ScriptExecutor : IScriptExecutor
                 scriptRunId,
                 initiator);
 
-            var url = $"{_configService.GetConnectionInfo().Host}/API/SavedScripts/{savedScriptId}";
+            // Pass the scriptRunId so the server can substitute templated
+            // saved scripts (e.g. software-action one-liners with a {0}
+            // placeholder for the package id) on the way out.
+            var url = $"{_configService.GetConnectionInfo().Host}/API/SavedScripts/{savedScriptId}?runId={scriptRunId}";
             using var hc = new HttpClient();
             hc.DefaultRequestHeaders.Add(AppConstants.ExpiringTokenHeaderName, expiringToken);
             var response = await hc.GetAsync(url);

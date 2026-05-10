@@ -34,6 +34,12 @@ public interface IDataService
 
     Task AddScriptRun(ScriptRun scriptRun);
 
+    Task AddSoftwareActionRun(SoftwareActionRun run);
+
+    Task<SoftwareActionRun?> GetSoftwareActionRunByScriptRunId(int scriptRunId);
+
+    Task UpdateSoftwareActionRunNotes(int softwareActionRunId, string? notes);
+
     Task<string> AddSharedFile(IBrowserFile file, string organizationId, Action<double, string> progressCallback);
 
     Task<string> AddSharedFile(IFormFile file, string organizationId);
@@ -535,6 +541,35 @@ public class DataService : IDataService
 
         dbContext.Attach(scriptRun);
         dbContext.ScriptRuns.Add(scriptRun);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddSoftwareActionRun(SoftwareActionRun run)
+    {
+        using var dbContext = _appDbFactory.GetContext();
+        dbContext.SoftwareActionRuns.Add(run);
+        await dbContext.SaveChangesAsync();
+    }
+
+    public async Task<SoftwareActionRun?> GetSoftwareActionRunByScriptRunId(int scriptRunId)
+    {
+        using var dbContext = _appDbFactory.GetContext();
+        return await dbContext.SoftwareActionRuns
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.ScriptRunId == scriptRunId);
+    }
+
+    public async Task UpdateSoftwareActionRunNotes(int softwareActionRunId, string? notes)
+    {
+        using var dbContext = _appDbFactory.GetContext();
+        var run = await dbContext.SoftwareActionRuns
+            .FirstOrDefaultAsync(x => x.Id == softwareActionRunId);
+        if (run is null)
+        {
+            return;
+        }
+
+        run.Notes = notes;
         await dbContext.SaveChangesAsync();
     }
 

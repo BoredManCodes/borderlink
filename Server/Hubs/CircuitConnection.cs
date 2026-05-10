@@ -7,6 +7,7 @@ using BorderLink.Server.Models;
 using BorderLink.Server.Models.Messages;
 using BorderLink.Server.Services.Stores;
 using BorderLink.Shared;
+using BorderLink.Shared.Constants;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Enums;
 using BorderLink.Shared.Interfaces;
@@ -37,6 +38,30 @@ public interface ICircuitConnection
     /// device is offline, or the agent fails to respond.
     /// </summary>
     Task<Result<DeviceInventorySnapshot>> RefreshDeviceInventory(string deviceId);
+
+    /// <summary>
+    /// Queues a software install for <paramref name="deviceId"/> using the
+    /// specified package manager. Returns the created <c>ScriptRun.Id</c>
+    /// on success so the UI can correlate to the resulting Script History
+    /// row.
+    /// </summary>
+    Task<Result<int>> RequestSoftwareInstall(
+        string deviceId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName);
+
+    /// <summary>
+    /// Queues a software uninstall for <paramref name="deviceId"/> using
+    /// the specified package manager. Returns the created
+    /// <c>ScriptRun.Id</c> on success so the UI can correlate to the
+    /// resulting Script History row.
+    /// </summary>
+    Task<Result<int>> RequestSoftwareUninstall(
+        string deviceId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName);
 
     Task<Result<RemoteControlSession>> RemoteControl(string deviceID, bool viewOnly);
 
@@ -297,6 +322,153 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         }
 
         return await _inventoryService.RefreshSnapshot(deviceId);
+    }
+
+    public Task<Result<int>> RequestSoftwareInstall(
+        string deviceId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName)
+    {
+        return QueueSoftwareAction(deviceId, source, SoftwareActionKind.Install, packageId, packageName);
+    }
+
+    public Task<Result<int>> RequestSoftwareUninstall(
+        string deviceId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName)
+    {
+        return QueueSoftwareAction(deviceId, source, SoftwareActionKind.Uninstall, packageId, packageName);
+    }
+
+    private async Task<Result<int>> QueueSoftwareAction(
+        string deviceId,
+        SoftwareActionSource source,
+        SoftwareActionKind kind,
+        string packageId,
+        string? packageName)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Result.Fail<int>("Device ID is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(packageId))
+        {
+            return Result.Fail<int>("Package ID is required.");
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Software {kind} attempted by unauthorized user. Device: {deviceId}. User: {username}. Package: {packageId}.",
+                kind, deviceId, User?.UserName, packageId);
+            await _auditLog.LogAsync(
+                kind == SoftwareActionKind.Install
+                    ? AuditActions.SoftwareInstallRequested
+                    : AuditActions.SoftwareUninstallRequested,
+                User?.OrganizationID ?? string.Empty,
+                userName: User?.UserName,
+                userId: User?.Id,
+                targetType: "Device",
+                targetId: deviceId,
+                success: false,
+                resultMessage: "User lacks access to device.",
+                details: new { source = source.ToString(), packageId, packageName });
+            return Result.Fail<int>("Unauthorized.");
+        }
+
+        var savedScriptId = SoftwareActionScriptIds.Resolve(source, kind);
+        if (savedScriptId is null)
+        {
+            return Result.Fail<int>("MSI install is not supported.");
+        }
+
+        // Look up the saved script to read its shell. The seeded rows
+        // exist by virtue of SoftwareActionScriptSeeder running at
+        // startup; if missing, the feature isn't ready yet.
+        var savedScriptResult = await _dataService.GetSavedScript(savedScriptId.Value);
+        if (!savedScriptResult.IsSuccess)
+        {
+            _logger.LogWarning(
+                "Software-action saved script {scriptId} not found; seeding may not have run yet.",
+                savedScriptId);
+            return Result.Fail<int>("Software action templates are not yet available; try again shortly.");
+        }
+
+        var savedScript = savedScriptResult.Value;
+
+        if (!_agentSessionCache.TryGetByDeviceId(deviceId, out var device))
+        {
+            return Result.Fail<int>("Device is not currently online.");
+        }
+
+        if (!_agentSessionCache.TryGetConnectionId(deviceId, out var connectionId) ||
+            string.IsNullOrWhiteSpace(connectionId))
+        {
+            return Result.Fail<int>("Device is not currently online.");
+        }
+
+        var initiatorLabel = $"{User.UserName} via Apps tab";
+
+        var scriptRun = new ScriptRun
+        {
+            OrganizationID = User.OrganizationID,
+            RunAt = Time.Now,
+            SavedScriptId = savedScriptId.Value,
+            RunOnNextConnect = true,
+            Initiator = initiatorLabel,
+            InputType = ScriptInputType.OneTimeScript,
+            Devices = _dataService.GetDevices(new[] { deviceId }),
+        };
+
+        await _dataService.AddScriptRun(scriptRun);
+
+        var actionRun = new SoftwareActionRun
+        {
+            ScriptRunId = scriptRun.Id,
+            DeviceID = deviceId,
+            Kind = kind,
+            Source = source,
+            PackageId = packageId,
+            PackageName = packageName,
+            OrganizationID = User.OrganizationID,
+            InitiatorId = User.Id,
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+
+        await _dataService.AddSoftwareActionRun(actionRun);
+
+        var authToken = _expiringTokenService.GetToken(Time.Now.AddMinutes(AppConstants.ScriptRunExpirationMinutes));
+
+        await _agentHubContext.Clients.Client(connectionId).RunScript(
+            savedScriptId.Value,
+            scriptRun.Id,
+            initiatorLabel,
+            ScriptInputType.OneTimeScript,
+            authToken);
+
+        await _auditLog.LogAsync(
+            kind == SoftwareActionKind.Install
+                ? AuditActions.SoftwareInstallRequested
+                : AuditActions.SoftwareUninstallRequested,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId,
+            targetName: device.DeviceName,
+            details: new
+            {
+                source = source.ToString(),
+                packageId,
+                packageName,
+                scriptRunId = scriptRun.Id,
+                shell = savedScript.Shell.ToString(),
+            });
+
+        return Result.Ok(scriptRun.Id);
     }
 
     public async Task<Result<RemoteControlSession>> RemoteControl(string deviceId, bool viewOnly)
