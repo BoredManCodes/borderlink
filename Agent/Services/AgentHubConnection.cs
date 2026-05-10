@@ -49,6 +49,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
     private readonly IInstalledAppEnumerator _installedAppEnumerator;
     private readonly ILogger<AgentHubConnection> _logger;
     private readonly IPackageSearcher _packageSearcher;
+    private readonly IPatchManager _patchManager;
     private readonly IProcessEnumerator _processEnumerator;
     private readonly IScriptExecutor _scriptExecutor;
     private readonly IScriptingShellFactory _scriptingShellFactory;
@@ -73,6 +74,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         IHttpClientFactory httpFactory,
         IInstalledAppEnumerator installedAppEnumerator,
         IPackageSearcher packageSearcher,
+        IPatchManager patchManager,
         IServiceEnumerator serviceEnumerator,
         IServiceController serviceController,
         IProcessEnumerator processEnumerator,
@@ -92,6 +94,7 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _httpFactory = httpFactory;
         _installedAppEnumerator = installedAppEnumerator;
         _packageSearcher = packageSearcher;
+        _patchManager = patchManager;
         _serviceEnumerator = serviceEnumerator;
         _serviceController = serviceController;
         _processEnumerator = processEnumerator;
@@ -395,6 +398,95 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         {
             _logger.LogError(ex, "Error while killing PID {pid}.", pid);
             return false;
+        }
+    }
+
+    public async Task<PatchUpdate[]> GetPendingUpdates()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
+            return await _patchManager.GetPendingUpdatesAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while querying pending updates.");
+            return Array.Empty<PatchUpdate>();
+        }
+    }
+
+    public async Task<PendingRebootInfo> GetPendingReboot()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            return await _patchManager.GetPendingRebootAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while probing pending reboot.");
+            return new PendingRebootInfo(false, Array.Empty<string>());
+        }
+    }
+
+    public Task<bool> InstallUpdate(string updateId)
+    {
+        // Fire-and-forget on the wire: return true synchronously once the
+        // job is queued, then run the actual install in the background and
+        // stream progress back through ReportPatchInstallProgress.
+        if (string.IsNullOrWhiteSpace(updateId))
+        {
+            return Task.FromResult(false);
+        }
+
+        var deviceId = _connectionInfo?.DeviceID ?? string.Empty;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(60));
+                var progress = new Progress<PatchInstallProgress>(p =>
+                {
+                    var withDevice = new PatchInstallProgress(deviceId, p.UpdateId, p.Phase, p.PercentComplete, p.Message);
+                    _ = ReportPatchInstallProgress(withDevice, cts.Token);
+                });
+
+                await _patchManager.InstallUpdateAsync(updateId, progress, cts.Token);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Background install failed for update {updateId}.", updateId);
+                try
+                {
+                    var failed = new PatchInstallProgress(deviceId, updateId, PatchInstallPhase.Failed, 0, ex.Message);
+                    await ReportPatchInstallProgress(failed, CancellationToken.None);
+                }
+                catch
+                {
+                    // best-effort
+                }
+            }
+        });
+
+        return Task.FromResult(true);
+    }
+
+    public async Task ReportPatchInstallProgress(PatchInstallProgress progress, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (_hubConnection is null || _hubConnection.State != HubConnectionState.Connected)
+            {
+                return;
+            }
+            await _hubConnection
+                .SendAsync("ReportPatchInstallProgress", progress, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Error while reporting patch install progress.");
         }
     }
 
@@ -783,6 +875,13 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
 
         _hubConnection.On(nameof(KillProcess),
             (Func<int, Task<bool>>)KillProcess);
+
+        _hubConnection.On(nameof(GetPendingUpdates), GetPendingUpdates);
+
+        _hubConnection.On(nameof(GetPendingReboot), GetPendingReboot);
+
+        _hubConnection.On(nameof(InstallUpdate),
+            (Func<string, Task<bool>>)InstallUpdate);
 
         _hubConnection.On<string>(nameof(GetLogs), GetLogs);
 

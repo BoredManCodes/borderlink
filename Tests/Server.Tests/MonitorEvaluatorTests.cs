@@ -142,6 +142,75 @@ public class MonitorEvaluatorTests
     }
 
     [TestMethod]
+    public async Task PendingReboot_RecentRebootRequiredRunExists_Fires()
+    {
+        var rule = await CreateRule(_testData.Org1Id, MonitorMetric.PendingReboot, MonitorOperator.Equals, 1, durationSeconds: 0);
+
+        // Persist a recent completed install that requires a reboot.
+        await using (var db = _dbFactory.GetContext())
+        {
+            db.PatchInstallRuns.Add(new PatchInstallRun
+            {
+                Id = Guid.NewGuid(),
+                DeviceID = _testData.Org1Device1.ID,
+                OrganizationID = _testData.Org1Id,
+                UpdateId = "abcd-1234",
+                UpdateTitle = "Test Update Requiring Reboot",
+                Status = PatchInstallStatus.Completed,
+                RebootRequired = true,
+                StartedAt = DateTimeOffset.UtcNow - TimeSpan.FromHours(1),
+                CompletedAt = DateTimeOffset.UtcNow - TimeSpan.FromMinutes(30),
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var evaluator = BuildEvaluator();
+        await evaluator.EvaluateAsync(CancellationToken.None);
+
+        await using var db2 = _dbFactory.GetContext();
+        var firings = await db2.MonitorRuleFirings
+            .Where(x => x.MonitorRuleId == rule.Id)
+            .ToArrayAsync();
+
+        Assert.AreEqual(1, firings.Length, "Pending-reboot rule should fire when a recent reboot-required install exists.");
+        Assert.AreEqual(_testData.Org1Device1.ID, firings[0].DeviceID);
+    }
+
+    [TestMethod]
+    public async Task PendingReboot_OldRebootRequiredRun_DoesNotFire()
+    {
+        var rule = await CreateRule(_testData.Org1Id, MonitorMetric.PendingReboot, MonitorOperator.Equals, 1, durationSeconds: 0);
+
+        // Older than the 24h window the evaluator considers.
+        await using (var db = _dbFactory.GetContext())
+        {
+            db.PatchInstallRuns.Add(new PatchInstallRun
+            {
+                Id = Guid.NewGuid(),
+                DeviceID = _testData.Org1Device1.ID,
+                OrganizationID = _testData.Org1Id,
+                UpdateId = "abcd-1234",
+                UpdateTitle = "Old Update",
+                Status = PatchInstallStatus.Completed,
+                RebootRequired = true,
+                StartedAt = DateTimeOffset.UtcNow - TimeSpan.FromDays(3),
+                CompletedAt = DateTimeOffset.UtcNow - TimeSpan.FromDays(2),
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var evaluator = BuildEvaluator();
+        await evaluator.EvaluateAsync(CancellationToken.None);
+
+        await using var db2 = _dbFactory.GetContext();
+        var firings = await db2.MonitorRuleFirings
+            .Where(x => x.MonitorRuleId == rule.Id)
+            .ToArrayAsync();
+
+        Assert.AreEqual(0, firings.Length);
+    }
+
+    [TestMethod]
     public async Task OrgIsolation_RuleInOrgADoesNotSeeDeviceInOrgB()
     {
         // Rule is in Org1, breaching samples are on Org2's device.

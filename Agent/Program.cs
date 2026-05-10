@@ -113,6 +113,7 @@ public class Program
             services.AddSingleton<IServiceEnumerator, ServiceEnumeratorWin>();
             services.AddSingleton<IServiceController, ServiceControllerWin>();
             services.AddSingleton<IProcessEnumerator, ProcessEnumeratorWin>();
+            services.AddSingleton<IPatchManager, PatchManagerWin>();
         }
         else if (OperatingSystem.IsLinux())
         {
@@ -125,6 +126,7 @@ public class Program
             services.AddSingleton<IServiceEnumerator, ServiceEnumeratorLinux>();
             services.AddSingleton<IServiceController, ServiceControllerLinux>();
             services.AddSingleton<IProcessEnumerator, ProcessEnumeratorLinux>();
+            services.AddSingleton<IPatchManager, PatchManagerLinux>();
         }
         else if (OperatingSystem.IsMacOS())
         {
@@ -137,6 +139,7 @@ public class Program
             services.AddSingleton<IServiceEnumerator, ServiceEnumeratorMac>();
             services.AddSingleton<IServiceController, ServiceControllerMac>();
             services.AddSingleton<IProcessEnumerator, ProcessEnumeratorMac>();
+            services.AddSingleton<IPatchManager, PatchManagerMac>();
         }
         else
         {

@@ -108,4 +108,10 @@ public static class AuditActions
     public const string MonitorRuleUpdated           = "MonitorRule.Updated";
     public const string MonitorRuleDeleted           = "MonitorRule.Deleted";
     public const string MonitorAlertFired            = "MonitorRule.Fired";
+
+    // Patches
+    public const string PatchInstallRequested        = "Patch.InstallRequested";
+    public const string PatchInstallCompleted        = "Patch.InstallCompleted";
+    public const string PatchInstallFailed           = "Patch.InstallFailed";
+    public const string PatchListViewed              = "Patch.ListViewed";
 }

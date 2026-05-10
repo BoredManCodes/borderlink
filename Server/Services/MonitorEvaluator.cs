@@ -199,12 +199,27 @@ public class MonitorEvaluator : IHostedService, IDisposable
             }
 
             case MonitorMetric.PendingReboot:
-                // TODO Phase 5 (patching): wire pending-reboot detection from
-                // CBS / WindowsUpdate / PendingFileRenameOperations into a
-                // dedicated column or an inventory snapshot field, then
-                // evaluate it here. Skipped for now so the evaluator never
-                // alerts on noise.
-                return (false, 0);
+            {
+                // Pragmatic proxy: any reboot-required PatchInstallRun in
+                // the last 24h on this device. The robust check would
+                // round-trip the agent (via IPatchService.GetPendingReboot)
+                // and reconcile against Device.LastOnline > CompletedAt;
+                // we accept the simpler version because (a) patch installs
+                // that need a reboot almost always do mean a reboot is
+                // pending, and (b) anything older than 24h has either
+                // rebooted or become noise. Tighten this when the wider
+                // monitor evaluator can do per-rule async work.
+                var cutoff = now - TimeSpan.FromHours(24);
+                var matched = await db.PatchInstallRuns
+                    .AsNoTracking()
+                    .AnyAsync(
+                        x => x.DeviceID == device.ID &&
+                             x.RebootRequired &&
+                             x.CompletedAt != null &&
+                             x.CompletedAt > cutoff,
+                        cancellationToken);
+                return (matched, matched ? 1 : 0);
+            }
 
             case MonitorMetric.CpuPercent:
             case MonitorMetric.MemoryPercent:

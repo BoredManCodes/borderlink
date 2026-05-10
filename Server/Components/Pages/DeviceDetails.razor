@@ -63,6 +63,9 @@ else
             <TabHeader Name="processes" OnActivated="LoadProcesses" NavigationUri="@($"/device-details/{DeviceId}/processes")">
                 Processes
             </TabHeader>
+            <TabHeader Name="patches" OnActivated="LoadPatches" NavigationUri="@($"/device-details/{DeviceId}/patches")">
+                Patches
+            </TabHeader>
         </TabHeaders>
 
         <TabContents>
@@ -709,6 +712,161 @@ else
                                         </td>
                                     </tr>
                                 }
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </TabContent>
+
+            <TabContent Name="patches">
+
+                <div class="mb-3 mt-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h3 class="mb-0">
+                        Pending Updates
+                        @if (_pendingPatches is not null)
+                        {
+                            <span class="text-muted ms-2" style="font-size: 1rem;">
+                                (@_pendingPatches.Length)
+                            </span>
+                        }
+                    </h3>
+                    <div class="text-end">
+                        <button class="btn btn-primary btn-sm"
+                                disabled="@(_isPatchesRefreshing || !_device.IsOnline)"
+                                @onclick="RefreshPatches">
+                            @if (_isPatchesRefreshing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Refreshing...</span>
+                            }
+                            else
+                            {
+                                <i class="oi oi-reload me-1" aria-hidden="true"></i>
+                                <span>Refresh</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                @if (_pendingReboot is not null && _pendingReboot.IsPending)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Reboot required.</strong>
+                        @if (_pendingReboot.Reasons is { Length: > 0 })
+                        {
+                            <span> Reasons: @string.Join(", ", _pendingReboot.Reasons)</span>
+                        }
+                    </div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(_patchesError))
+                {
+                    <AlertBanner Message="@_patchesError" />
+                }
+
+                @if (_pendingPatches is null && !_isPatchesRefreshing)
+                {
+                    <div class="text-muted">
+                        Click <strong>Refresh</strong> to query the agent for pending updates.
+                        This can take 30+ seconds on Windows.
+                    </div>
+                }
+                else if (_pendingPatches is not null)
+                {
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>KB</th>
+                                <th>Severity</th>
+                                <th>Size</th>
+                                <th>Reboot</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (_pendingPatches.Length == 0)
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No pending updates.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var patch in _pendingPatches)
+                                {
+                                    var pending = _pendingPatchInstallIds.Contains(patch.Id);
+                                    <tr @key="patch.Id">
+                                        <td>@patch.Title</td>
+                                        <td>@(patch.KbNumber ?? "-")</td>
+                                        <td><span class="badge @SeverityBadge(patch.Severity)">@patch.Severity</span></td>
+                                        <td>@FormatPatchSize(patch.SizeBytes)</td>
+                                        <td>
+                                            @if (patch.RebootRequired)
+                                            {
+                                                <i class="oi oi-warning text-warning" aria-label="Reboot required"></i>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">-</span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-outline-primary"
+                                                    disabled="@(!_device.IsOnline || pending)"
+                                                    @onclick="@(() => OnPatchInstallClicked(patch))">
+                                                @if (pending)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="oi oi-cloud-download me-1" aria-hidden="true"></i>
+                                                }
+                                                <span>Install</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                <h4 class="mb-2 mt-4">Recent Installs</h4>
+                @if (_patchHistory is null)
+                {
+                    <div class="text-muted">Loading history...</div>
+                }
+                else if (_patchHistory.Length == 0)
+                {
+                    <div class="text-muted">No patch installs recorded for this device.</div>
+                }
+                else
+                {
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Started</th>
+                                <th>Completed</th>
+                                <th>Status</th>
+                                <th>Reboot</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var run in _patchHistory)
+                            {
+                                <tr @key="run.Id">
+                                    <td>@run.UpdateTitle</td>
+                                    <td>@run.StartedAt.LocalDateTime.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@(run.CompletedAt.HasValue ? run.CompletedAt.Value.LocalDateTime.ToString("yyyy-MM-dd HH:mm") : "-")</td>
+                                    <td><span class="badge @PatchStatusBadge(run.Status)">@run.Status</span></td>
+                                    <td>@(run.RebootRequired ? "Yes" : "-")</td>
+                                    <td>@(run.Notes ?? "-")</td>
+                                </tr>
                             }
                         </tbody>
                     </table>

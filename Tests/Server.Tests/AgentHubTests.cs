@@ -1,4 +1,5 @@
-﻿using BorderLink.Server.Hubs;
+﻿using BorderLink.Server.Data;
+using BorderLink.Server.Hubs;
 using BorderLink.Server.Services;
 using Bitbound.SimpleMessenger;
 using Microsoft.AspNetCore.SignalR;
@@ -40,8 +41,13 @@ public class AgentHubTests
 
         var metricHistoryService = new Mock<IMetricHistoryService>();
 
+        var dbFactory = IoCActivator.ServiceProvider.GetRequiredService<IAppDbFactory>();
+        var auditLogService = new Mock<IAuditLogService>();
+
         var hub = new AgentHub(
             _dataService,
+            dbFactory,
+            auditLogService.Object,
             serviceSessionCache.Object,
             viewerHub.Object,
             circuitManager.Object,
@@ -88,8 +94,13 @@ public class AgentHubTests
 
         var metricHistoryService = new Mock<IMetricHistoryService>();
 
+        var dbFactory = IoCActivator.ServiceProvider.GetRequiredService<IAppDbFactory>();
+        var auditLogService = new Mock<IAuditLogService>();
+
         var hub = new AgentHub(
             _dataService,
+            dbFactory,
+            auditLogService.Object,
             serviceSessionCache.Object,
             viewerHub.Object,
             circuitManager.Object,

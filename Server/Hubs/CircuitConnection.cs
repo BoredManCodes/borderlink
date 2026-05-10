@@ -62,6 +62,29 @@ public interface ICircuitConnection
     Task<bool> KillDeviceProcess(string deviceId, int pid);
 
     /// <summary>
+    /// Returns the device's pending OS update list. Empty array when the
+    /// user lacks access or the device is offline.
+    /// </summary>
+    Task<PatchUpdate[]> GetDevicePendingUpdates(string deviceId);
+
+    /// <summary>
+    /// Probes the device for pending-reboot signals. Returns
+    /// <c>IsPending=false</c> when access is denied or the agent is offline.
+    /// </summary>
+    Task<PendingRebootInfo> GetDevicePendingReboot(string deviceId);
+
+    /// <summary>
+    /// Records a patch install request and asks the agent to start the
+    /// install. Returns <c>null</c> on access denial or agent failure.
+    /// </summary>
+    Task<PatchInstallRun?> RequestPatchInstall(string deviceId, string updateId, string updateTitle);
+
+    /// <summary>
+    /// Returns the device's recent patch install history, newest first.
+    /// </summary>
+    Task<PatchInstallRun[]> GetDevicePatchHistory(string deviceId, int max = 50);
+
+    /// <summary>
     /// Queues a software install for <paramref name="deviceId"/> using the
     /// specified package manager. Returns the created <c>ScriptRun.Id</c>
     /// on success so the UI can correlate to the resulting Script History
@@ -121,6 +144,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     private readonly IInventoryService _inventoryService;
     private readonly IServicesService _servicesService;
     private readonly IProcessesService _processesService;
+    private readonly IPatchService _patchService;
     private readonly ISelectedCardsStore _cardStore;
     private readonly IAuthService _authService;
     private readonly IAuditLogService _auditLog;
@@ -139,6 +163,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         IInventoryService inventoryService,
         IServicesService servicesService,
         IProcessesService processesService,
+        IPatchService patchService,
         ISelectedCardsStore cardStore,
         IHubContext<AgentHub, IAgentHubClient> agentHubContext,
         ICircuitManager circuitManager,
@@ -154,6 +179,7 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         _inventoryService = inventoryService;
         _servicesService = servicesService;
         _processesService = processesService;
+        _patchService = patchService;
         _agentHubContext = agentHubContext;
         _cardStore = cardStore;
         _authService = authService;
@@ -507,6 +533,109 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         }
 
         return success;
+    }
+
+    public async Task<PatchUpdate[]> GetDevicePendingUpdates(string deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Array.Empty<PatchUpdate>();
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Pending updates view attempted by unauthorized user. Device: {deviceId}. User: {username}.",
+                deviceId,
+                User?.UserName);
+            return Array.Empty<PatchUpdate>();
+        }
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.PatchListViewed,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId);
+        }
+
+        return await _patchService.GetPendingUpdatesAsync(deviceId);
+    }
+
+    public async Task<PendingRebootInfo> GetDevicePendingReboot(string deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return new PendingRebootInfo(false, Array.Empty<string>());
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            return new PendingRebootInfo(false, Array.Empty<string>());
+        }
+
+        return await _patchService.GetPendingRebootAsync(deviceId);
+    }
+
+    public async Task<PatchInstallRun?> RequestPatchInstall(string deviceId, string updateId, string updateTitle)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId) || string.IsNullOrWhiteSpace(updateId))
+        {
+            return null;
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Patch install attempted by unauthorized user. Device: {deviceId}. User: {username}. Update: {updateId}.",
+                deviceId, User?.UserName, updateId);
+            if (User is not null)
+            {
+                await _auditLog.LogAsync(
+                    AuditActions.PatchInstallRequested,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "Device",
+                    targetId: deviceId,
+                    success: false,
+                    resultMessage: "User lacks access to device.",
+                    details: new { updateId, updateTitle });
+            }
+            return null;
+        }
+
+        var run = await _patchService.RequestInstallAsync(deviceId, updateId, updateTitle, User.Id);
+
+        await _auditLog.LogAsync(
+            AuditActions.PatchInstallRequested,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "Device",
+            targetId: deviceId,
+            success: run is not null,
+            details: new { updateId, updateTitle, runId = run?.Id });
+
+        return run;
+    }
+
+    public async Task<PatchInstallRun[]> GetDevicePatchHistory(string deviceId, int max = 50)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Array.Empty<PatchInstallRun>();
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            return Array.Empty<PatchInstallRun>();
+        }
+
+        return await _patchService.GetRecentRunsAsync(deviceId, max);
     }
 
     public Task<Result<int>> RequestSoftwareInstall(

@@ -1,6 +1,8 @@
-﻿using BorderLink.Server.Services;
+﻿using BorderLink.Server.Data;
+using BorderLink.Server.Services;
 using Bitbound.SimpleMessenger;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using BorderLink.Server.Models.Messages;
 using BorderLink.Shared;
@@ -15,6 +17,8 @@ namespace BorderLink.Server.Hubs;
 
 public class AgentHub : Hub<IAgentHubClient>
 {
+    private readonly IAppDbFactory _appDbFactory;
+    private readonly IAuditLogService _auditLogService;
     private readonly IDataService _dataService;
     private readonly ICircuitManager _circuitManager;
     private readonly IExpiringTokenService _expiringTokenService;
@@ -28,6 +32,8 @@ public class AgentHub : Hub<IAgentHubClient>
 
     public AgentHub(
         IDataService dataService,
+        IAppDbFactory appDbFactory,
+        IAuditLogService auditLogService,
         IAgentHubSessionCache serviceSessionCache,
         IHubContext<ViewerHub> viewerHubContext,
         ICircuitManager circuitManager,
@@ -38,6 +44,8 @@ public class AgentHub : Hub<IAgentHubClient>
         IMessenger messenger,
         ILogger<AgentHub> logger)
     {
+        _appDbFactory = appDbFactory;
+        _auditLogService = auditLogService;
         _dataService = dataService;
         _serviceSessionCache = serviceSessionCache;
         _viewerHubContext = viewerHubContext;
@@ -355,6 +363,88 @@ public class AgentHub : Hub<IAgentHubClient>
         {
             _logger.LogDebug(ex, "Error while recording metric sample for device {deviceId}.", Device?.ID);
         }
+    }
+
+    public async Task ReportPatchInstallProgress(PatchInstallProgress progress)
+    {
+        try
+        {
+            if (Device is null || progress is null || string.IsNullOrWhiteSpace(progress.UpdateId))
+            {
+                return;
+            }
+
+            await using var db = _appDbFactory.GetContext();
+            // Trust the connected Device for routing — the agent's
+            // self-reported DeviceID could be stale/spoofed.
+            var run = await db.PatchInstallRuns
+                .Where(x => x.DeviceID == Device.ID &&
+                            x.UpdateId == progress.UpdateId &&
+                            (x.Status == PatchInstallStatus.Pending ||
+                             x.Status == PatchInstallStatus.Downloading ||
+                             x.Status == PatchInstallStatus.Installing))
+                .OrderByDescending(x => x.StartedAt)
+                .FirstOrDefaultAsync(Context.ConnectionAborted);
+
+            if (run is null)
+            {
+                _logger.LogDebug(
+                    "No active PatchInstallRun for device {deviceId} update {updateId}; ignoring progress.",
+                    Device.ID, progress.UpdateId);
+                return;
+            }
+
+            run.Status = progress.Phase switch
+            {
+                PatchInstallPhase.Downloading => PatchInstallStatus.Downloading,
+                PatchInstallPhase.Installing => PatchInstallStatus.Installing,
+                PatchInstallPhase.Completed => PatchInstallStatus.Completed,
+                PatchInstallPhase.Failed => PatchInstallStatus.Failed,
+                _ => run.Status,
+            };
+            run.Notes = string.IsNullOrWhiteSpace(progress.Message) ? run.Notes : Truncate(progress.Message, 1024);
+
+            if (progress.Phase is PatchInstallPhase.Completed or PatchInstallPhase.Failed)
+            {
+                run.CompletedAt = DateTimeOffset.UtcNow;
+            }
+
+            await db.SaveChangesAsync(Context.ConnectionAborted);
+
+            // Best-effort audit on terminal transitions.
+            if (progress.Phase == PatchInstallPhase.Completed)
+            {
+                await _auditLogService.LogAsync(
+                    AuditActions.PatchInstallCompleted,
+                    Device.OrganizationID,
+                    targetType: "Device",
+                    targetId: Device.ID,
+                    targetName: Device.DeviceName,
+                    details: new { run.UpdateId, run.UpdateTitle });
+            }
+            else if (progress.Phase == PatchInstallPhase.Failed)
+            {
+                await _auditLogService.LogAsync(
+                    AuditActions.PatchInstallFailed,
+                    Device.OrganizationID,
+                    targetType: "Device",
+                    targetId: Device.ID,
+                    targetName: Device.DeviceName,
+                    success: false,
+                    resultMessage: progress.Message,
+                    details: new { run.UpdateId, run.UpdateTitle });
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Error while persisting patch install progress for device {deviceId}.", Device?.ID);
+        }
+    }
+
+    private static string? Truncate(string? value, int max)
+    {
+        if (string.IsNullOrEmpty(value) || value.Length <= max) return value;
+        return value[..max];
     }
 
     public async Task ScriptResult(string scriptResultId)

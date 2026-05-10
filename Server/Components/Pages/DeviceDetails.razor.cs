@@ -51,6 +51,13 @@ public partial class DeviceDetails : AuthComponentBase
     private bool _processesSortDescending;
     private readonly HashSet<int> _pendingKillPids = new();
 
+    private PatchUpdate[]? _pendingPatches;
+    private PatchInstallRun[]? _patchHistory;
+    private PendingRebootInfo? _pendingReboot;
+    private bool _isPatchesRefreshing;
+    private string? _patchesError;
+    private readonly HashSet<string> _pendingPatchInstallIds = new(StringComparer.Ordinal);
+
     private enum InstalledAppSortKey
     {
         Name,
@@ -900,5 +907,139 @@ public partial class DeviceDetails : AuthComponentBase
             _pendingKillPids.Remove(proc.Pid);
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private void LoadPatches()
+    {
+        if (_device is null)
+        {
+            return;
+        }
+
+        // History always loads — it's a cheap DB query.
+        _ = LoadPatchHistory();
+
+        if (_pendingPatches is null && _device.IsOnline)
+        {
+            _ = RefreshPatches();
+        }
+    }
+
+    private async Task LoadPatchHistory()
+    {
+        if (_device is null)
+        {
+            return;
+        }
+        try
+        {
+            _patchHistory = await CircuitConnection.GetDevicePatchHistory(_device.ID);
+        }
+        catch (Exception ex)
+        {
+            _patchesError = ex.Message;
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task RefreshPatches()
+    {
+        if (_device is null || _isPatchesRefreshing)
+        {
+            return;
+        }
+
+        _isPatchesRefreshing = true;
+        _patchesError = null;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            // Kick off pending-reboot probe in parallel — it's a quick
+            // registry/file check on the agent.
+            var rebootTask = CircuitConnection.GetDevicePendingReboot(_device.ID);
+            _pendingPatches = await CircuitConnection.GetDevicePendingUpdates(_device.ID);
+            _pendingReboot = await rebootTask;
+            _patchHistory = await CircuitConnection.GetDevicePatchHistory(_device.ID);
+        }
+        catch (Exception ex)
+        {
+            _patchesError = ex.Message;
+            ToastService.ShowToast2("Failed to refresh patches.", Enums.ToastType.Error);
+        }
+        finally
+        {
+            _isPatchesRefreshing = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task OnPatchInstallClicked(PatchUpdate patch)
+    {
+        if (_device is null)
+        {
+            return;
+        }
+
+        var confirmed = await JsInterop.Confirm(
+            $"Install \"{patch.Title}\" on {_device.DeviceName}? " +
+            (patch.RebootRequired
+                ? "This update may require a reboot."
+                : "This may take several minutes."));
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _pendingPatchInstallIds.Add(patch.Id);
+        try
+        {
+            var run = await CircuitConnection.RequestPatchInstall(_device.ID, patch.Id, patch.Title);
+            if (run is null)
+            {
+                ToastService.ShowToast2("Failed to queue patch install.", Enums.ToastType.Error);
+                return;
+            }
+            ToastService.ShowToast("Patch install queued.");
+            await LoadPatchHistory();
+        }
+        finally
+        {
+            _pendingPatchInstallIds.Remove(patch.Id);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private static string SeverityBadge(PatchSeverity severity) => severity switch
+    {
+        PatchSeverity.Critical => "bg-danger",
+        PatchSeverity.Important => "bg-warning text-dark",
+        PatchSeverity.Moderate => "bg-info text-dark",
+        PatchSeverity.Low => "bg-secondary",
+        _ => "bg-light text-dark",
+    };
+
+    private static string PatchStatusBadge(PatchInstallStatus status) => status switch
+    {
+        PatchInstallStatus.Completed => "bg-success",
+        PatchInstallStatus.Failed => "bg-danger",
+        PatchInstallStatus.Installing => "bg-info text-dark",
+        PatchInstallStatus.Downloading => "bg-info text-dark",
+        _ => "bg-secondary",
+    };
+
+    private static string FormatPatchSize(long bytes)
+    {
+        if (bytes <= 0)
+        {
+            return "-";
+        }
+        var mb = bytes / 1024d / 1024d;
+        return mb < 1
+            ? $"{bytes / 1024d:0.0} KB"
+            : $"{mb:0.0} MB";
     }
 }

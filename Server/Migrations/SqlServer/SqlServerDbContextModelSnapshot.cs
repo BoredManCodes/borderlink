@@ -509,6 +509,60 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.ToTable("Organizations");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.PatchInstallRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("InitiatorId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("RebootRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UpdateId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("UpdateTitle")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationID", "StartedAt");
+
+                    b.HasIndex("DeviceID", "UpdateId", "Status");
+
+                    b.ToTable("PatchInstallRuns");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1251,6 +1305,17 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.Navigation("MonitorRule");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.PatchInstallRun", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("PatchInstallRuns")
+                        .HasForeignKey("OrganizationID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Creator")
@@ -1536,6 +1601,8 @@ namespace BorderLink.Server.Migrations.SqlServer
                     b.Navigation("InviteLinks");
 
                     b.Navigation("MonitorRules");
+
+                    b.Navigation("PatchInstallRuns");
 
                     b.Navigation("SavedScripts");
 

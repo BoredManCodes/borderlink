@@ -509,6 +509,61 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.ToTable("Organizations");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.PatchInstallRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CompletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("InitiatorId")
+                        .HasMaxLength(450)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1024)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("RebootRequired")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("StartedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("UpdateId")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UpdateTitle")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationID", "StartedAt");
+
+                    b.HasIndex("DeviceID", "UpdateId", "Status");
+
+                    b.ToTable("PatchInstallRuns");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1246,6 +1301,17 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("MonitorRule");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.PatchInstallRun", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("PatchInstallRuns")
+                        .HasForeignKey("OrganizationID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
                 {
                     b.HasOne("BorderLink.Shared.Entities.BorderLinkUser", "Creator")
@@ -1531,6 +1597,8 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("InviteLinks");
 
                     b.Navigation("MonitorRules");
+
+                    b.Navigation("PatchInstallRuns");
 
                     b.Navigation("SavedScripts");
 

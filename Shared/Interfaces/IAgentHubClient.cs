@@ -72,6 +72,27 @@ public interface IAgentHubClient
     /// </summary>
     Task<bool> KillProcess(int pid);
 
+    /// <summary>
+    /// Returns the OS pending-update list. Long-running on Windows
+    /// (Microsoft.Update.Session search can take 30+ seconds), so callers
+    /// should pad their invoke timeout accordingly.
+    /// </summary>
+    Task<PatchUpdate[]> GetPendingUpdates();
+
+    /// <summary>
+    /// Probe the device for pending-reboot signals (CBS, WindowsUpdate,
+    /// PendingFileRenameOperations on Windows; <c>/var/run/reboot-required</c>
+    /// on Linux). Cheap — safe to call from monitor evaluation.
+    /// </summary>
+    Task<PendingRebootInfo> GetPendingReboot();
+
+    /// <summary>
+    /// Begin installing the given update. Returns <c>true</c> when the
+    /// install was queued — completion is reported separately via
+    /// <c>ReportPatchInstallProgress</c>.
+    /// </summary>
+    Task<bool> InstallUpdate(string updateId);
+
     Task GetLogs(string senderConnectionId);
 
     Task GetPowerShellCompletions(

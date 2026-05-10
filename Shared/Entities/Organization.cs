@@ -15,6 +15,8 @@ public class Organization
 
     public ICollection<MonitorRule> MonitorRules { get; set; } = [];
 
+    public ICollection<PatchInstallRun> PatchInstallRuns { get; set; } = [];
+
     public BrandingInfo? BrandingInfo { get; set; }
     public string? BrandingInfoId { get; set; }
 

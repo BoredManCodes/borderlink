@@ -260,6 +260,7 @@ services.AddSingleton<IAgentHubSessionCache, AgentHubSessionCache>();
 services.AddSingleton<IInventoryService, InventoryService>();
 services.AddSingleton<IServicesService, ServicesService>();
 services.AddSingleton<IProcessesService, ProcessesService>();
+services.AddSingleton<IPatchService, PatchService>();
 services.AddScoped<IMetricHistoryService, MetricHistoryService>();
 services.AddScoped<IMonitorRuleService, MonitorRuleService>();
 services.AddScoped<EmailMonitorNotifier>();

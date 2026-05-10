@@ -40,6 +40,7 @@ public class AppDb : IdentityDbContext
     public DbSet<MonitorRule> MonitorRules { get; set; }
     public DbSet<MonitorRuleFiring> MonitorRuleFirings { get; set; }
     public DbSet<Organization> Organizations { get; set; }
+    public DbSet<PatchInstallRun> PatchInstallRuns { get; set; }
     public DbSet<SavedScript> SavedScripts { get; set; }
     public DbSet<ScriptResult> ScriptResults { get; set; }
     public DbSet<ScriptRun> ScriptRuns { get; set; }
@@ -271,6 +272,18 @@ public class AppDb : IdentityDbContext
 
         builder.Entity<MonitorRuleFiring>()
             .HasIndex(x => new { x.MonitorRuleId, x.DeviceID, x.FiredAt });
+
+        builder.Entity<PatchInstallRun>()
+            .HasOne(x => x.Organization)
+            .WithMany(x => x.PatchInstallRuns)
+            .HasForeignKey(x => x.OrganizationID)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.Entity<PatchInstallRun>()
+            .HasIndex(x => new { x.OrganizationID, x.StartedAt });
+
+        builder.Entity<PatchInstallRun>()
+            .HasIndex(x => new { x.DeviceID, x.UpdateId, x.Status });
 
         builder.Entity<DeviceGroup>()
             .HasMany(x => x.Devices)

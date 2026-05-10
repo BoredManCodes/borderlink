@@ -8,8 +8,13 @@ using Moq;
 using BorderLink.Server.Hubs;
 using BorderLink.Server.Services.Stores;
 using BorderLink.Server.Tests.Mocks;
+using BorderLink.Shared;
+using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
 using BorderLink.Shared.Extensions;
 using BorderLink.Shared.Interfaces;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BorderLink.Server.Tests;
@@ -32,6 +37,7 @@ public class CircuitConnectionTests
     private Mock<IInventoryService> _inventoryService;
     private Mock<IServicesService> _servicesService;
     private Mock<IProcessesService> _processesService;
+    private Mock<IPatchService> _patchService;
     private Mock<IAuditLogService> _auditLog;
     private Mock<ILogger<CircuitConnection>> _logger;
     private CircuitConnection _circuitConnection;
@@ -56,6 +62,7 @@ public class CircuitConnectionTests
         _inventoryService = new Mock<IInventoryService>();
         _servicesService = new Mock<IServicesService>();
         _processesService = new Mock<IProcessesService>();
+        _patchService = new Mock<IPatchService>();
         _auditLog = new Mock<IAuditLogService>();
         _logger = new Mock<ILogger<CircuitConnection>>();
 
@@ -65,6 +72,7 @@ public class CircuitConnectionTests
             _inventoryService.Object,
             _servicesService.Object,
             _processesService.Object,
+            _patchService.Object,
             _clientAppState.Object,
             _agentHubContextFixture.HubContextMock.Object,
             _circuitManager.Object,
@@ -596,5 +604,116 @@ public class CircuitConnectionTests
         _agentHubContextFixture.SingleClientProxyMock.VerifyNoOtherCalls();
         _agentHubContextFixture.HubContextMock.VerifyNoOtherCalls();
         _agentSessionCache.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task RequestPatchInstall_GivenUserIsUnauthorized_ReturnsNull()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        // Device is in another org so the test user has no access.
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org2Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+
+        var run = await _circuitConnection.RequestPatchInstall(
+            _testData.Org2Device1.ID,
+            "abcd-1234",
+            "Test Update");
+
+        Assert.IsNull(run);
+        _patchService.Verify(
+            x => x.RequestInstallAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RequestPatchInstall_GivenAuthorized_DelegatesToService()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var addToGroupResult = _dataService.AddUserToDeviceGroup(
+            _testData.Org1Id,
+            _testData.Org1Group1.ID,
+            $"{_testData.Org1User1.UserName}",
+            out _);
+        Assert.IsTrue(addToGroupResult);
+
+        _testData.Org1Device1.DeviceGroupID = _testData.Org1Group1.ID;
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org1Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+        var addGroupResult = await _dataService.AddDeviceToGroup(_testData.Org1Device1.ID, _testData.Org1Group1.ID);
+        Assert.IsTrue(addGroupResult.IsSuccess);
+
+        var expected = new PatchInstallRun
+        {
+            Id = Guid.NewGuid(),
+            DeviceID = _testData.Org1Device1.ID,
+            OrganizationID = _testData.Org1Id,
+            UpdateId = "abcd-1234",
+            UpdateTitle = "Test Update",
+            Status = PatchInstallStatus.Pending,
+        };
+
+        _patchService
+            .Setup(x => x.RequestInstallAsync(
+                _testData.Org1Device1.ID,
+                "abcd-1234",
+                "Test Update",
+                _testData.Org1User1.Id,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expected);
+
+        var run = await _circuitConnection.RequestPatchInstall(
+            _testData.Org1Device1.ID,
+            "abcd-1234",
+            "Test Update");
+
+        Assert.IsNotNull(run);
+        Assert.AreEqual(expected.Id, run!.Id);
+        _patchService.Verify(
+            x => x.RequestInstallAsync(
+                _testData.Org1Device1.ID,
+                "abcd-1234",
+                "Test Update",
+                _testData.Org1User1.Id,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        _auditLog.Verify(
+            x => x.LogAsync(
+                AuditActions.PatchInstallRequested,
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetDevicePendingUpdates_GivenUserIsUnauthorized_ReturnsEmpty()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org2Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+
+        var updates = await _circuitConnection.GetDevicePendingUpdates(_testData.Org2Device1.ID);
+
+        Assert.IsNotNull(updates);
+        Assert.AreEqual(0, updates.Length);
+        _patchService.Verify(
+            x => x.GetPendingUpdatesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }
