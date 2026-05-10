@@ -24,6 +24,10 @@ public partial class ManageOrganization : AuthComponentBase
     private string _newDeviceGroupName = string.Empty;
     private Organization? _organization;
     private string _selectedDeviceGroupId = string.Empty;
+    private bool _bulkInstallOpen;
+    private string? _bulkInstallGroupId;
+    private string? _bulkInstallGroupName;
+    private string? _bulkInstallProbeDeviceId;
 
     [Inject]
     private IDataService DataService { get; set; } = null!;
@@ -46,6 +50,9 @@ public partial class ManageOrganization : AuthComponentBase
     private UserManager<BorderLinkUser> UserManager { get; set; } = null!;
     [Inject]
     private IAuditLogService AuditService { get; set; } = null!;
+
+    [Inject]
+    private IAgentHubSessionCache AgentSessionCache { get; set; } = null!;
 
 
     protected override async Task OnInitializedAsync()
@@ -496,5 +503,50 @@ public partial class ManageOrganization : AuthComponentBase
             "All users for the organization are managed here",
             "Administrators will have access to this management screen as well as all computers."
         });
+    }
+
+    private void OpenBulkInstallModal()
+    {
+        EnsureUserSet();
+
+        if (string.IsNullOrWhiteSpace(_selectedDeviceGroupId))
+        {
+            ToastService.ShowToast("Select a device group first.", classString: "bg-warning");
+            return;
+        }
+
+        var group = _deviceGroups.FirstOrDefault(x => x.ID == _selectedDeviceGroupId);
+        if (group is null)
+        {
+            return;
+        }
+
+        var probe = AgentSessionCache
+            .GetAllDevices()
+            .FirstOrDefault(x =>
+                x.OrganizationID == User.OrganizationID &&
+                x.DeviceGroupID == _selectedDeviceGroupId &&
+                x.IsOnline);
+
+        if (probe is null)
+        {
+            ToastService.ShowToast(
+                "No devices in this group are currently online — package search needs at least one online device.",
+                classString: "bg-warning");
+            return;
+        }
+
+        _bulkInstallGroupId = group.ID;
+        _bulkInstallGroupName = group.Name;
+        _bulkInstallProbeDeviceId = probe.ID;
+        _bulkInstallOpen = true;
+    }
+
+    private void CloseBulkInstallModal()
+    {
+        _bulkInstallOpen = false;
+        _bulkInstallGroupId = null;
+        _bulkInstallGroupName = null;
+        _bulkInstallProbeDeviceId = null;
     }
 }

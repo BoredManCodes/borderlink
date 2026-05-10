@@ -1,6 +1,7 @@
 ﻿@page "/manage-organization"
 @attribute [Authorize(Policy = PolicyNames.OrganizationAdminRequired)]
 @inherits AuthComponentBase
+@using BorderLink.Server.Components.Devices
 
 <h3 class="mb-3">Manage Organization</h3>
 
@@ -70,6 +71,11 @@ else if (User is not null)
                 </select>
 
                 <div class="text-end mb-3">
+                    <button type="button" class="btn btn-secondary me-2"
+                            disabled="@string.IsNullOrWhiteSpace(_selectedDeviceGroupId)"
+                            @onclick="OpenBulkInstallModal">
+                        Bulk install software...
+                    </button>
                     <button type="button" class="btn btn-danger" @onclick="DeleteSelectedDeviceGroup">Delete</button>
                 </div>
 
@@ -192,4 +198,9 @@ else if (User is not null)
         </div>
     </div>
 
+    <InstallAppModal IsOpen="_bulkInstallOpen"
+                     DeviceGroupId="@_bulkInstallGroupId"
+                     DeviceGroupName="@_bulkInstallGroupName"
+                     GroupSearchProbeDeviceId="@_bulkInstallProbeDeviceId"
+                     OnClose="CloseBulkInstallModal" />
 }

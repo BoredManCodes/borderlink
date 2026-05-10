@@ -17,12 +17,22 @@
 }
 else
 {
-    <div class="row mb-3">
+    <div class="row mb-3 g-2">
+        <div class="col-sm-3">
+            <label class="form-label small text-muted">Category</label>
+            <select class="form-select form-select-sm" @bind="_filterCategory" @bind:after="Reload">
+                <option value="">(all)</option>
+                @foreach (var c in _knownCategories)
+                {
+                    <option value="@c">@c</option>
+                }
+            </select>
+        </div>
         <div class="col-sm-3">
             <label class="form-label small text-muted">Action</label>
             <select class="form-select form-select-sm" @bind="_filterAction" @bind:after="Reload">
                 <option value="">(all)</option>
-                @foreach (var a in _knownActions)
+                @foreach (var a in FilteredActions)
                 {
                     <option value="@a">@a</option>
                 }
@@ -36,7 +46,7 @@ else
             <label class="form-label small text-muted">Target ID</label>
             <input type="text" class="form-control form-control-sm" @bind="_filterTargetId" @bind:after="Reload" placeholder="device id" />
         </div>
-        <div class="col-sm-3 d-flex align-items-end">
+        <div class="col-12 d-flex align-items-end">
             <button class="btn btn-sm btn-outline-secondary me-2" @onclick="Reload">Refresh</button>
             <button class="btn btn-sm btn-link" @onclick="ClearFilters">Clear</button>
         </div>
@@ -59,16 +69,16 @@ else
             <table class="table table-sm align-middle">
                 <thead>
                     <tr>
-                        <th>Timestamp (UTC)</th>
-                        <th>User</th>
-                        <th>Action</th>
-                        <th>Target</th>
-                        <th>Result</th>
+                        <th><a href="#" @onclick="@(() => Sort(SortKey.Timestamp))" @onclick:preventDefault>Timestamp (UTC)@SortIndicator(SortKey.Timestamp)</a></th>
+                        <th><a href="#" @onclick="@(() => Sort(SortKey.User))" @onclick:preventDefault>User@SortIndicator(SortKey.User)</a></th>
+                        <th><a href="#" @onclick="@(() => Sort(SortKey.Action))" @onclick:preventDefault>Action@SortIndicator(SortKey.Action)</a></th>
+                        <th><a href="#" @onclick="@(() => Sort(SortKey.Target))" @onclick:preventDefault>Target@SortIndicator(SortKey.Target)</a></th>
+                        <th><a href="#" @onclick="@(() => Sort(SortKey.Result))" @onclick:preventDefault>Result@SortIndicator(SortKey.Result)</a></th>
                         <th>IP</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var e in _entries)
+                    @foreach (var e in SortedEntries)
                     {
                         <tr class="@(e.Success ? "" : "table-danger")">
                             <td><span class="font-monospace small">@e.Timestamp.UtcDateTime.ToString("yyyy-MM-dd HH:mm:ss")</span></td>
@@ -123,9 +133,14 @@ else
     private List<AuditLogEntry> _entries = new();
     private int _total;
     private int _skip;
+    private string _filterCategory = string.Empty;
     private string _filterAction = string.Empty;
     private string _filterUser = string.Empty;
     private string _filterTargetId = string.Empty;
+    private SortKey _sortKey = SortKey.Timestamp;
+    private bool _sortDesc = true;
+
+    private enum SortKey { Timestamp, User, Action, Target, Result }
 
     private static readonly string[] _knownActions = typeof(AuditActions)
         .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
@@ -133,6 +148,54 @@ else
         .Select(f => (string)f.GetRawConstantValue()!)
         .OrderBy(x => x)
         .ToArray();
+
+    private static readonly string[] _knownCategories = _knownActions
+        .Select(x => x.Split('.')[0])
+        .Distinct()
+        .OrderBy(x => x)
+        .ToArray();
+
+    private IEnumerable<string> FilteredActions =>
+        string.IsNullOrWhiteSpace(_filterCategory)
+            ? _knownActions
+            : _knownActions.Where(a => a.StartsWith(_filterCategory + "."));
+
+    private IEnumerable<AuditLogEntry> SortedEntries
+    {
+        get
+        {
+            IEnumerable<AuditLogEntry> q = _entries;
+            q = _sortKey switch
+            {
+                SortKey.Timestamp => _sortDesc ? q.OrderByDescending(x => x.Timestamp) : q.OrderBy(x => x.Timestamp),
+                SortKey.User      => _sortDesc ? q.OrderByDescending(x => x.UserName) : q.OrderBy(x => x.UserName),
+                SortKey.Action    => _sortDesc ? q.OrderByDescending(x => x.Action) : q.OrderBy(x => x.Action),
+                SortKey.Target    => _sortDesc ? q.OrderByDescending(x => x.TargetType + x.TargetId) : q.OrderBy(x => x.TargetType + x.TargetId),
+                SortKey.Result    => _sortDesc ? q.OrderByDescending(x => x.Success) : q.OrderBy(x => x.Success),
+                _ => q,
+            };
+            return q;
+        }
+    }
+
+    private void Sort(SortKey key)
+    {
+        if (_sortKey == key)
+        {
+            _sortDesc = !_sortDesc;
+        }
+        else
+        {
+            _sortKey = key;
+            _sortDesc = key == SortKey.Timestamp;
+        }
+    }
+
+    private MarkupString SortIndicator(SortKey key)
+    {
+        if (_sortKey != key) return new MarkupString(string.Empty);
+        return new MarkupString(_sortDesc ? " &#x25BC;" : " &#x25B2;");
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,6 +207,15 @@ else
     {
         _skip = 0;
         _entries.Clear();
+
+        // If the active action no longer matches the chosen category, drop it.
+        if (!string.IsNullOrWhiteSpace(_filterCategory) &&
+            !string.IsNullOrWhiteSpace(_filterAction) &&
+            !_filterAction.StartsWith(_filterCategory + "."))
+        {
+            _filterAction = string.Empty;
+        }
+
         await Load();
     }
 
@@ -172,13 +244,20 @@ else
             userName: string.IsNullOrWhiteSpace(_filterUser)     ? null : _filterUser,
             targetId: string.IsNullOrWhiteSpace(_filterTargetId) ? null : _filterTargetId);
 
-        _entries.AddRange(result.Entries);
+        // Category filter is applied client-side because IAuditLogService.QueryAsync
+        // matches only on exact-string Action — keeps the existing service surface stable.
+        var filtered = string.IsNullOrWhiteSpace(_filterCategory)
+            ? (IEnumerable<AuditLogEntry>)result.Entries
+            : result.Entries.Where(x => x.Action.StartsWith(_filterCategory + "."));
+
+        _entries.AddRange(filtered);
         _total = result.TotalCount;
         _loading = false;
     }
 
     private async Task ClearFilters()
     {
+        _filterCategory = string.Empty;
         _filterAction = string.Empty;
         _filterUser = string.Empty;
         _filterTargetId = string.Empty;

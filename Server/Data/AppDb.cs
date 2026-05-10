@@ -33,6 +33,7 @@ public class AppDb : IdentityDbContext
     public DbSet<BrandingInfo> BrandingInfos { get; set; }
     public DbSet<DeviceGroup> DeviceGroups { get; set; }
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots { get; set; }
+    public DbSet<InventoryRefreshSchedule> InventoryRefreshSchedules { get; set; }
     public DbSet<DeviceMetricHistory> MetricHistory { get; set; }
     public DbSet<Device> Devices { get; set; }
     public DbSet<InviteLink> InviteLinks { get; set; }
@@ -229,6 +230,9 @@ public class AppDb : IdentityDbContext
 
         builder.Entity<DeviceInventorySnapshot>()
             .HasIndex(x => new { x.DeviceID, x.CapturedAt });
+
+        builder.Entity<InventoryRefreshSchedule>()
+            .HasIndex(x => new { x.OrganizationID, x.Enabled });
 
         builder.Entity<DeviceInventorySnapshot>()
             .Property(x => x.Apps)

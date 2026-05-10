@@ -267,6 +267,8 @@ services.AddScoped<EmailMonitorNotifier>();
 services.AddScoped<WebhookMonitorNotifier>();
 services.AddScoped<IMonitorNotifier, MonitorNotifierDispatcher>();
 services.AddHostedService<MonitorEvaluator>();
+services.AddScoped<IInventoryRefreshScheduleService, InventoryRefreshScheduleService>();
+services.AddHostedService<InventoryRefreshScheduler>();
 services.AddHostedService<RemoteControlSessionCleaner>();
 services.AddHostedService<RemoteControlSessionReconnector>();
 

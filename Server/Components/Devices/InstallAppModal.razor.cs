@@ -31,6 +31,20 @@ public partial class InstallAppModal : ComponentBase, IDisposable
     public Device? Device { get; set; }
 
     [Parameter]
+    public string? DeviceGroupId { get; set; }
+
+    [Parameter]
+    public string? DeviceGroupName { get; set; }
+
+    /// <summary>
+    /// Optional online device ID used to probe for available packages
+    /// when in group mode. The search itself talks to one device but the
+    /// install fan-out hits every online device in the group.
+    /// </summary>
+    [Parameter]
+    public string? GroupSearchProbeDeviceId { get; set; }
+
+    [Parameter]
     public EventCallback OnClose { get; set; }
 
     [Parameter]
@@ -51,10 +65,22 @@ public partial class InstallAppModal : ComponentBase, IDisposable
     [Inject]
     private ILogger<InstallAppModal> Logger { get; set; } = null!;
 
+    private bool IsGroupMode => !string.IsNullOrWhiteSpace(DeviceGroupId);
+
     protected override void OnParametersSet()
     {
-        _deviceName = Device?.DeviceName ?? Device?.Alias;
-        _availableSources = ResolveSourcesForPlatform(Device?.Platform);
+        if (IsGroupMode)
+        {
+            _deviceName = string.IsNullOrWhiteSpace(DeviceGroupName)
+                ? "device group"
+                : $"group '{DeviceGroupName}'";
+            _availableSources = ResolveSourcesForPlatform(null);
+        }
+        else
+        {
+            _deviceName = Device?.DeviceName ?? Device?.Alias;
+            _availableSources = ResolveSourcesForPlatform(Device?.Platform);
+        }
         if (_selectedSource is null || !_availableSources.Contains(_selectedSource))
         {
             _selectedSource = _availableSources.FirstOrDefault();
@@ -118,7 +144,8 @@ public partial class InstallAppModal : ComponentBase, IDisposable
 
     private async Task RunSearch(string term, CancellationToken cancellationToken)
     {
-        if (Device is null)
+        var probeDeviceId = Device?.ID ?? GroupSearchProbeDeviceId;
+        if (string.IsNullOrWhiteSpace(probeDeviceId))
         {
             return;
         }
@@ -143,7 +170,7 @@ public partial class InstallAppModal : ComponentBase, IDisposable
                 $"{baseUri}/api/software-actions/search",
                 new Dictionary<string, string?>
                 {
-                    ["deviceId"] = Device.ID,
+                    ["deviceId"] = probeDeviceId,
                     ["q"] = term.Trim(),
                     ["max"] = "50",
                 });
@@ -174,7 +201,7 @@ public partial class InstallAppModal : ComponentBase, IDisposable
         }
         catch (Exception ex)
         {
-            Logger.LogWarning(ex, "Software search failed for {deviceId}.", Device.ID);
+            Logger.LogWarning(ex, "Software search failed for {deviceId}.", Device?.ID ?? DeviceGroupId);
             _errorMessage = "Search failed: " + ex.Message;
             _results = new List<SoftwarePackage>();
         }
@@ -188,7 +215,12 @@ public partial class InstallAppModal : ComponentBase, IDisposable
 
     private async Task Install(SoftwarePackage pkg)
     {
-        if (Device is null || _isInstalling)
+        if (_isInstalling)
+        {
+            return;
+        }
+
+        if (!IsGroupMode && Device is null)
         {
             return;
         }
@@ -206,8 +238,32 @@ public partial class InstallAppModal : ComponentBase, IDisposable
 
         try
         {
+            if (IsGroupMode)
+            {
+                var groupResult = await CircuitConnection.RequestSoftwareInstallForGroup(
+                    DeviceGroupId!,
+                    sourceEnum,
+                    pkg.Id,
+                    pkg.Name);
+
+                if (!groupResult.IsSuccess)
+                {
+                    ToastService.ShowToast2(groupResult.Reason, ToastType.Error);
+                    return;
+                }
+
+                ToastService.ShowToast(
+                    $"Install queued for {groupResult.Value} device(s). Output will appear under Script History.");
+                if (OnInstallQueued.HasDelegate)
+                {
+                    await OnInstallQueued.InvokeAsync(groupResult.Value);
+                }
+                await Close();
+                return;
+            }
+
             var result = await CircuitConnection.RequestSoftwareInstall(
-                Device.ID,
+                Device!.ID,
                 sourceEnum,
                 pkg.Id,
                 pkg.Name);

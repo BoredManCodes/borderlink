@@ -92,9 +92,16 @@ public static class AuditActions
     public const string InventoryRefresh             = "Inventory.Refresh";
 
     // Software actions
-    public const string SoftwareInstallRequested     = "Software.InstallRequested";
-    public const string SoftwareUninstallRequested   = "Software.UninstallRequested";
-    public const string SoftwareSearchPerformed      = "Software.SearchPerformed";
+    public const string SoftwareInstallRequested            = "Software.InstallRequested";
+    public const string SoftwareUninstallRequested          = "Software.UninstallRequested";
+    public const string SoftwareInstallRequestedForGroup    = "Software.InstallRequestedForGroup";
+    public const string SoftwareUninstallRequestedForGroup  = "Software.UninstallRequestedForGroup";
+    public const string SoftwareSearchPerformed             = "Software.SearchPerformed";
+
+    // Inventory schedules
+    public const string InventoryScheduleCreated     = "InventorySchedule.Created";
+    public const string InventoryScheduleUpdated     = "InventorySchedule.Updated";
+    public const string InventoryScheduleDeleted     = "InventorySchedule.Deleted";
 
     // Services & processes
     public const string ServicesViewed               = "Services.Viewed";

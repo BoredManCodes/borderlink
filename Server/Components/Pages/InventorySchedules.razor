@@ -1,0 +1,264 @@
+@page "/inventory-schedules"
+@attribute [Authorize(Policy = PolicyNames.OrganizationAdminRequired)]
+@inherits AuthComponentBase
+
+@using BorderLink.Server.Services
+@using BorderLink.Shared
+@using BorderLink.Shared.Entities
+
+@inject IInventoryRefreshScheduleService ScheduleService
+@inject IDataService DataService
+@inject IAuditLogService AuditService
+@inject IToastService ToastService
+@inject IJsInterop JsInterop
+
+<h3>Inventory Refresh Schedules</h3>
+<p class="text-muted">
+    Periodically refresh installed-software snapshots for devices in your
+    organization. Schedules run every 5 minutes and skip devices that are
+    offline at evaluation time.
+</p>
+
+@if (_isLoading)
+{
+    <h5>Loading...</h5>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="StartCreate">New Schedule</button>
+    </div>
+
+    @if (!_schedules.Any())
+    {
+        <p class="text-muted">No inventory refresh schedules defined yet.</p>
+    }
+    else
+    {
+        <table class="table table-dark table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Interval</th>
+                    <th>Group</th>
+                    <th>Tag filter</th>
+                    <th>Enabled</th>
+                    <th>Last Run</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in _schedules)
+                {
+                    <tr @key="s.Id">
+                        <td>@s.Name</td>
+                        <td>@s.IntervalHours h</td>
+                        <td>@(GroupName(s.DeviceGroupId) ?? "(any)")</td>
+                        <td>@(string.IsNullOrWhiteSpace(s.DeviceTagFilter) ? "-" : s.DeviceTagFilter)</td>
+                        <td>@(s.Enabled ? "yes" : "no")</td>
+                        <td>@(s.LastRunAt?.UtcDateTime.ToString("u") ?? "-")</td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary me-1" @onclick="() => StartEdit(s)">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => Delete(s)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (_editing is not null)
+    {
+        <hr />
+        <h4>@(_editingIsNew ? "New Schedule" : "Edit Schedule")</h4>
+
+        <div class="row g-2">
+            <div class="col-sm-6">
+                <label class="form-label small">Name</label>
+                <input class="form-control" @bind="_editing.Name" />
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Enabled</label>
+                <select class="form-select" @bind="_editing.Enabled">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Interval (hours)</label>
+                <input type="number" class="form-control" @bind="_editing.IntervalHours" min="1" />
+            </div>
+
+            <div class="col-sm-6">
+                <label class="form-label small">Device group</label>
+                <select class="form-select" @bind="_editing.DeviceGroupId">
+                    <option value="">(any)</option>
+                    @foreach (var g in _deviceGroups)
+                    {
+                        <option value="@g.ID">@g.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label small">Filter by tag substring</label>
+                <input class="form-control" @bind="_editing.DeviceTagFilter" placeholder="(optional)" />
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-primary me-2" @onclick="Save">Save</button>
+            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+        </div>
+    }
+}
+
+@code {
+    private bool _isLoading = true;
+    private List<InventoryRefreshSchedule> _schedules = new();
+    private List<DeviceGroup> _deviceGroups = new();
+    private InventoryRefreshSchedule? _editing;
+    private bool _editingIsNew;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        if (User is null || string.IsNullOrWhiteSpace(User.OrganizationID))
+        {
+            _isLoading = false;
+            return;
+        }
+
+        var schedules = await ScheduleService.ListAsync(User.OrganizationID);
+        _schedules = schedules.ToList();
+
+        if (User.UserName is not null)
+        {
+            _deviceGroups = DataService.GetDeviceGroups(User.UserName).ToList();
+        }
+        _isLoading = false;
+    }
+
+    private string? GroupName(string? id)
+    {
+        if (string.IsNullOrWhiteSpace(id)) return null;
+        return _deviceGroups.FirstOrDefault(g => g.ID == id)?.Name ?? id;
+    }
+
+    private void StartCreate()
+    {
+        EnsureUserSet();
+        _editing = new InventoryRefreshSchedule
+        {
+            OrganizationID = User.OrganizationID,
+            Name = string.Empty,
+            IntervalHours = 24,
+            Enabled = true,
+        };
+        _editingIsNew = true;
+    }
+
+    private void StartEdit(InventoryRefreshSchedule s)
+    {
+        _editing = new InventoryRefreshSchedule
+        {
+            Id = s.Id,
+            OrganizationID = s.OrganizationID,
+            Name = s.Name,
+            IntervalHours = s.IntervalHours,
+            DeviceGroupId = s.DeviceGroupId,
+            DeviceTagFilter = s.DeviceTagFilter,
+            Enabled = s.Enabled,
+            CreatedAt = s.CreatedAt,
+            LastRunAt = s.LastRunAt,
+        };
+        _editingIsNew = false;
+    }
+
+    private void CancelEdit() => _editing = null;
+
+    private async Task Save()
+    {
+        if (_editing is null)
+        {
+            return;
+        }
+        EnsureUserSet();
+
+        if (string.IsNullOrWhiteSpace(_editing.Name))
+        {
+            ToastService.ShowToast("Name is required.", classString: "bg-warning");
+            return;
+        }
+
+        // Force the org id back to the caller's org — never trust the form.
+        _editing.OrganizationID = User.OrganizationID;
+
+        if (_editingIsNew)
+        {
+            var created = await ScheduleService.CreateAsync(_editing);
+            await AuditService.LogAsync(
+                AuditActions.InventoryScheduleCreated,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "InventoryRefreshSchedule",
+                targetId: created.Id.ToString(),
+                targetName: created.Name);
+            ToastService.ShowToast("Inventory schedule created.");
+        }
+        else
+        {
+            var ok = await ScheduleService.UpdateAsync(_editing);
+            if (!ok)
+            {
+                ToastService.ShowToast("Could not update schedule.", classString: "bg-warning");
+                return;
+            }
+            await AuditService.LogAsync(
+                AuditActions.InventoryScheduleUpdated,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "InventoryRefreshSchedule",
+                targetId: _editing.Id.ToString(),
+                targetName: _editing.Name);
+            ToastService.ShowToast("Inventory schedule saved.");
+        }
+
+        _editing = null;
+        await Reload();
+    }
+
+    private async Task Delete(InventoryRefreshSchedule s)
+    {
+        EnsureUserSet();
+        var ok = await JsInterop.Confirm($"Delete inventory schedule '{s.Name}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        var deleted = await ScheduleService.DeleteAsync(User.OrganizationID, s.Id);
+        if (!deleted)
+        {
+            ToastService.ShowToast("Could not delete schedule.", classString: "bg-warning");
+            return;
+        }
+
+        await AuditService.LogAsync(
+            AuditActions.InventoryScheduleDeleted,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "InventoryRefreshSchedule",
+            targetId: s.Id.ToString(),
+            targetName: s.Name);
+        ToastService.ShowToast("Inventory schedule deleted.");
+        await Reload();
+    }
+}

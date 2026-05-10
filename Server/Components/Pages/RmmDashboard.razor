@@ -1,0 +1,313 @@
+@page "/rmm"
+@attribute [Authorize]
+@inherits AuthComponentBase
+
+@using BorderLink.Server.Data
+@using BorderLink.Shared
+@using BorderLink.Shared.Entities
+@using BorderLink.Shared.Enums
+@using Microsoft.EntityFrameworkCore
+
+@inject IAppDbFactory DbFactory
+
+<h3>RMM Dashboard</h3>
+<p class="text-muted">A live snapshot of devices, alerts, and recent activity scoped to your organization.</p>
+
+@if (_loading)
+{
+    <p>Loading...</p>
+}
+else if (string.IsNullOrWhiteSpace(User?.OrganizationID))
+{
+    <p class="text-muted">No organization context.</p>
+}
+else
+{
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Devices</h6>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="display-6 text-success">@_onlineDevices</div>
+                            <div class="small text-muted">online</div>
+                        </div>
+                        <div>
+                            <div class="display-6 text-secondary">@_offlineDevices</div>
+                            <div class="small text-muted">offline</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Pending reboots</h6>
+                    <div class="display-6">@_pendingRebootCount</div>
+                    <div class="small text-muted">device(s) with reboot-required patch in last 24h</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Stale inventory</h6>
+                    <div class="display-6">@_staleInventoryCount</div>
+                    <div class="small text-muted">device(s) with no snapshot in 7+ days</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Recent alerts</div>
+                <div class="card-body p-0">
+                    @if (_recentAlerts.Count == 0)
+                    {
+                        <p class="text-muted px-3 py-2 mb-0">No recent alerts.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>When (UTC)</th>
+                                    <th>Device</th>
+                                    <th>Message</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in _recentAlerts)
+                                {
+                                    <tr @key="a.ID">
+                                        <td class="font-monospace small">@a.CreatedOn.UtcDateTime.ToString("MM-dd HH:mm")</td>
+                                        <td>@(a.Device?.DeviceName ?? a.DeviceID)</td>
+                                        <td>@a.Message</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">Recent script &amp; software runs</div>
+                <div class="card-body p-0">
+                    @if (_recentRuns.Count == 0)
+                    {
+                        <p class="text-muted px-3 py-2 mb-0">No recent runs.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>When (UTC)</th>
+                                    <th>Kind</th>
+                                    <th>Initiator</th>
+                                    <th>Detail</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var r in _recentRuns)
+                                {
+                                    <tr @key="@($"{r.Kind}:{r.Id}")">
+                                        <td class="font-monospace small">@r.At.UtcDateTime.ToString("MM-dd HH:mm")</td>
+                                        <td>@r.Kind</td>
+                                        <td>@r.Initiator</td>
+                                        <td>@r.Detail</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-12">
+            <div class="card h-100">
+                <div class="card-header">Top devices by recent patch activity</div>
+                <div class="card-body p-0">
+                    @if (_topPatchDevices.Count == 0)
+                    {
+                        <p class="text-muted px-3 py-2 mb-0">
+                            No patch activity yet. Refresh the Patches tab on a device to populate this list.
+                        </p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Patch runs (last 7d)</th>
+                                    <th>Reboots required</th>
+                                    <th>Last activity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var t in _topPatchDevices)
+                                {
+                                    <tr @key="t.DeviceId">
+                                        <td>@t.DeviceName</td>
+                                        <td>@t.RunCount</td>
+                                        <td>@t.RebootCount</td>
+                                        <td class="font-monospace small">@t.LastActivity.UtcDateTime.ToString("u")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _loading = true;
+    private int _onlineDevices;
+    private int _offlineDevices;
+    private int _pendingRebootCount;
+    private int _staleInventoryCount;
+    private List<Alert> _recentAlerts = new();
+    private List<DashboardRun> _recentRuns = new();
+    private List<DashboardDeviceRow> _topPatchDevices = new();
+
+    private record DashboardRun(string Kind, int Id, DateTimeOffset At, string? Initiator, string Detail);
+    private record DashboardDeviceRow(string DeviceId, string DeviceName, int RunCount, int RebootCount, DateTimeOffset LastActivity);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (User is null || string.IsNullOrWhiteSpace(User.OrganizationID))
+        {
+            _loading = false;
+            return;
+        }
+
+        var orgId = User.OrganizationID;
+        var now = DateTimeOffset.UtcNow;
+        var weekAgo = now - TimeSpan.FromDays(7);
+        var oneDayAgo = now - TimeSpan.FromHours(24);
+
+        await using var db = DbFactory.GetContext();
+
+        _onlineDevices = await db.Devices
+            .Where(x => x.OrganizationID == orgId && x.IsOnline)
+            .CountAsync();
+        _offlineDevices = await db.Devices
+            .Where(x => x.OrganizationID == orgId && !x.IsOnline)
+            .CountAsync();
+
+        _pendingRebootCount = await db.PatchInstallRuns
+            .Where(x => x.OrganizationID == orgId &&
+                        x.RebootRequired &&
+                        x.CompletedAt != null &&
+                        x.CompletedAt > oneDayAgo)
+            .Select(x => x.DeviceID)
+            .Distinct()
+            .CountAsync();
+
+        // Inventory freshness: count devices in this org whose latest snapshot is older than 7 days
+        // (or has no snapshot at all).
+        var orgDeviceIds = await db.Devices
+            .Where(x => x.OrganizationID == orgId)
+            .Select(x => x.ID)
+            .ToArrayAsync();
+
+        var latestSnapshots = await db.DeviceInventorySnapshots
+            .Where(x => orgDeviceIds.Contains(x.DeviceID))
+            .GroupBy(x => x.DeviceID)
+            .Select(g => new { DeviceId = g.Key, Latest = g.Max(x => x.CapturedAt) })
+            .ToArrayAsync();
+
+        var freshById = latestSnapshots.ToDictionary(x => x.DeviceId, x => x.Latest);
+        _staleInventoryCount = orgDeviceIds.Count(id =>
+            !freshById.TryGetValue(id, out var captured) || captured < weekAgo);
+
+        _recentAlerts = await db.Alerts
+            .AsNoTracking()
+            .Include(x => x.Device)
+            .Where(x => x.OrganizationID == orgId)
+            .OrderByDescending(x => x.CreatedOn)
+            .Take(10)
+            .ToListAsync();
+
+        var recentScripts = await db.ScriptRuns
+            .AsNoTracking()
+            .Where(x => x.OrganizationID == orgId)
+            .OrderByDescending(x => x.RunAt)
+            .Take(10)
+            .Select(x => new { x.Id, x.RunAt, x.Initiator, x.SavedScriptId, x.InputType })
+            .ToArrayAsync();
+
+        var recentSoftware = await db.SoftwareActionRuns
+            .AsNoTracking()
+            .Where(x => x.OrganizationID == orgId)
+            .OrderByDescending(x => x.CreatedAt)
+            .Take(10)
+            .Select(x => new { x.Id, x.CreatedAt, x.Kind, x.Source, x.PackageName, x.PackageId, x.InitiatorId })
+            .ToArrayAsync();
+
+        _recentRuns = recentScripts
+            .Select(s => new DashboardRun(
+                "Script",
+                s.Id,
+                s.RunAt,
+                s.Initiator,
+                s.SavedScriptId is null ? s.InputType.ToString() : $"saved {s.SavedScriptId}"))
+            .Concat(recentSoftware.Select(sa => new DashboardRun(
+                "Software",
+                sa.Id,
+                sa.CreatedAt,
+                sa.InitiatorId,
+                $"{sa.Kind} {sa.PackageName ?? sa.PackageId} via {sa.Source}")))
+            .OrderByDescending(r => r.At)
+            .Take(10)
+            .ToList();
+
+        var topPatch = await db.PatchInstallRuns
+            .AsNoTracking()
+            .Where(x => x.OrganizationID == orgId && x.StartedAt > weekAgo)
+            .GroupBy(x => x.DeviceID)
+            .Select(g => new
+            {
+                DeviceId = g.Key,
+                RunCount = g.Count(),
+                RebootCount = g.Count(x => x.RebootRequired),
+                LastActivity = g.Max(x => x.StartedAt),
+            })
+            .OrderByDescending(x => x.RunCount)
+            .Take(5)
+            .ToArrayAsync();
+
+        if (topPatch.Length > 0)
+        {
+            var deviceIds = topPatch.Select(x => x.DeviceId).ToArray();
+            var nameMap = await db.Devices
+                .Where(x => deviceIds.Contains(x.ID))
+                .ToDictionaryAsync(x => x.ID, x => x.DeviceName ?? x.ID);
+
+            _topPatchDevices = topPatch
+                .Select(x => new DashboardDeviceRow(
+                    x.DeviceId,
+                    nameMap.TryGetValue(x.DeviceId, out var n) ? n : x.DeviceId,
+                    x.RunCount,
+                    x.RebootCount,
+                    x.LastActivity))
+                .ToList();
+        }
+
+        _loading = false;
+    }
+}

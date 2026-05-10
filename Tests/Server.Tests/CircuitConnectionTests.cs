@@ -1,19 +1,24 @@
 ﻿#nullable enable
 using BorderLink.Server.Services;
 using Bitbound.SimpleMessenger;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using BorderLink.Server.Data;
 using BorderLink.Server.Hubs;
 using BorderLink.Server.Services.Stores;
 using BorderLink.Server.Tests.Mocks;
 using BorderLink.Shared;
+using BorderLink.Shared.Constants;
 using BorderLink.Shared.Entities;
 using BorderLink.Shared.Enums;
 using BorderLink.Shared.Extensions;
 using BorderLink.Shared.Interfaces;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -715,5 +720,106 @@ public class CircuitConnectionTests
         _patchService.Verify(
             x => x.GetPendingUpdatesAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RequestSoftwareInstallForGroup_GivenUserIsUnauthorized_Fails()
+    {
+        // User is in Org1 — try to bulk install against an Org2 group.
+        _circuitConnection.User = _testData.Org1User1;
+
+        var result = await _circuitConnection.RequestSoftwareInstallForGroup(
+            _testData.Org2Group1.ID,
+            SoftwareActionSource.Winget,
+            "Some.Package",
+            "Some Package");
+
+        Assert.IsFalse(result.IsSuccess);
+        // No script runs should have been queued.
+        _agentHubContextFixture.SingleClientProxyMock.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task RequestSoftwareInstallForGroup_GivenAuthorizedGroupWithThreeDevices_ReturnsThreeAndAuditsOnce()
+    {
+        // Caller is Org1's admin so they implicitly have access to every group.
+        _circuitConnection.User = _testData.Org1Admin1;
+
+        // Seed the well-known software-action saved scripts.
+        var seeder = new SoftwareActionScriptSeeder(
+            IoCActivator.ServiceProvider.GetRequiredService<IServiceScopeFactory>(),
+            NullLogger<SoftwareActionScriptSeeder>.Instance);
+        await seeder.StartAsync(CancellationToken.None);
+
+        // Stand up three Org1 devices and put them all in Org1Group1.
+        var dbFactory = IoCActivator.ServiceProvider.GetRequiredService<IAppDbFactory>();
+
+        var device3 = new BorderLink.Shared.Dtos.DeviceClientDto
+        {
+            ID = "Org1DeviceBulk3",
+            DeviceName = "Org1DeviceBulk3Name",
+            OrganizationID = _testData.Org1Id,
+        };
+        var addResult3 = await _dataService.AddOrUpdateDevice(device3);
+        Assert.IsTrue(addResult3.IsSuccess);
+
+        var deviceIds = new[] { _testData.Org1Device1.ID, _testData.Org1Device2.ID, device3.ID };
+        foreach (var id in deviceIds)
+        {
+            var add = await _dataService.AddDeviceToGroup(id, _testData.Org1Group1.ID);
+            Assert.IsTrue(add.IsSuccess);
+        }
+
+        // Make every device "online" via the session cache mock.
+        var device1 = _testData.Org1Device1;
+        var device2 = _testData.Org1Device2;
+        var device3Entity = (await _dataService.AddOrUpdateDevice(device3)).Value!;
+        _agentSessionCache.Setup(x => x.TryGetByDeviceId(device1.ID, out device1!)).Returns(true);
+        _agentSessionCache.Setup(x => x.TryGetByDeviceId(device2.ID, out device2!)).Returns(true);
+        _agentSessionCache.Setup(x => x.TryGetByDeviceId(device3Entity.ID, out device3Entity!)).Returns(true);
+
+        var conn1 = "conn-1";
+        var conn2 = "conn-2";
+        var conn3 = "conn-3";
+        _agentSessionCache.Setup(x => x.TryGetConnectionId(device1.ID, out conn1!)).Returns(true);
+        _agentSessionCache.Setup(x => x.TryGetConnectionId(device2.ID, out conn2!)).Returns(true);
+        _agentSessionCache.Setup(x => x.TryGetConnectionId(device3Entity.ID, out conn3!)).Returns(true);
+
+        _expiringTokenService
+            .Setup(x => x.GetToken(It.IsAny<DateTimeOffset>()))
+            .Returns("test-token");
+
+        var result = await _circuitConnection.RequestSoftwareInstallForGroup(
+            _testData.Org1Group1.ID,
+            SoftwareActionSource.Winget,
+            "Some.Package",
+            "Some Package");
+
+        Assert.IsTrue(result.IsSuccess, $"Expected success but got: {result.Reason}");
+        Assert.AreEqual(3, result.Value);
+
+        // Audit log should fire once with target=group.
+        _auditLog.Verify(
+            x => x.LogAsync(
+                AuditActions.SoftwareInstallRequestedForGroup,
+                _testData.Org1Id,
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                "DeviceGroup",
+                _testData.Org1Group1.ID,
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<bool>(),
+                It.IsAny<string?>(),
+                It.IsAny<object?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        // Three ScriptRun + SoftwareActionRun rows should now exist for the org.
+        await using var db = dbFactory.GetContext();
+        var runs = await db.SoftwareActionRuns
+            .Where(x => x.OrganizationID == _testData.Org1Id && x.PackageId == "Some.Package")
+            .ToArrayAsync();
+        Assert.AreEqual(3, runs.Length);
     }
 }

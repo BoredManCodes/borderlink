@@ -350,6 +350,47 @@ namespace BorderLink.Server.Migrations.PostgreSql
                     b.ToTable("MetricHistory");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.InventoryRefreshSchedule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DeviceGroupId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("DeviceTagFilter")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("IntervalHours")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset?>("LastRunAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationID", "Enabled");
+
+                    b.ToTable("InventoryRefreshSchedules");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
                     b.Property<string>("ID")

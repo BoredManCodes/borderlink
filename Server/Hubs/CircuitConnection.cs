@@ -108,6 +108,26 @@ public interface ICircuitConnection
         string packageId,
         string? packageName);
 
+    /// <summary>
+    /// Queues a software install for every device in the given group that
+    /// the caller can access. Returns the count of devices targeted.
+    /// </summary>
+    Task<Result<int>> RequestSoftwareInstallForGroup(
+        string deviceGroupId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName);
+
+    /// <summary>
+    /// Queues a software uninstall for every device in the given group
+    /// that the caller can access. Returns the count of devices targeted.
+    /// </summary>
+    Task<Result<int>> RequestSoftwareUninstallForGroup(
+        string deviceGroupId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName);
+
     Task<Result<RemoteControlSession>> RemoteControl(string deviceID, bool viewOnly);
 
     Task RemoveDevices(string[] deviceIDs);
@@ -654,6 +674,181 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         string? packageName)
     {
         return QueueSoftwareAction(deviceId, source, SoftwareActionKind.Uninstall, packageId, packageName);
+    }
+
+    public Task<Result<int>> RequestSoftwareInstallForGroup(
+        string deviceGroupId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName)
+    {
+        return QueueSoftwareActionForGroup(deviceGroupId, source, SoftwareActionKind.Install, packageId, packageName);
+    }
+
+    public Task<Result<int>> RequestSoftwareUninstallForGroup(
+        string deviceGroupId,
+        SoftwareActionSource source,
+        string packageId,
+        string? packageName)
+    {
+        return QueueSoftwareActionForGroup(deviceGroupId, source, SoftwareActionKind.Uninstall, packageId, packageName);
+    }
+
+    private async Task<Result<int>> QueueSoftwareActionForGroup(
+        string deviceGroupId,
+        SoftwareActionSource source,
+        SoftwareActionKind kind,
+        string packageId,
+        string? packageName)
+    {
+        if (string.IsNullOrWhiteSpace(deviceGroupId))
+        {
+            return Result.Fail<int>("Device group ID is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(packageId))
+        {
+            return Result.Fail<int>("Package ID is required.");
+        }
+
+        var groupAuditAction = kind == SoftwareActionKind.Install
+            ? AuditActions.SoftwareInstallRequestedForGroup
+            : AuditActions.SoftwareUninstallRequestedForGroup;
+
+        var groupResult = await _dataService.GetDeviceGroup(deviceGroupId, includeDevices: true, includeUsers: true);
+        if (!groupResult.IsSuccess || groupResult.Value.OrganizationID != User.OrganizationID)
+        {
+            _logger.LogWarning(
+                "Bulk software {kind} attempted for inaccessible group. Group: {groupId}. User: {username}.",
+                kind, deviceGroupId, User?.UserName);
+            await _auditLog.LogAsync(
+                groupAuditAction,
+                User?.OrganizationID ?? string.Empty,
+                userName: User?.UserName,
+                userId: User?.Id,
+                targetType: "DeviceGroup",
+                targetId: deviceGroupId,
+                success: false,
+                resultMessage: "Unauthorized.",
+                details: new { source = source.ToString(), packageId, packageName });
+            return Result.Fail<int>("Unauthorized.");
+        }
+
+        var group = groupResult.Value;
+
+        // Admins implicitly have access; non-admins must be a member of the group.
+        if (!User.IsAdministrator && !group.Users.Any(u => u.Id == User.Id))
+        {
+            await _auditLog.LogAsync(
+                groupAuditAction,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "DeviceGroup",
+                targetId: deviceGroupId,
+                targetName: group.Name,
+                success: false,
+                resultMessage: "User lacks access to device group.",
+                details: new { source = source.ToString(), packageId, packageName });
+            return Result.Fail<int>("Unauthorized.");
+        }
+
+        var savedScriptId = SoftwareActionScriptIds.Resolve(source, kind);
+        if (savedScriptId is null)
+        {
+            return Result.Fail<int>("MSI install is not supported.");
+        }
+
+        var savedScriptResult = await _dataService.GetSavedScript(savedScriptId.Value);
+        if (!savedScriptResult.IsSuccess)
+        {
+            _logger.LogWarning(
+                "Software-action saved script {scriptId} not found; seeding may not have run yet.",
+                savedScriptId);
+            return Result.Fail<int>("Software action templates are not yet available; try again shortly.");
+        }
+
+        var savedScript = savedScriptResult.Value;
+        var initiatorLabel = $"{User.UserName} via Apps tab (group)";
+        var authToken = _expiringTokenService.GetToken(Time.Now.AddMinutes(AppConstants.ScriptRunExpirationMinutes));
+
+        var targetedDeviceIds = new List<string>();
+
+        foreach (var device in group.Devices)
+        {
+            if (device.OrganizationID != User.OrganizationID)
+            {
+                continue;
+            }
+
+            if (!_agentSessionCache.TryGetByDeviceId(device.ID, out _))
+            {
+                continue;
+            }
+
+            if (!_agentSessionCache.TryGetConnectionId(device.ID, out var connectionId) ||
+                string.IsNullOrWhiteSpace(connectionId))
+            {
+                continue;
+            }
+
+            var scriptRun = new ScriptRun
+            {
+                OrganizationID = User.OrganizationID,
+                RunAt = Time.Now,
+                SavedScriptId = savedScriptId.Value,
+                RunOnNextConnect = true,
+                Initiator = initiatorLabel,
+                InputType = ScriptInputType.OneTimeScript,
+                Devices = _dataService.GetDevices(new[] { device.ID }),
+            };
+
+            await _dataService.AddScriptRun(scriptRun);
+
+            var actionRun = new SoftwareActionRun
+            {
+                ScriptRunId = scriptRun.Id,
+                DeviceID = device.ID,
+                Kind = kind,
+                Source = source,
+                PackageId = packageId,
+                PackageName = packageName,
+                OrganizationID = User.OrganizationID,
+                InitiatorId = User.Id,
+                CreatedAt = DateTimeOffset.UtcNow,
+            };
+
+            await _dataService.AddSoftwareActionRun(actionRun);
+
+            await _agentHubContext.Clients.Client(connectionId).RunScript(
+                savedScriptId.Value,
+                scriptRun.Id,
+                initiatorLabel,
+                ScriptInputType.OneTimeScript,
+                authToken);
+
+            targetedDeviceIds.Add(device.ID);
+        }
+
+        await _auditLog.LogAsync(
+            groupAuditAction,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "DeviceGroup",
+            targetId: deviceGroupId,
+            targetName: group.Name,
+            details: new
+            {
+                source = source.ToString(),
+                packageId,
+                packageName,
+                shell = savedScript.Shell.ToString(),
+                deviceCount = targetedDeviceIds.Count,
+                deviceIds = targetedDeviceIds,
+            });
+
+        return Result.Ok(targetedDeviceIds.Count);
     }
 
     private async Task<Result<int>> QueueSoftwareAction(
