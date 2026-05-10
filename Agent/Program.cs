@@ -109,6 +109,9 @@ public class Program
             services.AddSingleton<IInstalledAppEnumerator, InstalledAppEnumeratorWin>();
             services.AddSingleton<IPackageSearcher, PackageSearcherWin>();
             services.AddSingleton<IElevationDetector, ElevationDetectorWin>();
+            services.AddSingleton<IServiceEnumerator, ServiceEnumeratorWin>();
+            services.AddSingleton<IServiceController, ServiceControllerWin>();
+            services.AddSingleton<IProcessEnumerator, ProcessEnumeratorWin>();
         }
         else if (OperatingSystem.IsLinux())
         {
@@ -118,6 +121,9 @@ public class Program
             services.AddSingleton<IInstalledAppEnumerator, InstalledAppEnumeratorLinux>();
             services.AddSingleton<IPackageSearcher, PackageSearcherLinux>();
             services.AddSingleton<IElevationDetector, ElevationDetectorLinux>();
+            services.AddSingleton<IServiceEnumerator, ServiceEnumeratorLinux>();
+            services.AddSingleton<IServiceController, ServiceControllerLinux>();
+            services.AddSingleton<IProcessEnumerator, ProcessEnumeratorLinux>();
         }
         else if (OperatingSystem.IsMacOS())
         {
@@ -127,6 +133,9 @@ public class Program
             services.AddSingleton<IInstalledAppEnumerator, InstalledAppEnumeratorMac>();
             services.AddSingleton<IPackageSearcher, PackageSearcherMac>();
             services.AddSingleton<IElevationDetector, ElevationDetectorMac>();
+            services.AddSingleton<IServiceEnumerator, ServiceEnumeratorMac>();
+            services.AddSingleton<IServiceController, ServiceControllerMac>();
+            services.AddSingleton<IProcessEnumerator, ProcessEnumeratorMac>();
         }
         else
         {

@@ -95,4 +95,11 @@ public static class AuditActions
     public const string SoftwareInstallRequested     = "Software.InstallRequested";
     public const string SoftwareUninstallRequested   = "Software.UninstallRequested";
     public const string SoftwareSearchPerformed      = "Software.SearchPerformed";
+
+    // Services & processes
+    public const string ServicesViewed               = "Services.Viewed";
+    public const string ServiceStart                 = "Service.Start";
+    public const string ServiceStop                  = "Service.Stop";
+    public const string ServiceRestart               = "Service.Restart";
+    public const string ProcessKill                  = "Process.Kill";
 }

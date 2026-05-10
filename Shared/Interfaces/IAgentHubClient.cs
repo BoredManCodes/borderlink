@@ -49,6 +49,29 @@ public interface IAgentHubClient
     /// </summary>
     Task<SoftwarePackage[]> SearchAvailablePackages(string query, int max);
 
+    /// <summary>
+    /// Returns a snapshot of services / daemons on the device. Empty array
+    /// when the per-OS enumerator can't query its source.
+    /// </summary>
+    Task<ServiceInfo[]> GetServices();
+
+    /// <summary>
+    /// Start, stop or restart a service on the device. <paramref name="action"/>
+    /// must be one of "start", "stop", "restart"; anything else fails closed.
+    /// </summary>
+    Task<bool> ControlService(string name, string action);
+
+    /// <summary>
+    /// Returns a snapshot of running processes on the device.
+    /// </summary>
+    Task<ProcessInfo[]> GetProcesses();
+
+    /// <summary>
+    /// Terminate the process with the given PID. Returns <c>true</c> if the
+    /// process is no longer running afterwards.
+    /// </summary>
+    Task<bool> KillProcess(int pid);
+
     Task GetLogs(string senderConnectionId);
 
     Task GetPowerShellCompletions(

@@ -40,6 +40,28 @@ public interface ICircuitConnection
     Task<Result<DeviceInventorySnapshot>> RefreshDeviceInventory(string deviceId);
 
     /// <summary>
+    /// Returns a fresh service list from the agent. Empty array when access
+    /// is denied or the device is unreachable.
+    /// </summary>
+    Task<ServiceInfo[]> GetDeviceServices(string deviceId);
+
+    /// <summary>
+    /// Asks the agent to start, stop or restart the named service. Returns
+    /// <c>true</c> only on confirmed success.
+    /// </summary>
+    Task<bool> ControlDeviceService(string deviceId, string serviceName, string action);
+
+    /// <summary>
+    /// Returns a snapshot of running processes from the agent.
+    /// </summary>
+    Task<ProcessInfo[]> GetDeviceProcesses(string deviceId);
+
+    /// <summary>
+    /// Asks the agent to terminate the given PID.
+    /// </summary>
+    Task<bool> KillDeviceProcess(string deviceId, int pid);
+
+    /// <summary>
     /// Queues a software install for <paramref name="deviceId"/> using the
     /// specified package manager. Returns the created <c>ScriptRun.Id</c>
     /// on success so the UI can correlate to the resulting Script History
@@ -97,6 +119,8 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     private readonly IHubContext<AgentHub, IAgentHubClient> _agentHubContext;
     private readonly IDataService _dataService;
     private readonly IInventoryService _inventoryService;
+    private readonly IServicesService _servicesService;
+    private readonly IProcessesService _processesService;
     private readonly ISelectedCardsStore _cardStore;
     private readonly IAuthService _authService;
     private readonly IAuditLogService _auditLog;
@@ -113,6 +137,8 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         IAuthService authService,
         IDataService dataService,
         IInventoryService inventoryService,
+        IServicesService servicesService,
+        IProcessesService processesService,
         ISelectedCardsStore cardStore,
         IHubContext<AgentHub, IAgentHubClient> agentHubContext,
         ICircuitManager circuitManager,
@@ -126,6 +152,8 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
     {
         _dataService = dataService;
         _inventoryService = inventoryService;
+        _servicesService = servicesService;
+        _processesService = processesService;
         _agentHubContext = agentHubContext;
         _cardStore = cardStore;
         _authService = authService;
@@ -322,6 +350,163 @@ public class CircuitConnection : CircuitHandler, ICircuitConnection
         }
 
         return await _inventoryService.RefreshSnapshot(deviceId);
+    }
+
+    public async Task<ServiceInfo[]> GetDeviceServices(string deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Array.Empty<ServiceInfo>();
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Services view attempted by unauthorized user. Device: {deviceId}. User: {username}.",
+                deviceId,
+                User?.UserName);
+            return Array.Empty<ServiceInfo>();
+        }
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.ServicesViewed,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId);
+        }
+
+        return await _servicesService.GetServicesAsync(deviceId);
+    }
+
+    public async Task<bool> ControlDeviceService(string deviceId, string serviceName, string action)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId) || string.IsNullOrWhiteSpace(serviceName))
+        {
+            return false;
+        }
+
+        var normalizedAction = (action ?? string.Empty).Trim().ToLowerInvariant();
+        var auditAction = normalizedAction switch
+        {
+            "start" => AuditActions.ServiceStart,
+            "stop" => AuditActions.ServiceStop,
+            "restart" => AuditActions.ServiceRestart,
+            _ => null,
+        };
+
+        if (auditAction is null)
+        {
+            return false;
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Service {action} attempted by unauthorized user. Device: {deviceId}. Service: {service}. User: {username}.",
+                normalizedAction, deviceId, serviceName, User?.UserName);
+
+            if (User is not null)
+            {
+                await _auditLog.LogAsync(
+                    auditAction,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "Device",
+                    targetId: deviceId,
+                    success: false,
+                    resultMessage: "User lacks access to device.",
+                    details: new { service = serviceName });
+            }
+            return false;
+        }
+
+        var success = await _servicesService.ControlServiceAsync(deviceId, serviceName, normalizedAction);
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                auditAction,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId,
+                success: success,
+                details: new { service = serviceName });
+        }
+
+        return success;
+    }
+
+    public async Task<ProcessInfo[]> GetDeviceProcesses(string deviceId)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId))
+        {
+            return Array.Empty<ProcessInfo>();
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Process list attempted by unauthorized user. Device: {deviceId}. User: {username}.",
+                deviceId,
+                User?.UserName);
+            return Array.Empty<ProcessInfo>();
+        }
+
+        return await _processesService.GetProcessesAsync(deviceId);
+    }
+
+    public async Task<bool> KillDeviceProcess(string deviceId, int pid)
+    {
+        if (string.IsNullOrWhiteSpace(deviceId) || pid <= 0)
+        {
+            return false;
+        }
+
+        if (!_dataService.DoesUserHaveAccessToDevice(deviceId, User))
+        {
+            _logger.LogWarning(
+                "Process kill attempted by unauthorized user. Device: {deviceId}. PID: {pid}. User: {username}.",
+                deviceId, pid, User?.UserName);
+
+            if (User is not null)
+            {
+                await _auditLog.LogAsync(
+                    AuditActions.ProcessKill,
+                    User.OrganizationID,
+                    userName: User.UserName,
+                    userId: User.Id,
+                    targetType: "Device",
+                    targetId: deviceId,
+                    success: false,
+                    resultMessage: "User lacks access to device.",
+                    details: new { pid });
+            }
+            return false;
+        }
+
+        var success = await _processesService.KillProcessAsync(deviceId, pid);
+
+        if (User is not null)
+        {
+            await _auditLog.LogAsync(
+                AuditActions.ProcessKill,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "Device",
+                targetId: deviceId,
+                success: success,
+                details: new { pid });
+        }
+
+        return success;
     }
 
     public Task<Result<int>> RequestSoftwareInstall(

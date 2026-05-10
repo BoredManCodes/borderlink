@@ -30,6 +30,8 @@ public class CircuitConnectionTests
     private Mock<IMessenger> _messenger;
     private Mock<IAgentHubSessionCache> _agentSessionCache;
     private Mock<IInventoryService> _inventoryService;
+    private Mock<IServicesService> _servicesService;
+    private Mock<IProcessesService> _processesService;
     private Mock<IAuditLogService> _auditLog;
     private Mock<ILogger<CircuitConnection>> _logger;
     private CircuitConnection _circuitConnection;
@@ -52,6 +54,8 @@ public class CircuitConnectionTests
         _messenger = new Mock<IMessenger>();
         _agentSessionCache = new Mock<IAgentHubSessionCache>();
         _inventoryService = new Mock<IInventoryService>();
+        _servicesService = new Mock<IServicesService>();
+        _processesService = new Mock<IProcessesService>();
         _auditLog = new Mock<IAuditLogService>();
         _logger = new Mock<ILogger<CircuitConnection>>();
 
@@ -59,6 +63,8 @@ public class CircuitConnectionTests
             _authService.Object,
             _dataService,
             _inventoryService.Object,
+            _servicesService.Object,
+            _processesService.Object,
             _clientAppState.Object,
             _agentHubContextFixture.HubContextMock.Object,
             _circuitManager.Object,
@@ -69,6 +75,137 @@ public class CircuitConnectionTests
             _messenger.Object,
             _auditLog.Object,
             _logger.Object);
+    }
+
+    [TestMethod]
+    public async Task ControlDeviceService_GivenUserIsUnauthorized_Fails()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        // Device exists in another org so the test user has no access.
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org2Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+
+        var success = await _circuitConnection.ControlDeviceService(
+            _testData.Org2Device1.ID,
+            "Spooler",
+            "start");
+
+        Assert.IsFalse(success);
+        _servicesService.Verify(
+            x => x.ControlServiceAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ControlDeviceService_GivenInvalidAction_Fails()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var addToGroupResult = _dataService.AddUserToDeviceGroup(
+            _testData.Org1Id,
+            _testData.Org1Group1.ID,
+            $"{_testData.Org1User1.UserName}",
+            out _);
+        Assert.IsTrue(addToGroupResult);
+
+        _testData.Org1Device1.DeviceGroupID = _testData.Org1Group1.ID;
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org1Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+        var addGroupResult = await _dataService.AddDeviceToGroup(_testData.Org1Device1.ID, _testData.Org1Group1.ID);
+        Assert.IsTrue(addGroupResult.IsSuccess);
+
+        var success = await _circuitConnection.ControlDeviceService(
+            _testData.Org1Device1.ID,
+            "Spooler",
+            "delete");
+
+        Assert.IsFalse(success);
+        _servicesService.Verify(
+            x => x.ControlServiceAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<System.Threading.CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow("start")]
+    [DataRow("stop")]
+    [DataRow("restart")]
+    public async Task ControlDeviceService_GivenAuthorizedAndValidAction_DelegatesToService(string action)
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var addToGroupResult = _dataService.AddUserToDeviceGroup(
+            _testData.Org1Id,
+            _testData.Org1Group1.ID,
+            $"{_testData.Org1User1.UserName}",
+            out _);
+        Assert.IsTrue(addToGroupResult);
+
+        _testData.Org1Device1.DeviceGroupID = _testData.Org1Group1.ID;
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org1Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+        var addGroupResult = await _dataService.AddDeviceToGroup(_testData.Org1Device1.ID, _testData.Org1Group1.ID);
+        Assert.IsTrue(addGroupResult.IsSuccess);
+
+        _servicesService
+            .Setup(x => x.ControlServiceAsync(_testData.Org1Device1.ID, "Spooler", action, It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var success = await _circuitConnection.ControlDeviceService(
+            _testData.Org1Device1.ID,
+            "Spooler",
+            action);
+
+        Assert.IsTrue(success);
+        _servicesService.Verify(
+            x => x.ControlServiceAsync(_testData.Org1Device1.ID, "Spooler", action, It.IsAny<System.Threading.CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task KillDeviceProcess_GivenUserIsUnauthorized_Fails()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org2Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+
+        var success = await _circuitConnection.KillDeviceProcess(_testData.Org2Device1.ID, 1234);
+
+        Assert.IsFalse(success);
+        _processesService.Verify(
+            x => x.KillProcessAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<System.Threading.CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task KillDeviceProcess_GivenAuthorized_DelegatesToService()
+    {
+        _circuitConnection.User = _testData.Org1User1;
+
+        var addToGroupResult = _dataService.AddUserToDeviceGroup(
+            _testData.Org1Id,
+            _testData.Org1Group1.ID,
+            $"{_testData.Org1User1.UserName}",
+            out _);
+        Assert.IsTrue(addToGroupResult);
+
+        _testData.Org1Device1.DeviceGroupID = _testData.Org1Group1.ID;
+        var updateResult = await _dataService.AddOrUpdateDevice(_testData.Org1Device1.ToDto());
+        Assert.IsTrue(updateResult.IsSuccess);
+        var addGroupResult = await _dataService.AddDeviceToGroup(_testData.Org1Device1.ID, _testData.Org1Group1.ID);
+        Assert.IsTrue(addGroupResult.IsSuccess);
+
+        _processesService
+            .Setup(x => x.KillProcessAsync(_testData.Org1Device1.ID, 4242, It.IsAny<System.Threading.CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var success = await _circuitConnection.KillDeviceProcess(_testData.Org1Device1.ID, 4242);
+
+        Assert.IsTrue(success);
+        _processesService.Verify(
+            x => x.KillProcessAsync(_testData.Org1Device1.ID, 4242, It.IsAny<System.Threading.CancellationToken>()),
+            Times.Once);
     }
 
     [TestMethod]

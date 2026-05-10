@@ -43,8 +43,11 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
     private readonly IInstalledAppEnumerator _installedAppEnumerator;
     private readonly ILogger<AgentHubConnection> _logger;
     private readonly IPackageSearcher _packageSearcher;
+    private readonly IProcessEnumerator _processEnumerator;
     private readonly IScriptExecutor _scriptExecutor;
     private readonly IScriptingShellFactory _scriptingShellFactory;
+    private readonly IServiceController _serviceController;
+    private readonly IServiceEnumerator _serviceEnumerator;
     private readonly IUninstaller _uninstaller;
     private readonly IUpdater _updater;
     private readonly IWakeOnLanService _wakeOnLanService;
@@ -64,6 +67,9 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         IHttpClientFactory httpFactory,
         IInstalledAppEnumerator installedAppEnumerator,
         IPackageSearcher packageSearcher,
+        IServiceEnumerator serviceEnumerator,
+        IServiceController serviceController,
+        IProcessEnumerator processEnumerator,
         IWakeOnLanService wakeOnLanService,
         IFileLogsManager fileLogsManager,
         IHostApplicationLifetime appLifetime,
@@ -80,6 +86,9 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         _httpFactory = httpFactory;
         _installedAppEnumerator = installedAppEnumerator;
         _packageSearcher = packageSearcher;
+        _serviceEnumerator = serviceEnumerator;
+        _serviceController = serviceController;
+        _processEnumerator = processEnumerator;
         _wakeOnLanService = wakeOnLanService;
         _logger = logger;
         _fileLogsManager = fileLogsManager;
@@ -308,6 +317,78 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
         {
             _logger.LogError(ex, "Error while searching for available packages.");
             return Array.Empty<SoftwarePackage>();
+        }
+    }
+
+    public async Task<ServiceInfo[]> GetServices()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+            return await _serviceEnumerator.GetServicesAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while enumerating services.");
+            return Array.Empty<ServiceInfo>();
+        }
+    }
+
+    public async Task<bool> ControlService(string name, string action)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(action))
+            {
+                return false;
+            }
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+            return action.Trim().ToLowerInvariant() switch
+            {
+                "start" => await _serviceController.StartAsync(name, cts.Token),
+                "stop" => await _serviceController.StopAsync(name, cts.Token),
+                "restart" => await _serviceController.RestartAsync(name, cts.Token),
+                _ => false,
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while controlling service {name} ({action}).", name, action);
+            return false;
+        }
+    }
+
+    public async Task<ProcessInfo[]> GetProcesses()
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+            return await _processEnumerator.GetProcessesAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while enumerating processes.");
+            return Array.Empty<ProcessInfo>();
+        }
+    }
+
+    public async Task<bool> KillProcess(int pid)
+    {
+        try
+        {
+            if (pid <= 0)
+            {
+                return false;
+            }
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            return await _processEnumerator.KillAsync(pid, cts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error while killing PID {pid}.", pid);
+            return false;
         }
     }
 
@@ -668,6 +749,16 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
 
         _hubConnection.On(nameof(SearchAvailablePackages),
             (Func<string, int, Task<SoftwarePackage[]>>)SearchAvailablePackages);
+
+        _hubConnection.On(nameof(GetServices), GetServices);
+
+        _hubConnection.On(nameof(ControlService),
+            (Func<string, string, Task<bool>>)ControlService);
+
+        _hubConnection.On(nameof(GetProcesses), GetProcesses);
+
+        _hubConnection.On(nameof(KillProcess),
+            (Func<int, Task<bool>>)KillProcess);
 
         _hubConnection.On<string>(nameof(GetLogs), GetLogs);
 

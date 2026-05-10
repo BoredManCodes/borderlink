@@ -6,6 +6,7 @@ using BorderLink.Server.Models.Messages;
 using BorderLink.Server.Services;
 using BorderLink.Shared;
 using BorderLink.Shared.Entities;
+using BorderLink.Shared.Enums;
 using BorderLink.Shared.Utilities;
 using System.Collections.Concurrent;
 using System.Text.Json;
@@ -34,6 +35,22 @@ public partial class DeviceDetails : AuthComponentBase
     private bool _isInstallModalOpen;
     private readonly HashSet<string> _pendingUninstallKeys = new(StringComparer.Ordinal);
 
+    private ServiceInfo[]? _services;
+    private bool _isServicesRefreshing;
+    private string? _servicesError;
+    private string? _servicesSearchTerm;
+    private ServiceSortKey _servicesSortKey = ServiceSortKey.Name;
+    private bool _servicesSortDescending;
+    private readonly HashSet<string> _pendingServiceKeys = new(StringComparer.Ordinal);
+
+    private ProcessInfo[]? _processes;
+    private bool _isProcessesRefreshing;
+    private string? _processesError;
+    private string? _processesSearchTerm;
+    private ProcessSortKey _processesSortKey = ProcessSortKey.Name;
+    private bool _processesSortDescending;
+    private readonly HashSet<int> _pendingKillPids = new();
+
     private enum InstalledAppSortKey
     {
         Name,
@@ -41,6 +58,24 @@ public partial class DeviceDetails : AuthComponentBase
         Publisher,
         InstallDate,
         Source,
+    }
+
+    private enum ServiceSortKey
+    {
+        Name,
+        DisplayName,
+        Status,
+        StartType,
+        ProcessId,
+    }
+
+    private enum ProcessSortKey
+    {
+        Pid,
+        Name,
+        UserName,
+        WorkingSet,
+        Cpu,
     }
 
     [Parameter]
@@ -585,5 +620,285 @@ public partial class DeviceDetails : AuthComponentBase
         }
 
         ModalService.ShowModal("Script Input/Output", outputModal);
+    }
+
+    private void LoadServices()
+    {
+        if (_services is null && _device is not null && _device.IsOnline)
+        {
+            _ = RefreshServices();
+        }
+    }
+
+    private async Task RefreshServices()
+    {
+        if (_device is null || _isServicesRefreshing)
+        {
+            return;
+        }
+
+        _isServicesRefreshing = true;
+        _servicesError = null;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            _services = await CircuitConnection.GetDeviceServices(_device.ID);
+            if (_services.Length == 0)
+            {
+                _servicesError = "No services were returned. The device may be offline or unable to enumerate.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _servicesError = ex.Message;
+            ToastService.ShowToast2("Failed to load services.", Enums.ToastType.Error);
+        }
+        finally
+        {
+            _isServicesRefreshing = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void SortServices(ServiceSortKey key)
+    {
+        if (_servicesSortKey == key)
+        {
+            _servicesSortDescending = !_servicesSortDescending;
+        }
+        else
+        {
+            _servicesSortKey = key;
+            _servicesSortDescending = false;
+        }
+    }
+
+    private string ServiceSortIndicator(ServiceSortKey key)
+    {
+        if (_servicesSortKey != key)
+        {
+            return string.Empty;
+        }
+        return _servicesSortDescending ? "▼" : "▲";
+    }
+
+    private static string ServiceStatusBadge(ServiceStatus status) => status switch
+    {
+        ServiceStatus.Running => "bg-success",
+        ServiceStatus.Stopped => "bg-secondary",
+        ServiceStatus.Paused => "bg-warning text-dark",
+        ServiceStatus.Starting => "bg-info text-dark",
+        ServiceStatus.Stopping => "bg-info text-dark",
+        _ => "bg-light text-dark",
+    };
+
+    private IEnumerable<ServiceInfo> GetFilteredSortedServices()
+    {
+        if (_services is null)
+        {
+            return Array.Empty<ServiceInfo>();
+        }
+
+        IEnumerable<ServiceInfo> query = _services;
+
+        if (!string.IsNullOrWhiteSpace(_servicesSearchTerm))
+        {
+            var term = _servicesSearchTerm.Trim();
+            query = query.Where(x =>
+                (x.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.DisplayName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        query = _servicesSortKey switch
+        {
+            ServiceSortKey.DisplayName => query.OrderBy(x => x.DisplayName ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+            ServiceSortKey.Status => query.OrderBy(x => x.Status),
+            ServiceSortKey.StartType => query.OrderBy(x => x.StartType),
+            ServiceSortKey.ProcessId => query.OrderBy(x => x.ProcessId ?? int.MaxValue),
+            _ => query.OrderBy(x => x.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+        };
+
+        if (_servicesSortDescending)
+        {
+            query = query.Reverse();
+        }
+
+        return query;
+    }
+
+    private async Task OnServiceActionClicked(ServiceInfo service, string action)
+    {
+        if (_device is null || string.IsNullOrWhiteSpace(service.Name))
+        {
+            return;
+        }
+
+        if (action is "stop" or "restart")
+        {
+            var verb = action == "stop" ? "Stop" : "Restart";
+            var confirmed = await JsInterop.Confirm(
+                $"{verb} \"{service.DisplayName ?? service.Name}\" on {_device.DeviceName}?");
+            if (!confirmed)
+            {
+                return;
+            }
+        }
+
+        _pendingServiceKeys.Add(service.Name);
+        try
+        {
+            var success = await CircuitConnection.ControlDeviceService(_device.ID, service.Name, action);
+            if (!success)
+            {
+                ToastService.ShowToast2(
+                    $"Failed to {action} service.",
+                    Enums.ToastType.Error);
+                return;
+            }
+
+            ToastService.ShowToast($"Service {action} sent.");
+            await RefreshServices();
+        }
+        finally
+        {
+            _pendingServiceKeys.Remove(service.Name);
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void LoadProcesses()
+    {
+        if (_processes is null && _device is not null && _device.IsOnline)
+        {
+            _ = RefreshProcesses();
+        }
+    }
+
+    private async Task RefreshProcesses()
+    {
+        if (_device is null || _isProcessesRefreshing)
+        {
+            return;
+        }
+
+        _isProcessesRefreshing = true;
+        _processesError = null;
+        await InvokeAsync(StateHasChanged);
+
+        try
+        {
+            _processes = await CircuitConnection.GetDeviceProcesses(_device.ID);
+            if (_processes.Length == 0)
+            {
+                _processesError = "No processes were returned. The device may be offline or unable to enumerate.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _processesError = ex.Message;
+            ToastService.ShowToast2("Failed to load processes.", Enums.ToastType.Error);
+        }
+        finally
+        {
+            _isProcessesRefreshing = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private void SortProcesses(ProcessSortKey key)
+    {
+        if (_processesSortKey == key)
+        {
+            _processesSortDescending = !_processesSortDescending;
+        }
+        else
+        {
+            _processesSortKey = key;
+            _processesSortDescending = false;
+        }
+    }
+
+    private string ProcessSortIndicator(ProcessSortKey key)
+    {
+        if (_processesSortKey != key)
+        {
+            return string.Empty;
+        }
+        return _processesSortDescending ? "▼" : "▲";
+    }
+
+    private IEnumerable<ProcessInfo> GetFilteredSortedProcesses()
+    {
+        if (_processes is null)
+        {
+            return Array.Empty<ProcessInfo>();
+        }
+
+        IEnumerable<ProcessInfo> query = _processes;
+
+        if (!string.IsNullOrWhiteSpace(_processesSearchTerm))
+        {
+            var term = _processesSearchTerm.Trim();
+            query = query.Where(x =>
+                (x.Name?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (x.UserName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+        query = _processesSortKey switch
+        {
+            ProcessSortKey.Pid => query.OrderBy(x => x.Pid),
+            ProcessSortKey.UserName => query.OrderBy(x => x.UserName ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+            ProcessSortKey.WorkingSet => query.OrderBy(x => x.WorkingSetBytes),
+            ProcessSortKey.Cpu => query.OrderBy(x => x.CpuPercent ?? -1),
+            _ => query.OrderBy(x => x.Name ?? string.Empty, StringComparer.OrdinalIgnoreCase),
+        };
+
+        if (_processesSortDescending)
+        {
+            query = query.Reverse();
+        }
+
+        return query;
+    }
+
+    private static string FormatMb(long bytes)
+    {
+        var mb = bytes / 1024d / 1024d;
+        return mb.ToString("0.0");
+    }
+
+    private async Task OnKillProcessClicked(ProcessInfo proc)
+    {
+        if (_device is null || proc.Pid <= 0)
+        {
+            return;
+        }
+
+        var confirmed = await JsInterop.Confirm(
+            $"Kill {proc.Name} (PID {proc.Pid}) on {_device.DeviceName}?");
+        if (!confirmed)
+        {
+            return;
+        }
+
+        _pendingKillPids.Add(proc.Pid);
+        try
+        {
+            var success = await CircuitConnection.KillDeviceProcess(_device.ID, proc.Pid);
+            if (!success)
+            {
+                ToastService.ShowToast2("Failed to kill process.", Enums.ToastType.Error);
+                return;
+            }
+
+            ToastService.ShowToast("Kill signal sent.");
+            await RefreshProcesses();
+        }
+        finally
+        {
+            _pendingKillPids.Remove(proc.Pid);
+            await InvokeAsync(StateHasChanged);
+        }
     }
 }

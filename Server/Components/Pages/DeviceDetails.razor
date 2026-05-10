@@ -57,6 +57,12 @@ else
             <TabHeader Name="apps" OnActivated="LoadInstalledApps" NavigationUri="@($"/device-details/{DeviceId}/apps")">
                 Apps
             </TabHeader>
+            <TabHeader Name="services" OnActivated="LoadServices" NavigationUri="@($"/device-details/{DeviceId}/services")">
+                Services
+            </TabHeader>
+            <TabHeader Name="processes" OnActivated="LoadProcesses" NavigationUri="@($"/device-details/{DeviceId}/processes")">
+                Processes
+            </TabHeader>
         </TabHeaders>
 
         <TabContents>
@@ -435,6 +441,278 @@ else
                                  Device="_device"
                                  OnClose="CloseInstallSoftwareModal"
                                  OnInstallQueued="OnInstallQueued" />
+
+            </TabContent>
+
+            <TabContent Name="services">
+
+                <div class="mb-3 mt-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h3 class="mb-0">
+                        Services
+                        @if (_services is not null)
+                        {
+                            <span class="text-muted ms-2" style="font-size: 1rem;">
+                                (@_services.Length)
+                            </span>
+                        }
+                    </h3>
+                    <div class="text-end">
+                        <button class="btn btn-primary btn-sm"
+                                disabled="@(_isServicesRefreshing || !_device.IsOnline)"
+                                @onclick="RefreshServices">
+                            @if (_isServicesRefreshing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Refreshing...</span>
+                            }
+                            else
+                            {
+                                <i class="oi oi-reload me-1" aria-hidden="true"></i>
+                                <span>Refresh</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_servicesError))
+                {
+                    <AlertBanner Message="@_servicesError" />
+                }
+
+                @if (_services is null && !_isServicesRefreshing)
+                {
+                    <div class="text-muted">
+                        Click <strong>Refresh</strong> to load the service list from the agent.
+                    </div>
+                }
+                else if (_services is not null)
+                {
+                    <div class="mb-2">
+                        <input type="search"
+                               class="form-control"
+                               placeholder="Filter by name or display name..."
+                               @bind-value="_servicesSearchTerm"
+                               @bind-value:event="oninput" />
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th @onclick="@(() => SortServices(ServiceSortKey.Name))" style="cursor: pointer;">
+                                    Name @ServiceSortIndicator(ServiceSortKey.Name)
+                                </th>
+                                <th @onclick="@(() => SortServices(ServiceSortKey.DisplayName))" style="cursor: pointer;">
+                                    Display Name @ServiceSortIndicator(ServiceSortKey.DisplayName)
+                                </th>
+                                <th @onclick="@(() => SortServices(ServiceSortKey.Status))" style="cursor: pointer;">
+                                    Status @ServiceSortIndicator(ServiceSortKey.Status)
+                                </th>
+                                <th @onclick="@(() => SortServices(ServiceSortKey.StartType))" style="cursor: pointer;">
+                                    Start Type @ServiceSortIndicator(ServiceSortKey.StartType)
+                                </th>
+                                <th @onclick="@(() => SortServices(ServiceSortKey.ProcessId))" style="cursor: pointer;">
+                                    PID @ServiceSortIndicator(ServiceSortKey.ProcessId)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var serviceRows = GetFilteredSortedServices();
+                            }
+                            @if (!serviceRows.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        @if (string.IsNullOrWhiteSpace(_servicesSearchTerm))
+                                        {
+                                            <span>No services were reported.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>No matches for "@_servicesSearchTerm".</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var svc in serviceRows)
+                                {
+                                    <tr @key="svc.Name">
+                                        <td>@svc.Name</td>
+                                        <td>@(svc.DisplayName ?? "-")</td>
+                                        <td><span class="badge @ServiceStatusBadge(svc.Status)">@svc.Status</span></td>
+                                        <td>@svc.StartType</td>
+                                        <td>@(svc.ProcessId?.ToString() ?? "-")</td>
+                                        <td class="text-end">
+                                            @{
+                                                var pendingKey = svc.Name;
+                                                var isPending = _pendingServiceKeys.Contains(pendingKey);
+                                                var canStart = svc.Status == ServiceStatus.Stopped;
+                                                var canStop = svc.Status == ServiceStatus.Running && svc.CanStop;
+                                                var canRestart = svc.Status == ServiceStatus.Running;
+                                            }
+                                            @if (isPending)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                            }
+                                            <button class="btn btn-sm btn-outline-success me-1"
+                                                    disabled="@(!_device.IsOnline || !canStart || isPending)"
+                                                    title="Start"
+                                                    @onclick="@(() => OnServiceActionClicked(svc, "start"))">
+                                                <i class="oi oi-media-play" aria-hidden="true"></i>
+                                                <span class="ms-1">Start</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-danger me-1"
+                                                    disabled="@(!_device.IsOnline || !canStop || isPending)"
+                                                    title="Stop"
+                                                    @onclick="@(() => OnServiceActionClicked(svc, "stop"))">
+                                                <i class="oi oi-media-stop" aria-hidden="true"></i>
+                                                <span class="ms-1">Stop</span>
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                    disabled="@(!_device.IsOnline || !canRestart || isPending)"
+                                                    title="Restart"
+                                                    @onclick="@(() => OnServiceActionClicked(svc, "restart"))">
+                                                <i class="oi oi-reload" aria-hidden="true"></i>
+                                                <span class="ms-1">Restart</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </TabContent>
+
+            <TabContent Name="processes">
+
+                <div class="mb-3 mt-3 d-flex flex-wrap align-items-center justify-content-between">
+                    <h3 class="mb-0">
+                        Processes
+                        @if (_processes is not null)
+                        {
+                            <span class="text-muted ms-2" style="font-size: 1rem;">
+                                (@_processes.Length)
+                            </span>
+                        }
+                    </h3>
+                    <div class="text-end">
+                        <button class="btn btn-primary btn-sm"
+                                disabled="@(_isProcessesRefreshing || !_device.IsOnline)"
+                                @onclick="RefreshProcesses">
+                            @if (_isProcessesRefreshing)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                <span>Refreshing...</span>
+                            }
+                            else
+                            {
+                                <i class="oi oi-reload me-1" aria-hidden="true"></i>
+                                <span>Refresh</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(_processesError))
+                {
+                    <AlertBanner Message="@_processesError" />
+                }
+
+                @if (_processes is null && !_isProcessesRefreshing)
+                {
+                    <div class="text-muted">
+                        Click <strong>Refresh</strong> to load the process list from the agent.
+                    </div>
+                }
+                else if (_processes is not null)
+                {
+                    <div class="mb-2">
+                        <input type="search"
+                               class="form-control"
+                               placeholder="Filter by name or user..."
+                               @bind-value="_processesSearchTerm"
+                               @bind-value:event="oninput" />
+                    </div>
+
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th @onclick="@(() => SortProcesses(ProcessSortKey.Pid))" style="cursor: pointer;">
+                                    PID @ProcessSortIndicator(ProcessSortKey.Pid)
+                                </th>
+                                <th @onclick="@(() => SortProcesses(ProcessSortKey.Name))" style="cursor: pointer;">
+                                    Name @ProcessSortIndicator(ProcessSortKey.Name)
+                                </th>
+                                <th @onclick="@(() => SortProcesses(ProcessSortKey.UserName))" style="cursor: pointer;">
+                                    User @ProcessSortIndicator(ProcessSortKey.UserName)
+                                </th>
+                                <th @onclick="@(() => SortProcesses(ProcessSortKey.WorkingSet))" style="cursor: pointer;">
+                                    Memory (MB) @ProcessSortIndicator(ProcessSortKey.WorkingSet)
+                                </th>
+                                <th @onclick="@(() => SortProcesses(ProcessSortKey.Cpu))" style="cursor: pointer;">
+                                    CPU % @ProcessSortIndicator(ProcessSortKey.Cpu)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var processRows = GetFilteredSortedProcesses();
+                            }
+                            @if (!processRows.Any())
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">
+                                        @if (string.IsNullOrWhiteSpace(_processesSearchTerm))
+                                        {
+                                            <span>No processes were reported.</span>
+                                        }
+                                        else
+                                        {
+                                            <span>No matches for "@_processesSearchTerm".</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var proc in processRows)
+                                {
+                                    <tr @key="proc.Pid">
+                                        <td>@proc.Pid</td>
+                                        <td>@proc.Name</td>
+                                        <td>@(proc.UserName ?? "-")</td>
+                                        <td>@FormatMb(proc.WorkingSetBytes)</td>
+                                        <td>@(proc.CpuPercent.HasValue ? proc.CpuPercent.Value.ToString("0.0") : "-")</td>
+                                        <td class="text-end">
+                                            @{
+                                                var killPending = _pendingKillPids.Contains(proc.Pid);
+                                            }
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    disabled="@(!_device.IsOnline || killPending)"
+                                                    @onclick="@(() => OnKillProcessClicked(proc))">
+                                                @if (killPending)
+                                                {
+                                                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                                }
+                                                else
+                                                {
+                                                    <i class="oi oi-trash me-1" aria-hidden="true"></i>
+                                                }
+                                                <span>Kill</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
 
             </TabContent>
         </TabContents>
