@@ -312,6 +312,42 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.ToTable("DeviceInventorySnapshots");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceMetricHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CapturedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("CpuPercent")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("UsedMemoryPercent")
+                        .HasColumnType("REAL");
+
+                    b.Property<double>("UsedStoragePercent")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceID", "CapturedAt");
+
+                    b.HasIndex("OrganizationID", "CapturedAt");
+
+                    b.ToTable("MetricHistory");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
                     b.Property<string>("ID")
@@ -354,6 +390,101 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.HasKey("Key");
 
                     b.ToTable("KeyValueRecords");
+                });
+
+            modelBuilder.Entity("BorderLink.Shared.Entities.MonitorRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Channel")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ChannelTarget")
+                        .HasMaxLength(500)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("CooldownMinutes")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("CreatedAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceFilterTag")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceGroupId")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DurationSeconds")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("LastFiredAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Metric")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Operator")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("Threshold")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganizationID", "Enabled");
+
+                    b.ToTable("MonitorRules");
+                });
+
+            modelBuilder.Entity("BorderLink.Shared.Entities.MonitorRuleFiring", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FiredAt")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("MonitorRuleId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OrganizationID")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("ValueAtFire")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceID");
+
+                    b.HasIndex("MonitorRuleId", "DeviceID", "FiredAt");
+
+                    b.ToTable("MonitorRuleFirings");
                 });
 
             modelBuilder.Entity("BorderLink.Shared.Entities.Organization", b =>
@@ -1063,6 +1194,17 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("BorderLink.Shared.Entities.DeviceMetricHistory", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+                });
+
             modelBuilder.Entity("BorderLink.Shared.Entities.InviteLink", b =>
                 {
                     b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
@@ -1072,6 +1214,36 @@ namespace BorderLink.Server.Migrations.Sqlite
                         .IsRequired();
 
                     b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BorderLink.Shared.Entities.MonitorRule", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Organization", "Organization")
+                        .WithMany("MonitorRules")
+                        .HasForeignKey("OrganizationID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Organization");
+                });
+
+            modelBuilder.Entity("BorderLink.Shared.Entities.MonitorRuleFiring", b =>
+                {
+                    b.HasOne("BorderLink.Shared.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceID")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("BorderLink.Shared.Entities.MonitorRule", "MonitorRule")
+                        .WithMany()
+                        .HasForeignKey("MonitorRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Device");
+
+                    b.Navigation("MonitorRule");
                 });
 
             modelBuilder.Entity("BorderLink.Shared.Entities.SavedScript", b =>
@@ -1357,6 +1529,8 @@ namespace BorderLink.Server.Migrations.Sqlite
                     b.Navigation("Devices");
 
                     b.Navigation("InviteLinks");
+
+                    b.Navigation("MonitorRules");
 
                     b.Navigation("SavedScripts");
 

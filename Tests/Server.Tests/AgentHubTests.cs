@@ -38,6 +38,8 @@ public class AgentHubTests
         settings.BannedDevices = [_testData.Org1Device1.DeviceName!];
         await _dataService.SaveSettings(settings);
 
+        var metricHistoryService = new Mock<IMetricHistoryService>();
+
         var hub = new AgentHub(
             _dataService,
             serviceSessionCache.Object,
@@ -45,6 +47,7 @@ public class AgentHubTests
             circuitManager.Object,
             expiringTokenService.Object,
             inventoryService.Object,
+            metricHistoryService.Object,
             remoteControlSessions.Object,
             messenger.Object,
             logger.Object);
@@ -83,6 +86,8 @@ public class AgentHubTests
         settings.BannedDevices = [$"{_testData.Org1Device1.ID}"];
         await _dataService.SaveSettings(settings);
 
+        var metricHistoryService = new Mock<IMetricHistoryService>();
+
         var hub = new AgentHub(
             _dataService,
             serviceSessionCache.Object,
@@ -90,6 +95,7 @@ public class AgentHubTests
             circuitManager.Object,
             expiringTokenService.Object,
             inventoryService.Object,
+            metricHistoryService.Object,
             remoteControlSessions.Object,
             messenger.Object,
             logger.Object);

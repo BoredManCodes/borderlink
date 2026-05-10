@@ -102,4 +102,10 @@ public static class AuditActions
     public const string ServiceStop                  = "Service.Stop";
     public const string ServiceRestart               = "Service.Restart";
     public const string ProcessKill                  = "Process.Kill";
+
+    // Monitoring
+    public const string MonitorRuleCreated           = "MonitorRule.Created";
+    public const string MonitorRuleUpdated           = "MonitorRule.Updated";
+    public const string MonitorRuleDeleted           = "MonitorRule.Deleted";
+    public const string MonitorAlertFired            = "MonitorRule.Fired";
 }

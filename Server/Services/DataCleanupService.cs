@@ -47,11 +47,22 @@ public class DataCleanupService : BackgroundService, IDisposable
         {
             await RemoveExpiredDbRecords();
             await RemoveExpiredRecordings();
+            await PruneMetricHistory();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error during data cleanup.");
         }
+    }
+
+    private async Task PruneMetricHistory()
+    {
+        // Telemetry is high-volume (every 30s per agent) so we prune it
+        // independently of the user-tunable retention window — 7 days is
+        // plenty for retroactive monitor-rule debugging.
+        using var scope = _scopeFactory.CreateScope();
+        var metricHistoryService = scope.ServiceProvider.GetRequiredService<IMetricHistoryService>();
+        await metricHistoryService.PruneOlderThanAsync(TimeSpan.FromDays(7), CancellationToken.None);
     }
 
     private async Task RemoveExpiredDbRecords()

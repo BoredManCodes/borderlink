@@ -33,9 +33,12 @@ public class AppDb : IdentityDbContext
     public DbSet<BrandingInfo> BrandingInfos { get; set; }
     public DbSet<DeviceGroup> DeviceGroups { get; set; }
     public DbSet<DeviceInventorySnapshot> DeviceInventorySnapshots { get; set; }
+    public DbSet<DeviceMetricHistory> MetricHistory { get; set; }
     public DbSet<Device> Devices { get; set; }
     public DbSet<InviteLink> InviteLinks { get; set; }
     public DbSet<KeyValueRecord> KeyValueRecords { get; set; }
+    public DbSet<MonitorRule> MonitorRules { get; set; }
+    public DbSet<MonitorRuleFiring> MonitorRuleFirings { get; set; }
     public DbSet<Organization> Organizations { get; set; }
     public DbSet<SavedScript> SavedScripts { get; set; }
     public DbSet<ScriptResult> ScriptResults { get; set; }
@@ -232,6 +235,42 @@ public class AppDb : IdentityDbContext
                 x => JsonSerializer.Serialize(x, jsonOptions),
                 x => TryDeserializeProperty<List<InstalledApp>>(x, jsonOptions))
             .Metadata.SetValueComparer(new ValueComparer<List<InstalledApp>>(true));
+
+        builder.Entity<DeviceMetricHistory>()
+            .HasOne(x => x.Device)
+            .WithMany()
+            .HasForeignKey(x => x.DeviceID)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<DeviceMetricHistory>()
+            .HasIndex(x => new { x.DeviceID, x.CapturedAt });
+
+        builder.Entity<DeviceMetricHistory>()
+            .HasIndex(x => new { x.OrganizationID, x.CapturedAt });
+
+        builder.Entity<MonitorRule>()
+            .HasOne(x => x.Organization)
+            .WithMany(x => x.MonitorRules)
+            .HasForeignKey(x => x.OrganizationID)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.Entity<MonitorRule>()
+            .HasIndex(x => new { x.OrganizationID, x.Enabled });
+
+        builder.Entity<MonitorRuleFiring>()
+            .HasOne(x => x.MonitorRule)
+            .WithMany()
+            .HasForeignKey(x => x.MonitorRuleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<MonitorRuleFiring>()
+            .HasOne(x => x.Device)
+            .WithMany()
+            .HasForeignKey(x => x.DeviceID)
+            .OnDelete(DeleteBehavior.ClientCascade);
+
+        builder.Entity<MonitorRuleFiring>()
+            .HasIndex(x => new { x.MonitorRuleId, x.DeviceID, x.FiredAt });
 
         builder.Entity<DeviceGroup>()
             .HasMany(x => x.Devices)

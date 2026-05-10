@@ -13,6 +13,8 @@ public class Organization
 
     public ICollection<SoftwareActionRun> SoftwareActionRuns { get; set; } = [];
 
+    public ICollection<MonitorRule> MonitorRules { get; set; } = [];
+
     public BrandingInfo? BrandingInfo { get; set; }
     public string? BrandingInfoId { get; set; }
 

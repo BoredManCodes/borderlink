@@ -29,6 +29,12 @@ public interface IAgentHubConnection : IAgentHubClient
 
     Task Connect();
     Task SendHeartbeat();
+
+    /// <summary>
+    /// Push a rolling telemetry sample to the server. Silently no-ops when
+    /// the hub isn't connected — the next reporter tick will pick up.
+    /// </summary>
+    Task ReportMetricSample(DeviceMetricSample sample, CancellationToken cancellationToken = default);
 }
 
 public class AgentHubConnection : IAgentHubConnection, IDisposable
@@ -634,6 +640,24 @@ public class AgentHubConnection : IAgentHubConnection, IDisposable
     }
 
     public Task TriggerHeartbeat() => SendHeartbeat();
+
+    public async Task ReportMetricSample(DeviceMetricSample sample, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (_hubConnection is null || _hubConnection.State != HubConnectionState.Connected)
+            {
+                return;
+            }
+            await _hubConnection
+                .SendAsync("ReportMetricSample", sample, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Error while reporting metric sample.");
+        }
+    }
 
     public Task UninstallAgent()
     {

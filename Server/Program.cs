@@ -260,6 +260,12 @@ services.AddSingleton<IAgentHubSessionCache, AgentHubSessionCache>();
 services.AddSingleton<IInventoryService, InventoryService>();
 services.AddSingleton<IServicesService, ServicesService>();
 services.AddSingleton<IProcessesService, ProcessesService>();
+services.AddScoped<IMetricHistoryService, MetricHistoryService>();
+services.AddScoped<IMonitorRuleService, MonitorRuleService>();
+services.AddScoped<EmailMonitorNotifier>();
+services.AddScoped<WebhookMonitorNotifier>();
+services.AddScoped<IMonitorNotifier, MonitorNotifierDispatcher>();
+services.AddHostedService<MonitorEvaluator>();
 services.AddHostedService<RemoteControlSessionCleaner>();
 services.AddHostedService<RemoteControlSessionReconnector>();
 

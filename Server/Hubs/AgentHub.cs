@@ -19,6 +19,7 @@ public class AgentHub : Hub<IAgentHubClient>
     private readonly ICircuitManager _circuitManager;
     private readonly IExpiringTokenService _expiringTokenService;
     private readonly IInventoryService _inventoryService;
+    private readonly IMetricHistoryService _metricHistoryService;
     private readonly ILogger<AgentHub> _logger;
     private readonly IMessenger _messenger;
     private readonly IRemoteControlSessionCache _remoteControlSessions;
@@ -32,6 +33,7 @@ public class AgentHub : Hub<IAgentHubClient>
         ICircuitManager circuitManager,
         IExpiringTokenService expiringTokenService,
         IInventoryService inventoryService,
+        IMetricHistoryService metricHistoryService,
         IRemoteControlSessionCache remoteControlSessionCache,
         IMessenger messenger,
         ILogger<AgentHub> logger)
@@ -42,6 +44,7 @@ public class AgentHub : Hub<IAgentHubClient>
         _circuitManager = circuitManager;
         _expiringTokenService = expiringTokenService;
         _inventoryService = inventoryService;
+        _metricHistoryService = metricHistoryService;
         _remoteControlSessions = remoteControlSessionCache;
         _messenger = messenger;
         _logger = logger;
@@ -333,6 +336,25 @@ public class AgentHub : Hub<IAgentHubClient>
     {
         var message = new PowerShellCompletionsMessage(completion, intent);
         return _messenger.Send(message, senderConnectionId);
+    }
+
+    public async Task ReportMetricSample(DeviceMetricSample sample)
+    {
+        try
+        {
+            if (Device is null || sample is null)
+            {
+                return;
+            }
+
+            // Trust the device-on-context, not the agent's claim of who it is.
+            // A misconfigured / hostile agent could otherwise overwrite peers.
+            await _metricHistoryService.RecordSampleAsync(Device.ID, sample, Context.ConnectionAborted);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Error while recording metric sample for device {deviceId}.", Device?.ID);
+        }
     }
 
     public async Task ScriptResult(string scriptResultId)

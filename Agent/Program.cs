@@ -90,6 +90,7 @@ public class Program
         services.AddSingleton<ICpuUtilizationSampler, CpuUtilizationSampler>();
         services.AddSingleton<IWakeOnLanService, WakeOnLanService>();
         services.AddHostedService(services => services.GetRequiredService<ICpuUtilizationSampler>());
+        services.AddHostedService<MetricsReporter>();
         services.AddSingleton<IChatClientService, ChatClientService>();
         services.AddTransient<IPsCoreShell, PsCoreShell>();
         services.AddTransient<IExternalScriptingShell, ExternalScriptingShell>();

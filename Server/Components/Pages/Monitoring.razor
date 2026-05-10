@@ -1,0 +1,321 @@
+@page "/monitoring"
+@attribute [Authorize(Policy = PolicyNames.OrganizationAdminRequired)]
+@inherits AuthComponentBase
+
+@using BorderLink.Server.Services
+@using BorderLink.Shared
+@using BorderLink.Shared.Entities
+@using BorderLink.Shared.Enums
+
+@inject IMonitorRuleService MonitorRuleService
+@inject IDataService DataService
+@inject IAuditLogService AuditService
+@inject IToastService ToastService
+@inject IJsInterop JsInterop
+
+<h3>Monitoring</h3>
+<p class="text-muted">
+    Define monitor rules that watch device telemetry and notify you when a metric
+    crosses a threshold. Rules are scoped to your organization.
+</p>
+
+@if (_isLoading)
+{
+    <h5>Loading...</h5>
+}
+else
+{
+    <div class="mb-3">
+        <button class="btn btn-primary" @onclick="StartCreate">New Rule</button>
+    </div>
+
+    @if (!_rules.Any())
+    {
+        <p class="text-muted">No monitor rules defined yet.</p>
+    }
+    else
+    {
+        <table class="table table-dark table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Metric</th>
+                    <th>Condition</th>
+                    <th>Window</th>
+                    <th>Channel</th>
+                    <th>Enabled</th>
+                    <th>Last Fired</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var rule in _rules)
+                {
+                    <tr @key="rule.Id">
+                        <td>@rule.Name</td>
+                        <td>@rule.Metric</td>
+                        <td>@rule.Operator @rule.Threshold</td>
+                        <td>@rule.DurationSeconds s</td>
+                        <td>@rule.Channel</td>
+                        <td>@(rule.Enabled ? "yes" : "no")</td>
+                        <td>@(rule.LastFiredAt?.UtcDateTime.ToString("u") ?? "-")</td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary me-1" @onclick="() => StartEdit(rule)">Edit</button>
+                            <button class="btn btn-sm btn-danger" @onclick="() => Delete(rule)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    @if (_editing is not null)
+    {
+        <hr />
+        <h4>@(_editingIsNew ? "New Rule" : "Edit Rule")</h4>
+
+        <div class="row g-2">
+            <div class="col-sm-6">
+                <label class="form-label small">Name</label>
+                <input class="form-control" @bind="_editing.Name" />
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Enabled</label>
+                <select class="form-select" @bind="_editing.Enabled">
+                    <option value="true">Enabled</option>
+                    <option value="false">Disabled</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Cooldown (minutes)</label>
+                <input type="number" class="form-control" @bind="_editing.CooldownMinutes" min="0" />
+            </div>
+
+            <div class="col-sm-3">
+                <label class="form-label small">Metric</label>
+                <select class="form-select" @bind="_editing.Metric">
+                    @foreach (var m in Enum.GetValues<MonitorMetric>())
+                    {
+                        <option value="@m">@m</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Operator</label>
+                <select class="form-select" @bind="_editing.Operator">
+                    @foreach (var o in Enum.GetValues<MonitorOperator>())
+                    {
+                        <option value="@o">@o</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Threshold</label>
+                <input type="number" class="form-control" @bind="_editing.Threshold" step="0.01" />
+            </div>
+            <div class="col-sm-3">
+                <label class="form-label small">Duration (seconds)</label>
+                <input type="number" class="form-control" @bind="_editing.DurationSeconds" min="0" />
+            </div>
+
+            <div class="col-sm-6">
+                <label class="form-label small">Filter by tag substring</label>
+                <input class="form-control" @bind="_editing.DeviceFilterTag" placeholder="(optional)" />
+            </div>
+            <div class="col-sm-6">
+                <label class="form-label small">Device group</label>
+                <select class="form-select" @bind="_editing.DeviceGroupId">
+                    <option value="">(any)</option>
+                    @foreach (var g in _deviceGroups)
+                    {
+                        <option value="@g.ID">@g.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-sm-3">
+                <label class="form-label small">Channel</label>
+                <select class="form-select" @bind="_editing.Channel">
+                    @foreach (var c in Enum.GetValues<MonitorChannel>())
+                    {
+                        <option value="@c">@c</option>
+                    }
+                </select>
+            </div>
+            <div class="col-sm-9">
+                <label class="form-label small">Channel target (email address or webhook URL)</label>
+                <input class="form-control" @bind="_editing.ChannelTarget" />
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-primary me-2" @onclick="Save">Save</button>
+            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+        </div>
+    }
+}
+
+@code {
+    private bool _isLoading = true;
+    private List<MonitorRule> _rules = new();
+    private List<DeviceGroup> _deviceGroups = new();
+    private MonitorRule? _editing;
+    private bool _editingIsNew;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await Reload();
+    }
+
+    private async Task Reload()
+    {
+        if (User is null || string.IsNullOrWhiteSpace(User.OrganizationID))
+        {
+            _isLoading = false;
+            return;
+        }
+
+        var rules = await MonitorRuleService.ListAsync(User.OrganizationID);
+        _rules = rules.ToList();
+
+        if (User.UserName is not null)
+        {
+            _deviceGroups = DataService.GetDeviceGroups(User.UserName).ToList();
+        }
+        _isLoading = false;
+    }
+
+    private void StartCreate()
+    {
+        EnsureUserSet();
+        _editing = new MonitorRule
+        {
+            OrganizationID = User.OrganizationID,
+            Name = string.Empty,
+            Metric = MonitorMetric.CpuPercent,
+            Operator = MonitorOperator.GreaterThan,
+            Threshold = 90,
+            DurationSeconds = 600,
+            Channel = MonitorChannel.Email,
+            Enabled = true,
+            CooldownMinutes = 30,
+        };
+        _editingIsNew = true;
+    }
+
+    private void StartEdit(MonitorRule rule)
+    {
+        _editing = new MonitorRule
+        {
+            Id = rule.Id,
+            OrganizationID = rule.OrganizationID,
+            Name = rule.Name,
+            Metric = rule.Metric,
+            Operator = rule.Operator,
+            Threshold = rule.Threshold,
+            DurationSeconds = rule.DurationSeconds,
+            DeviceFilterTag = rule.DeviceFilterTag,
+            DeviceGroupId = rule.DeviceGroupId,
+            Channel = rule.Channel,
+            ChannelTarget = rule.ChannelTarget,
+            Enabled = rule.Enabled,
+            CooldownMinutes = rule.CooldownMinutes,
+            CreatedAt = rule.CreatedAt,
+            LastFiredAt = rule.LastFiredAt,
+        };
+        _editingIsNew = false;
+    }
+
+    private void CancelEdit()
+    {
+        _editing = null;
+    }
+
+    private async Task Save()
+    {
+        if (_editing is null)
+        {
+            return;
+        }
+        EnsureUserSet();
+
+        if (string.IsNullOrWhiteSpace(_editing.Name))
+        {
+            ToastService.ShowToast("Name is required.", classString: "bg-warning");
+            return;
+        }
+
+        // Force the org id back to the caller's org — never trust the form.
+        _editing.OrganizationID = User.OrganizationID;
+
+        // Empty-string -> null on the optional FK; binding gives us "".
+        if (string.IsNullOrWhiteSpace(_editing.DeviceGroupId))
+        {
+            _editing.DeviceGroupId = null;
+        }
+
+        if (_editingIsNew)
+        {
+            var created = await MonitorRuleService.CreateAsync(_editing);
+            await AuditService.LogAsync(
+                AuditActions.MonitorRuleCreated,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "MonitorRule",
+                targetId: created.Id.ToString(),
+                targetName: created.Name);
+            ToastService.ShowToast("Monitor rule created.");
+        }
+        else
+        {
+            var ok = await MonitorRuleService.UpdateAsync(_editing);
+            if (!ok)
+            {
+                ToastService.ShowToast("Could not update rule.", classString: "bg-warning");
+                return;
+            }
+            await AuditService.LogAsync(
+                AuditActions.MonitorRuleUpdated,
+                User.OrganizationID,
+                userName: User.UserName,
+                userId: User.Id,
+                targetType: "MonitorRule",
+                targetId: _editing.Id.ToString(),
+                targetName: _editing.Name);
+            ToastService.ShowToast("Monitor rule saved.");
+        }
+
+        _editing = null;
+        await Reload();
+    }
+
+    private async Task Delete(MonitorRule rule)
+    {
+        EnsureUserSet();
+        var ok = await JsInterop.Confirm($"Delete monitor rule '{rule.Name}'?");
+        if (!ok)
+        {
+            return;
+        }
+
+        var deleted = await MonitorRuleService.DeleteAsync(User.OrganizationID, rule.Id);
+        if (!deleted)
+        {
+            ToastService.ShowToast("Could not delete rule.", classString: "bg-warning");
+            return;
+        }
+
+        await AuditService.LogAsync(
+            AuditActions.MonitorRuleDeleted,
+            User.OrganizationID,
+            userName: User.UserName,
+            userId: User.Id,
+            targetType: "MonitorRule",
+            targetId: rule.Id.ToString(),
+            targetName: rule.Name);
+        ToastService.ShowToast("Monitor rule deleted.");
+        await Reload();
+    }
+}
